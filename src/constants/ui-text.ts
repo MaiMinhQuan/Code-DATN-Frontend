@@ -81,4 +81,26 @@ export const UI_TEXT = {
     PLACEHOLDER_COMING_SOON:
       "Các module đang được phát triển — Giai đoạn 2 & 3 sắp ra mắt.",
   },
+
+  // ─── Practice ────────────────────────────────────────────
+  PRACTICE: {
+    BTN_SAVE_DRAFT: "Lưu nháp",
+    BTN_SUBMIT: "Nộp bài",
+    BTN_SUBMITTING: "Đang nộp...",
+    LABEL_WORD_COUNT: (count: number) => `${count} từ`,
+    WORD_COUNT_MIN: 250,
+    WORD_COUNT_HINT: "Tối thiểu 250 từ",
+    DRAFT_SAVED: "Đã lưu nháp",
+    TOPIC_LABEL: "Chủ đề",
+    TARGET_BAND_LABEL: "Mục tiêu",
+    TASK_INSTRUCTION: "Hướng dẫn làm bài",
+    GRADING_IDLE: "Viết bài và nhấn Nộp bài để AI chấm điểm",
+    GRADING_WAITING: "Đang chờ hàng đợi...",
+    GRADING_PROCESSING: "AI đang chấm bài...",
+    GRADING_COMPLETED: "Chấm bài hoàn tất!",
+    GRADING_FAILED: "Có lỗi xảy ra khi chấm bài",
+    GRADING_LABEL_OVERALL: "Band dự kiến",
+    PLACEHOLDER_ESSAY: "Bắt đầu viết bài của bạn tại đây...",
+  },
+
 } as const;

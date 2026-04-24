@@ -26,12 +26,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const data = await res.json();
 
           // Điều chỉnh theo response thực tế của backend nếu cần
-          if (data?.access_token) {
+          if (data?.accessToken) {
             return {
               id: data.user?._id ?? "",
               email: data.user?.email ?? "",
               name: data.user?.fullName ?? "",
-              accessToken: data.access_token,
+              accessToken: data.accessToken,
               role: data.user?.role ?? "STUDENT",
             };
           }
