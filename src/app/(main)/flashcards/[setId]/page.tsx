@@ -1,3 +1,3 @@
-export default function FlashcardsPage() {
+export default function FlashcardSetPage() {
   return <div />;
 }
