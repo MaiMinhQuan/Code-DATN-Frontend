@@ -103,4 +103,56 @@ export const UI_TEXT = {
     PLACEHOLDER_ESSAY: "Bắt đầu viết bài của bạn tại đây...",
   },
 
+  // ─── Error Categories (dùng chung ErrorTooltip + BandScorePanel) ─────────
+  ERROR_CATEGORY: {
+    GRAMMAR:       "Grammar",
+    SPELLING:      "Spelling",
+    VOCABULARY:    "Vocabulary",
+    COHERENCE:     "Coherence",
+    TASK_RESPONSE: "Task Response",
+    PUNCTUATION:   "Punctuation",
+  },
+
+  // ─── Result Page ─────────────────────────────────────────────────────────
+  RESULT: {
+    // Page states
+    LOADING:         "Đang tải kết quả...",
+    PROCESSING:      "Bài đang được xử lý, vui lòng chờ...",
+    ERROR_LOAD:      "Không thể tải kết quả. Vui lòng thử lại.",
+    ERROR_FAILED:    "Chấm bài thất bại. Vui lòng nộp lại.",
+
+    // Navigation
+    BTN_BACK:        "Quay lại",
+    BTN_NEW_PRACTICE: "Làm bài mới",
+
+    // Panel headers
+    PANEL_ESSAY:     "Bài viết của bạn",
+    PANEL_RESULT:    "Kết quả chấm bài",
+
+    // Strategy toggle
+    STRATEGY_LABEL:  "Highlight:",
+
+    // BandScorePanel — section labels
+    OVERALL_BAND:    "Overall Band Score",
+    SCORE_BREAKDOWN: "Score Breakdown",
+    ERRORS_FOUND:    (count: number) => `Errors Found (${count})`,
+    FEEDBACK:        "General Feedback",
+    STRENGTHS:       "Strengths",
+    IMPROVEMENTS:    "Areas to Improve",
+
+    // BandScorePanel — 4 criteria
+    CRITERIA_TR:     "Task Response",
+    CRITERIA_CC:     "Coherence",
+    CRITERIA_LR:     "Lexical",
+    CRITERIA_GRA:    "Grammar",
+
+    // Recharts tooltip
+    CHART_SCORE:     "Score",
+
+    // ErrorTooltip — section labels
+    TOOLTIP_SUGGESTION:  "Suggestion",
+    TOOLTIP_EXPLANATION: "Explanation",
+  },
+
+
 } as const;

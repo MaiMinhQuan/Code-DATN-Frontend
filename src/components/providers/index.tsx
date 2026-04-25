@@ -4,10 +4,8 @@ import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "sonner";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
-//
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-//
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,10 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
-        {children}
-        //
-        <ReactQueryDevtools initialIsOpen={false} />
-        //
+        <Tooltip.Provider delayDuration={150}>
+          {children}
+        </Tooltip.Provider>
         <Toaster richColors position="top-right" />
       </QueryClientProvider>
     </SessionProvider>
