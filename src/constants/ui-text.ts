@@ -103,4 +103,27 @@ export const UI_TEXT = {
     PLACEHOLDER_ESSAY: "Bắt đầu viết bài của bạn tại đây...",
   },
 
+  // ─── Result ──────────────────────────────────────────────
+  RESULT: {
+    TOOLTIP_SUGGESTION_LABEL: "Gợi ý",
+    SEVERITY_HIGH: "Cao",
+    SEVERITY_MEDIUM: "Trung bình",
+    SEVERITY_LOW: "Thấp",
+    SCORE_LABEL_TASK: "Task Response",
+    SCORE_LABEL_COHERENCE: "Coherence & Cohesion",
+    SCORE_LABEL_LEXICAL: "Lexical Resource",
+    SCORE_LABEL_GRAMMAR: "Grammatical Range",
+    SCORE_LABEL_OVERALL: "Overall Band",
+    FEEDBACK_GENERAL: "Nhận xét chung",
+    FEEDBACK_STRENGTHS: "Điểm mạnh",
+    FEEDBACK_IMPROVEMENTS: "Cần cải thiện",
+    ERROR_LIST_TITLE: "Danh sách lỗi",
+    ERROR_FILTER_ALL: "Tất cả",
+    RESULT_LOADING: "Đang tải kết quả...",
+    RESULT_NOT_FOUND: "Không tìm thấy kết quả",
+    TOOLTIP_CATEGORY_LABEL: "Loại lỗi",
+    TOOLTIP_SEVERITY_LABEL: "Mức độ",
+  },
+
+
 } as const;
