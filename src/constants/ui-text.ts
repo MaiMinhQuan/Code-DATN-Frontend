@@ -125,5 +125,35 @@ export const UI_TEXT = {
     TOOLTIP_SEVERITY_LABEL: "Mức độ",
   },
 
+  // ─── Sample Essays ───────────────────────────────────────────
+  SAMPLE_ESSAYS: {
+    PAGE_TITLE: "Bài mẫu IELTS",
+    PAGE_SUBTITLE: "Tham khảo các bài viết mẫu đã được AI chấm điểm",
+    BADGE_TASK_1: "Task 1",
+    BADGE_TASK_2: "Task 2",
+    CARD_READ_MORE: "Đọc bài",
+    FILTER_TASK_ALL: "Tất cả",
+    FILTER_TASK_1: "Task 1",
+    FILTER_TASK_2: "Task 2",
+    FILTER_BAND_ALL: "Mọi band",
+    FILTER_BAND_LOW: "Band 5.0",
+    FILTER_BAND_MID: "Band 6.0",
+    FILTER_BAND_HIGH: "Band 7+",
+    BTN_RESET_FILTER: "Đặt lại",
+    EMPTY_STATE: "Không có bài mẫu nào phù hợp",
+    EMPTY_STATE_HINT: "Thử thay đổi bộ lọc",
+    DETAIL_BACK: "Danh sách bài mẫu",
+    DETAIL_LABEL_QUESTION: "Đề bài",
+    DETAIL_LABEL_INFO: "Thông tin bài viết",
+    DETAIL_LABEL_BAND: "Band Score",
+    DETAIL_LABEL_TASK: "Loại bài",
+    DETAIL_LABEL_TOPIC: "Chủ đề",
+    DETAIL_LABEL_AUTHOR: "Tác giả",
+    DETAIL_NO_ANNOTATION: "Bài viết này chưa có phân tích lỗi chi tiết",
+    DETAIL_NOT_FOUND: "Không tìm thấy bài mẫu",
+
+  },
+
+
 
 } as const;
