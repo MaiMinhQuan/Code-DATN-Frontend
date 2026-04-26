@@ -151,8 +151,25 @@ export const UI_TEXT = {
     DETAIL_LABEL_AUTHOR: "Tác giả",
     DETAIL_NO_ANNOTATION: "Bài viết này chưa có phân tích lỗi chi tiết",
     DETAIL_NOT_FOUND: "Không tìm thấy bài mẫu",
-
   },
+
+  NOTEBOOK: {
+    PAGE_TITLE:          "Sổ tay của tôi",
+    PAGE_SUBTITLE:       "Ghi chú cá nhân trong quá trình luyện tập",
+    BTN_NEW_NOTE:        "Ghi chú mới",
+    BTN_SAVE:            "Lưu thay đổi",
+    BTN_CREATE:          "Tạo ghi chú",
+    UNTITLED:            "Ghi chú không có tiêu đề",
+    NOTE_COUNT_LABEL:    "ghi chú",
+    PLACEHOLDER_TITLE:   "Tiêu đề (tùy chọn)",
+    PLACEHOLDER_CONTENT: "Viết ghi chú của bạn...",
+    EMPTY_LIST:          "Chưa có ghi chú nào",
+    EMPTY_LIST_HINT:     "Nhấn \"Ghi chú mới\" để bắt đầu",
+    EMPTY_SELECT:        "Chọn một ghi chú hoặc tạo mới",
+    EMPTY_SELECT_HINT:   "Ghi chú của bạn sẽ hiển thị ở đây",
+    DELETE_CONFIRM:      "Bạn có chắc muốn xóa ghi chú này không?",
+  },
+
 
 
 
