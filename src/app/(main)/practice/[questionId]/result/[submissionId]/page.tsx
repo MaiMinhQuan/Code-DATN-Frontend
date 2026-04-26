@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { Allotment } from "allotment"
 import "allotment/dist/style.css"
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
@@ -21,6 +22,12 @@ export default function ResultPage() {
     submissionId: string
   }>()
   const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const handleBackToPractice = () => {
+    queryClient.invalidateQueries({ queryKey: ["submissions"] })
+    router.push("/practice")
+  }
 
   // State bridge: sync highlight giữa 2 panel
   const [activeErrorId, setActiveErrorId] = useState<string | null>(null)
@@ -79,7 +86,7 @@ export default function ResultPage() {
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-3 shrink-0">
               <button
-                onClick={() => router.push("/practice")}
+                onClick={handleBackToPractice}
                 className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
