@@ -79,14 +79,20 @@ export default function ResultPage() {
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-3 shrink-0">
               <button
-                onClick={() => router.push(`/practice/${questionId}`)}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => router.push("/practice")}
+                className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Quay về
+              </button>
+              <button
+                onClick={() => router.push(`/practice/${questionId}`)}
+                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-700"
+              >
                 Làm lại
               </button>
-              <span className="text-muted-foreground">·</span>
-              <span className="truncate text-sm font-medium text-foreground">
+              <span className="mx-1 text-[var(--border)]">|</span>
+              <span className="truncate text-sm font-medium text-[var(--foreground)]">
                 {question?.title ?? "Kết quả bài viết"}
               </span>
             </div>

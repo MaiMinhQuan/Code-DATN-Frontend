@@ -229,6 +229,22 @@ export const UI_TEXT = {
     BTN_BACK_TO_LIST: "Danh sách thẻ",
   },
 
+  // ─── Practice List ───────────────────────────────────
+  PRACTICE_LIST: {
+    HEADING: "Luyện tập",
+    SUBHEADING: "Chọn đề và bắt đầu luyện viết",
+    BTN_RANDOM: "Đề ngẫu nhiên",
+    BTN_START: "Bắt đầu",
+    FILTER_ALL_TOPICS: "Tất cả chủ đề",
+    FILTER_DIFFICULTY: "Độ khó",
+    FILTER_ALL_DIFFICULTY: "Tất cả",
+    LABEL_ATTEMPTS: (n: number) => `${n} lượt làm`,
+    EMPTY_TITLE: "Không có đề thi nào",
+    EMPTY_DESC: "Thử thay đổi bộ lọc hoặc quay lại sau.",
+    DIFFICULTY_LABELS: ["", "Cơ bản", "Dễ", "Trung bình", "Khó", "Rất khó"] as const,
+  },
+
+
 
 
 } as const;

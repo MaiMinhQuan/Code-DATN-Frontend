@@ -20,6 +20,15 @@ interface BackendResponse<T> {
   data: T;
 }
 
+interface BackendListResponse {
+  message: string;
+  data: Submission[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const submissionsService = {
   createDraft: async (dto: CreateSubmissionDto): Promise<Submission> => {
     const { data } = await apiClient.post<BackendResponse<Submission>>(
@@ -46,11 +55,17 @@ export const submissionsService = {
   getSubmissions: async (
     params?: GetSubmissionsParams
   ): Promise<PaginatedSubmissions> => {
-    const { data } = await apiClient.get<PaginatedSubmissions>(
+    const { data } = await apiClient.get<BackendListResponse>(
       "/submissions",
       { params }
     );
-    return data;
+    return {
+      data: data.data,
+      total: data.total,
+      page: data.page,
+      limit: data.limit,
+      totalPages: data.totalPages,
+    };
   },
 
   updateDraft: async (
