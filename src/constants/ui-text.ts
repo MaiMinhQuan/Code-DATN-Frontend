@@ -170,6 +170,30 @@ export const UI_TEXT = {
     DELETE_CONFIRM:      "Bạn có chắc muốn xóa ghi chú này không?",
   },
 
+  COURSES: {
+    PAGE_TITLE: "Khoá học",
+    PAGE_SUBTITLE: "Tài liệu học IELTS Writing theo từng band điểm",
+    FILTER_TOPIC_ALL: "Tất cả chủ đề",
+    EMPTY_COURSES: "Không có khoá học nào",
+    EMPTY_COURSES_HINT: "Thử thay đổi bộ lọc chủ đề",
+    EMPTY_LESSONS: "Khoá học chưa có bài học",
+    LABEL_LESSONS: (n: number) => `${n} bài học`,
+    LABEL_INSTRUCTOR: "Giảng viên",
+    TAB_VIDEOS: "Video",
+    TAB_VOCABULARY: "Từ vựng",
+    TAB_GRAMMAR: "Ngữ pháp",
+    TAB_NOTES: "Ghi chú",
+    EMPTY_VIDEOS: "Chưa có video",
+    EMPTY_VOCABULARY: "Chưa có từ vựng",
+    EMPTY_GRAMMAR: "Chưa có ngữ pháp",
+    EMPTY_NOTES: "Chưa có ghi chú",
+    LABEL_DURATION: (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`,
+    BTN_RESET_FILTER: "Đặt lại",
+    DETAIL_BACK: "Quay lại",
+    DETAIL_SELECT_LESSON: "Chọn một bài học để bắt đầu",
+    DETAIL_LESSON_LOADING: "Đang tải bài học...",
+  },
+
 
 
 
