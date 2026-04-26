@@ -5,14 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import { toast } from "sonner";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useExamQuestion } from "@/hooks/useExamQuestion";
-import {
-  useCreateDraft,
-  useUpdateDraft,
-  useSubmitEssay,
-} from "@/hooks/useSubmission";
+import { useCreateDraft, useSubmitEssay } from "@/hooks/useSubmission";
 import { useSubmissionSocket } from "@/hooks/useSubmissionSocket";
 import { useSubmissionStore } from "@/stores/submission.store";
 import { QuestionPanel } from "@/components/features/practice/QuestionPanel";
@@ -22,13 +19,15 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { SubmissionStatus } from "@/types/enums";
 import { cn } from "@/lib/utils";
 
+
 export default function PracticeDetailPage() {
   const { questionId } = useParams<{ questionId: string }>();
   const router = useRouter();
 
   const [essayContent, setEssayContent] = useState("");
-  const [draftId, setDraftId] = useState<string | null>(null);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
+  const queryClient = useQueryClient();
   const { gradingStatus, reset } = useSubmissionStore();
   const isGrading =
     gradingStatus === SubmissionStatus.SUBMITTED ||
@@ -36,57 +35,32 @@ export default function PracticeDetailPage() {
 
   const { data: question, isLoading, isError } = useExamQuestion(questionId);
   const createDraft = useCreateDraft();
-  const updateDraft = useUpdateDraft();
   const submitEssay = useSubmitEssay();
 
-  const isMutating =
-    createDraft.isPending || updateDraft.isPending || submitEssay.isPending;
+  const isMutating = createDraft.isPending || submitEssay.isPending;
   const disabled = isGrading || isMutating;
 
-  // Socket luôn kết nối, filter theo draftId (null = bỏ qua tất cả events)
-  useSubmissionSocket(draftId, {
+  useSubmissionSocket(submissionId, {
     onCompleted: (id) => router.push(`/practice/${questionId}/result/${id}`),
     onFailed: (_, msg) => toast.error(msg ?? UI_TEXT.PRACTICE.GRADING_FAILED),
   });
 
-  // Reset store khi rời trang
   useEffect(() => () => reset(), [reset]);
-
-  // ── Handlers ───────────────────────────────────────────────────────────────
-
-  const handleSaveDraft = useCallback(async () => {
-    if (!essayContent.trim()) return;
-    try {
-      if (!draftId) {
-        const s = await createDraft.mutateAsync({ questionId, essayContent });
-        setDraftId(s._id);
-      } else {
-        await updateDraft.mutateAsync({ id: draftId, dto: { essayContent } });
-      }
-      toast.success(UI_TEXT.PRACTICE.DRAFT_SAVED);
-    } catch {
-      toast.error("Lưu nháp thất bại, vui lòng thử lại.");
-    }
-  }, [draftId, essayContent, questionId, createDraft, updateDraft]);
 
   const handleSubmit = useCallback(async () => {
     if (!essayContent.trim()) return;
     try {
-      let id = draftId;
+      let id = submissionId;
       if (!id) {
         const s = await createDraft.mutateAsync({ questionId, essayContent });
         id = s._id;
-        setDraftId(id);
-      } else {
-        await updateDraft.mutateAsync({ id, dto: { essayContent } });
+        setSubmissionId(id);
       }
       await submitEssay.mutateAsync(id);
     } catch {
       toast.error("Nộp bài thất bại, vui lòng thử lại.");
     }
-  }, [draftId, essayContent, questionId, createDraft, updateDraft, submitEssay]);
-
-  // ── Loading / Error states ─────────────────────────────────────────────────
+  }, [submissionId, essayContent, questionId, createDraft, submitEssay]);
 
   if (isLoading) {
     return (
@@ -107,93 +81,68 @@ export default function PracticeDetailPage() {
     );
   }
 
-  // ── Main layout ────────────────────────────────────────────────────────────
-
   return (
-    <div className="-m-6" style={{ height: "calc(100vh - 4rem)" }}>
-      <Allotment>
-        {/* Panel trái: Đề bài */}
-        <Allotment.Pane minSize={300} preferredSize="42%">
-          <QuestionPanel question={question} />
-        </Allotment.Pane>
+    <div className="-m-6 flex flex-col" style={{ height: "calc(100vh - 4rem)" }}>
+      {/* Header bar */}
+      <div className="flex h-11 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--card)] px-4">
+        <button
+          onClick={() => {
+            queryClient.invalidateQueries({ queryKey: ["submissions"] });
+            router.push("/practice");
+          }}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5",
+            "text-xs font-medium text-[var(--muted-foreground)]",
+            "transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+          )}
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Quay lại
+        </button>
+        <div className="h-4 w-px bg-[var(--border)]" />
+        <span className="truncate text-sm font-medium text-[var(--foreground)]">
+          {question.title}
+        </span>
+      </div>
 
-        {/* Panel phải: Editor + Actions */}
-        <Allotment.Pane minSize={380}>
-          <div className="flex h-full flex-col gap-4 overflow-y-auto p-5">
-            <EssayEditor
-              value={essayContent}
-              onChange={setEssayContent}
-              disabled={disabled}
-            />
+      {/* Split-screen editor */}
+      <div className="min-h-0 flex-1">
+        <Allotment>
+          <Allotment.Pane minSize={300} preferredSize="42%">
+            <QuestionPanel question={question} />
+          </Allotment.Pane>
 
-            <GradingProgress />
+          <Allotment.Pane minSize={380}>
+            <div className="flex h-full flex-col gap-4 overflow-y-auto p-5">
+              <EssayEditor
+                value={essayContent}
+                onChange={setEssayContent}
+                disabled={disabled}
+              />
 
-            <ActionBar
-              onSave={handleSaveDraft}
-              onSubmit={handleSubmit}
-              isSaving={
-                updateDraft.isPending ||
-                (createDraft.isPending && !submitEssay.isPending)
-              }
-              isSubmitting={submitEssay.isPending || isGrading}
-              disabled={disabled || !essayContent.trim()}
-            />
-          </div>
-        </Allotment.Pane>
-      </Allotment>
-    </div>
-  );
-}
+              <GradingProgress />
 
-// ── ActionBar (local component, không cần tách file) ──────────────────────────
-
-interface ActionBarProps {
-  onSave: () => void;
-  onSubmit: () => void;
-  isSaving: boolean;
-  isSubmitting: boolean;
-  disabled: boolean;
-}
-
-function ActionBar({
-  onSave,
-  onSubmit,
-  isSaving,
-  isSubmitting,
-  disabled,
-}: ActionBarProps) {
-  return (
-    <div className="flex gap-3 pb-2">
-      <button
-        onClick={onSave}
-        disabled={disabled}
-        className={cn(
-          "flex flex-1 items-center justify-center gap-2 rounded-lg",
-          "border border-[var(--border)] bg-[var(--card)]",
-          "px-4 py-2.5 text-sm font-medium text-[var(--foreground)]",
-          "transition-colors hover:bg-[var(--muted)]",
-          "disabled:cursor-not-allowed disabled:opacity-50"
-        )}
-      >
-        {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-        {isSaving ? "Đang lưu..." : UI_TEXT.PRACTICE.BTN_SAVE_DRAFT}
-      </button>
-
-      <button
-        onClick={onSubmit}
-        disabled={disabled}
-        className={cn(
-          "flex flex-1 items-center justify-center gap-2 rounded-lg",
-          "bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white",
-          "transition-colors hover:bg-indigo-700",
-          "disabled:cursor-not-allowed disabled:opacity-50"
-        )}
-      >
-        {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-        {isSubmitting
-          ? UI_TEXT.PRACTICE.BTN_SUBMITTING
-          : UI_TEXT.PRACTICE.BTN_SUBMIT}
-      </button>
+              <div className="pb-2">
+                <button
+                  onClick={handleSubmit}
+                  disabled={disabled || !essayContent.trim()}
+                  className={cn(
+                    "flex w-full items-center justify-center gap-2 rounded-lg",
+                    "bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white",
+                    "transition-colors hover:bg-indigo-700",
+                    "disabled:cursor-not-allowed disabled:opacity-50"
+                  )}
+                >
+                  {isMutating && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isGrading
+                    ? UI_TEXT.PRACTICE.BTN_SUBMITTING
+                    : UI_TEXT.PRACTICE.BTN_SUBMIT}
+                </button>
+              </div>
+            </div>
+          </Allotment.Pane>
+        </Allotment>
+      </div>
     </div>
   );
 }

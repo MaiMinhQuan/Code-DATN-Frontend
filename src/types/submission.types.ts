@@ -30,10 +30,8 @@ export interface UpdateSubmissionDto {
 
 export interface PaginatedSubmissions {
   data: Submission[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
