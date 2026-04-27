@@ -2,24 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { BookOpen } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Course } from "@/types/course.types";
 
 const T = UI_TEXT.COURSES;
 
-function getBandBadgeStyle(band: string) {
-  if (band === "BAND_7_PLUS") return "bg-amber-100 text-amber-700 border border-amber-200";
-  if (band === "BAND_6_0")    return "bg-emerald-100 text-emerald-700 border border-emerald-200";
-  return "bg-blue-100 text-blue-700 border border-blue-200";
-}
-
-const BAND_LABEL: Record<string, string> = {
-  BAND_5_0:    "Band 5.0",
-  BAND_6_0:    "Band 6.0",
-  BAND_7_PLUS: "Band 7+",
-};
 
 interface CourseCardProps {
   course: Course;
@@ -67,17 +55,14 @@ export function CourseCard({ course }: CourseCardProps) {
         )}
 
         {/* Footer */}
-        <div className="mt-auto flex items-center justify-between border-t border-border pt-3 mt-3">
+        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <BookOpen className="h-3.5 w-3.5" />
             <span>{T.LABEL_LESSONS(course.totalLessons)}</span>
           </div>
-          {course.instructorName && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <User className="h-3.5 w-3.5" />
-              <span className="line-clamp-1 max-w-[100px]">{course.instructorName}</span>
-            </div>
-          )}
+          <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+            Học ngay
+          </span>
         </div>
       </div>
     </Link>
