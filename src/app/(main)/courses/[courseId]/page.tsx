@@ -5,8 +5,16 @@ import { ArrowLeft, Loader2, AlertCircle, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCourse, useLessons } from "@/hooks/useCourses";
 import { UI_TEXT } from "@/constants/ui-text";
+import { useState } from "react";
 
 const T = UI_TEXT.COURSES;
+
+const BAND_FILTERS = [
+  { value: null,          label: T.FILTER_BAND_ALL     },
+  { value: "BAND_5_0",   label: T.FILTER_BAND_5_0     },
+  { value: "BAND_6_0",   label: T.FILTER_BAND_6_0     },
+  { value: "BAND_7_PLUS",label: T.FILTER_BAND_7_PLUS  },
+] as const;
 
 const BAND_LABEL: Record<string, string> = {
   BAND_5_0:    "Band 5.0",
@@ -28,6 +36,13 @@ export default function CourseDetailPage() {
     useCourse(courseId);
   const { data: lessons = [], isLoading: lessonsLoading } =
     useLessons({ courseId });
+
+  const [selectedBand, setSelectedBand] = useState<string | null>(null);
+
+  const filteredLessons = selectedBand
+    ? lessons.filter((l) => l.targetBand === selectedBand)
+    : lessons;
+
 
   if (courseLoading) {
     return (
@@ -79,6 +94,25 @@ export default function CourseDetailPage() {
         </p>
       </div>
 
+      {/* Band filter */}
+      <div className="flex flex-wrap gap-2">
+        {BAND_FILTERS.map((f) => (
+          <button
+            key={String(f.value)}
+            onClick={() => setSelectedBand(f.value)}
+            className={cn(
+              "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+              selectedBand === f.value
+                ? "bg-primary text-white"
+                : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary",
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+
       {/* Lesson list */}
       {lessonsLoading ? (
         <div className="flex flex-col gap-2">
@@ -86,14 +120,14 @@ export default function CourseDetailPage() {
             <div key={i} className="h-[68px] animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
-      ) : lessons.length === 0 ? (
+      ) : filteredLessons.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
           <PlayCircle className="mb-3 h-10 w-10 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground">{T.EMPTY_LESSONS}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {lessons.map((lesson, index) => (
+          {filteredLessons.map((lesson, index) => (
             <button
               key={lesson._id}
               onClick={() =>
