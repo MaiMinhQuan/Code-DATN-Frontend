@@ -1,7 +1,7 @@
 "use client"
 
-import { Trash2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState } from "react"
+import { MoreHorizontal } from "lucide-react"
 import { UI_TEXT } from "@/constants/ui-text"
 import type { Note } from "@/types/notebook.types"
 
@@ -9,48 +9,71 @@ const T = UI_TEXT.NOTEBOOK
 
 interface NoteCardProps {
   note: Note
-  isActive: boolean               // card đang được chọn
-  onSelect: (note: Note) => void  // click vào card
-  onDelete: (id: string) => void  // click nút xóa
+  collectionColor?: string
+  onEdit: (note: Note) => void
+  onDelete: (id: string) => void
 }
 
-export function NoteCard({ note, isActive, onSelect, onDelete }: NoteCardProps) {
-  // format date: createdAt → "26/04/2025"
+export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
   const date = new Date(note.createdAt).toLocaleDateString("vi-VN")
 
   return (
     <div
-      onClick={() => onSelect(note)}
-      className={cn(
-        "group cursor-pointer rounded-xl border p-4 transition-all",
-        isActive
-          ? "border-primary/40 bg-primary/5"
-          : "border-border bg-card hover:bg-muted/50"
-      )}
+      onClick={() => onEdit(note)}
+      className="group relative cursor-pointer border-b border-border px-5 py-4 transition-colors hover:bg-muted/40"
     >
-      {/* Title + delete button */}
-      <div className="flex items-start justify-between gap-2">
-        <p className="line-clamp-1 text-sm font-semibold text-foreground">
-          {note.title || T.UNTITLED}
-        </p>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()  // ← quan trọng: không trigger onSelect
-            onDelete(note._id)
-          }}
-          className="shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-2.5">
+          {/* Collection color dot */}
+          {collectionColor && (
+            <span
+              className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: collectionColor }}
+            />
+          )}
+
+          <div className="min-w-0 flex-1">
+            <p className="line-clamp-1 text-sm font-semibold text-foreground">
+              {note.title || T.UNTITLED}
+            </p>
+            <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+              {note.userDraftNote}
+            </p>
+            <p className="mt-1.5 text-[11px] text-muted-foreground/60">{date}</p>
+          </div>
+        </div>
+
+        {/* ··· menu */}
+        <div className="relative shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
+            className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false) }} />
+              <div className="absolute right-0 top-7 z-20 min-w-36 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEdit(note); setMenuOpen(false) }}
+                  className="flex w-full items-center px-3 py-2 text-sm hover:bg-muted"
+                >
+                  {T.MENU_EDIT}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDelete(note._id); setMenuOpen(false) }}
+                  className="flex w-full items-center px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                >
+                  {T.MENU_DELETE}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-
-      {/* Preview nội dung */}
-      <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-        {note.userDraftNote}
-      </p>
-
-      {/* Ngày tạo */}
-      <p className="mt-2 text-[11px] text-muted-foreground/60">{date}</p>
     </div>
   )
 }
