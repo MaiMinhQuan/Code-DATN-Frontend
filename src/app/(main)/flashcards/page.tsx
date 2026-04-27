@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Plus, BookOpen, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import {
   useFlashcardSets,
-  useReviewCards,
   useCreateFlashcardSet,
   useDeleteFlashcardSet,
 } from "@/hooks/useFlashcards";
@@ -15,14 +13,11 @@ import { UI_TEXT } from "@/constants/ui-text";
 const T = UI_TEXT.FLASHCARDS;
 
 export default function FlashcardsPage() {
-  const router = useRouter();
-
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
   const { data: sets = [], isLoading } = useFlashcardSets();
-  const { data: reviewCards = [] } = useReviewCards();
   const createSet = useCreateFlashcardSet();
   const deleteSet = useDeleteFlashcardSet();
 
@@ -61,21 +56,6 @@ export default function FlashcardsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Nút ôn tập — chỉ hiện khi có thẻ cần ôn */}
-          {reviewCards.length > 0 && (
-            <button
-              onClick={() => router.push("/flashcards/review")}
-              className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-            >
-              <BookOpen className="h-4 w-4 text-primary" />
-              {T.BTN_START_REVIEW}
-              <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">
-                {reviewCards.length}
-              </span>
-            </button>
-          )}
-
-          {/* Nút tạo bộ thẻ */}
           <button
             onClick={() => setShowForm(true)}
             disabled={showForm}

@@ -10,6 +10,8 @@ export interface FlashcardSet {
   userId: string;
   title: string;
   description?: string;
+  cardCount: number;
+  dueCount: number;
   createdAt: string;
   updatedAt: string;
 }
