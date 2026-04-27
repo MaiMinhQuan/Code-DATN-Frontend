@@ -45,9 +45,9 @@ export function useUpdateNote() {
       notebookService.updateNote(id, payload),
     onSuccess: (updatedNote) => {
       qc.setQueryData(noteKeys.detail(updatedNote._id), updatedNote);
-      // refetchType: "all" — refetch cả active lẫn inactive queries
-      // đảm bảo collection vừa được gán cũng nhận data mới dù chưa được xem
-      qc.invalidateQueries({ queryKey: noteKeys.lists(), refetchType: "all" });
+      // removeQueries xóa hẳn cache list (kể cả entries chưa fetch)
+      // đảm bảo mọi collection view đều fetch fresh khi navigate tới
+      qc.removeQueries({ queryKey: noteKeys.lists() });
     },
   });
 }

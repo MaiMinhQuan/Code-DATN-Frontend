@@ -9,16 +9,10 @@ import type { FlashcardForReview, ReviewQuality } from "@/types/flashcard.types"
 
 const T = UI_TEXT.FLASHCARDS;
 
-const QUALITY_CONFIG: {
-  label: string;
-  className: string;
-}[] = [
-  { label: T.QUALITY_LABELS[0], className: "bg-red-100 text-red-700 hover:bg-red-200" },
-  { label: T.QUALITY_LABELS[1], className: "bg-orange-100 text-orange-700 hover:bg-orange-200" },
-  { label: T.QUALITY_LABELS[2], className: "bg-amber-100 text-amber-700 hover:bg-amber-200" },
-  { label: T.QUALITY_LABELS[3], className: "bg-lime-100 text-lime-700 hover:bg-lime-200" },
-  { label: T.QUALITY_LABELS[4], className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" },
-  { label: T.QUALITY_LABELS[5], className: "bg-green-100 text-green-700 hover:bg-green-200" },
+const QUALITY_BUTTONS: { label: string; quality: ReviewQuality; className: string }[] = [
+  { label: T.QUALITY_LABELS[0], quality: 1, className: "bg-red-100 text-red-700 hover:bg-red-200" },
+  { label: T.QUALITY_LABELS[1], quality: 3, className: "bg-amber-100 text-amber-700 hover:bg-amber-200" },
+  { label: T.QUALITY_LABELS[2], quality: 5, className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" },
 ];
 
 interface ReviewSessionProps {
@@ -101,35 +95,18 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
           <p className="text-center text-xs font-medium text-muted-foreground">
             Bạn nhớ được đến mức nào?
           </p>
-          {/* Fail row: 0-2 */}
           <div className="grid grid-cols-3 gap-2">
-            {([0, 1, 2] as ReviewQuality[]).map((q) => (
+            {QUALITY_BUTTONS.map(({ label, quality, className }) => (
               <button
-                key={q}
-                onClick={() => handleQuality(q)}
+                key={quality}
+                onClick={() => handleQuality(quality)}
                 disabled={isSubmitting}
                 className={cn(
                   "rounded-xl py-2.5 text-xs font-semibold transition-colors disabled:opacity-50",
-                  QUALITY_CONFIG[q].className,
+                  className,
                 )}
               >
-                {QUALITY_CONFIG[q].label}
-              </button>
-            ))}
-          </div>
-          {/* Pass row: 3-5 */}
-          <div className="grid grid-cols-3 gap-2">
-            {([3, 4, 5] as ReviewQuality[]).map((q) => (
-              <button
-                key={q}
-                onClick={() => handleQuality(q)}
-                disabled={isSubmitting}
-                className={cn(
-                  "rounded-xl py-2.5 text-xs font-semibold transition-colors disabled:opacity-50",
-                  QUALITY_CONFIG[q].className,
-                )}
-              >
-                {QUALITY_CONFIG[q].label}
+                {label}
               </button>
             ))}
           </div>

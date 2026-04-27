@@ -237,7 +237,7 @@ export const UI_TEXT = {
     REVIEW_PROGRESS: (cur: number, total: number) => `${cur} / ${total}`,
     REVIEW_COMPLETE: "Hoàn thành buổi ôn tập!",
     REVIEW_COMPLETE_HINT: (n: number) => `Bạn đã ôn ${n} thẻ trong buổi này`,
-    QUALITY_LABELS: ["Không nhớ", "Rất khó", "Khó", "Được", "Tốt", "Hoàn hảo"] as const,
+    QUALITY_LABELS: ["Không nhớ", "Còn lơ mơ", "Nhớ rõ"] as const,
     CONFIRM_DELETE_SET: "Bộ thẻ và toàn bộ thẻ bên trong sẽ bị xoá.",
     DETAIL_BACK: "Quay lại",
     LABEL_CARD_COUNT: (n: number) => `${n} thẻ`,
@@ -247,6 +247,10 @@ export const UI_TEXT = {
     CONFIRM_DELETE_CARD: "Bạn có chắc muốn xoá thẻ này không?",
     BTN_REVIEW_SET: "Ôn tập bộ này",
     BTN_BACK_TO_LIST: "Danh sách thẻ",
+    REVIEW_MODE_TITLE: "Chọn chế độ ôn tập",
+    REVIEW_MODE_ALL: "Học tất cả",
+    REVIEW_MODE_DUE: "Thẻ đến hạn",
+    REVIEW_MODE_DUE_EMPTY: "Không có thẻ nào đến hạn",
   },
 
   // ─── Practice List ───────────────────────────────────
