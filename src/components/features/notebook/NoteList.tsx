@@ -1,25 +1,36 @@
 "use client"
 
+import { useMemo } from "react"
+import { StickyNote } from "lucide-react"
 import { NoteCard } from "./NoteCard"
 import { UI_TEXT } from "@/constants/ui-text"
-import type { Note } from "@/types/notebook.types"
+import type { Note, NoteCollection } from "@/types/notebook.types"
 
 const T = UI_TEXT.NOTEBOOK
 
 interface NoteListProps {
   notes: Note[]
   isLoading: boolean
-  activeNoteId: string | null
-  onSelect: (note: Note) => void
+  collections: NoteCollection[]
+  onEdit: (note: Note) => void
   onDelete: (id: string) => void
 }
 
-export function NoteList({ notes, isLoading, activeNoteId, onSelect, onDelete }: NoteListProps) {
+export function NoteList({ notes, isLoading, collections, onEdit, onDelete }: NoteListProps) {
+  const colorMap = useMemo(
+    () => Object.fromEntries(collections.map((c) => [c._id, c.color])),
+    [collections]
+  )
+
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-2 p-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
+      <div className="flex flex-col">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="border-b border-border px-5 py-4">
+            <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+            <div className="mt-2 h-3 w-full animate-pulse rounded bg-muted" />
+            <div className="mt-2 h-3 w-1/4 animate-pulse rounded bg-muted" />
+          </div>
         ))}
       </div>
     )
@@ -27,7 +38,8 @@ export function NoteList({ notes, isLoading, activeNoteId, onSelect, onDelete }:
 
   if (notes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+        <StickyNote className="h-10 w-10 text-muted-foreground/30" />
         <p className="text-sm text-muted-foreground">{T.EMPTY_LIST}</p>
         <p className="text-xs text-muted-foreground/60">{T.EMPTY_LIST_HINT}</p>
       </div>
@@ -35,13 +47,13 @@ export function NoteList({ notes, isLoading, activeNoteId, onSelect, onDelete }:
   }
 
   return (
-    <div className="flex flex-col gap-2 p-3">
+    <div>
       {notes.map((note) => (
         <NoteCard
           key={note._id}
           note={note}
-          isActive={note._id === activeNoteId}
-          onSelect={onSelect}
+          collectionColor={note.collectionId ? colorMap[note.collectionId] : undefined}
+          onEdit={onEdit}
           onDelete={onDelete}
         />
       ))}

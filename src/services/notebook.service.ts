@@ -8,9 +8,10 @@ import type {
 
 export const notebookService = {
 
-  // GET /api/notebook — lấy tất cả ghi chú của user hiện tại
-  getNotes: async (): Promise<Note[]> => {
-    const { data } = await apiClient.get<Note[]>("/notebook");
+  // GET /api/notebook?collectionId=<id|none>
+  getNotes: async (collectionId?: string): Promise<Note[]> => {
+    const params = collectionId ? { collectionId } : {};
+    const { data } = await apiClient.get<Note[]>("/notebook", { params });
     return data;
   },
 

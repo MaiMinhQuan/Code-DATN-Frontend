@@ -4,16 +4,17 @@ import type { CreateNotePayload, UpdateNotePayload } from "@/types/notebook.type
 
 export const noteKeys = {
   all:     ["notebook"] as const,
-  lists:   () => [...noteKeys.all, "list"]       as const,
-  details: () => [...noteKeys.all, "detail"]     as const,
-  detail:  (id: string) => [...noteKeys.details(), id] as const,
+  lists:   () => [...noteKeys.all, "list"]                    as const,
+  list:    (filter?: string) => [...noteKeys.lists(), filter ?? null] as const,
+  details: () => [...noteKeys.all, "detail"]                  as const,
+  detail:  (id: string) => [...noteKeys.details(), id]        as const,
 };
 
-export function useNotes() {
+export function useNotes(collectionId?: string) {
   return useQuery({
-    queryKey: noteKeys.lists(),
-    queryFn:  () => notebookService.getNotes(),
-    staleTime: 2 * 60 * 1000, // 2 phút — ghi chú thay đổi thường xuyên hơn bài mẫu
+    queryKey: noteKeys.list(collectionId),
+    queryFn:  () => notebookService.getNotes(collectionId),
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -32,7 +33,7 @@ export function useCreateNote() {
     mutationFn: (payload: CreateNotePayload) =>
       notebookService.createNote(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: noteKeys.lists() });
+      qc.invalidateQueries({ queryKey: noteKeys.lists(), refetchType: "all" });
     },
   });
 }
@@ -43,9 +44,10 @@ export function useUpdateNote() {
     mutationFn: ({ id, payload }: { id: string; payload: UpdateNotePayload }) =>
       notebookService.updateNote(id, payload),
     onSuccess: (updatedNote) => {
-      // Cập nhật luôn cache của item detail — tránh phải fetch lại
       qc.setQueryData(noteKeys.detail(updatedNote._id), updatedNote);
-      qc.invalidateQueries({ queryKey: noteKeys.lists() });
+      // refetchType: "all" — refetch cả active lẫn inactive queries
+      // đảm bảo collection vừa được gán cũng nhận data mới dù chưa được xem
+      qc.invalidateQueries({ queryKey: noteKeys.lists(), refetchType: "all" });
     },
   });
 }
@@ -55,7 +57,7 @@ export function useDeleteNote() {
   return useMutation({
     mutationFn: (id: string) => notebookService.deleteNote(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: noteKeys.lists() });
+      qc.invalidateQueries({ queryKey: noteKeys.lists(), refetchType: "all" });
     },
   });
 }

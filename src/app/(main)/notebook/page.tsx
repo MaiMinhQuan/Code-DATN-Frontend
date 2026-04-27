@@ -1,129 +1,124 @@
 "use client"
 
 import { useState } from "react"
-import { Allotment } from "allotment"
-import "allotment/dist/style.css"
-import { Plus, StickyNote } from "lucide-react"
+import { Plus } from "lucide-react"
 
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote } from "@/hooks/useNotebook"
-import { NoteList }   from "@/components/features/notebook/NoteList"
-import { NoteEditor } from "@/components/features/notebook/NoteEditor"
-import { UI_TEXT }    from "@/constants/ui-text"
-import type { Note }  from "@/types/notebook.types"
+import { useNoteCollections } from "@/hooks/useNoteCollections"
+import { CollectionSidebar } from "@/components/features/notebook/CollectionSidebar"
+import { NoteList }          from "@/components/features/notebook/NoteList"
+import { NoteFormModal }     from "@/components/features/notebook/NoteFormModal"
+import { UI_TEXT }           from "@/constants/ui-text"
+import type { Note, CreateNotePayload, UpdateNotePayload } from "@/types/notebook.types"
 
 const T = UI_TEXT.NOTEBOOK
 
 export default function NotebookPage() {
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null)
-  const [isCreating,   setIsCreating]   = useState(false)
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
+  const [modalOpen,    setModalOpen]    = useState(false)
+  const [editingNote,  setEditingNote]  = useState<Note | null>(null)
 
-  // ── Queries ──────────────────────────────────────────────────────────────────
-  const { data: notes = [], isLoading } = useNotes()
+  const { data: notes       = [], isLoading } = useNotes(activeFilter ?? undefined)
+  const { data: collections = [] }            = useNoteCollections()
 
-  // ── Mutations ────────────────────────────────────────────────────────────────
   const createNote = useCreateNote()
   const updateNote = useUpdateNote()
   const deleteNote = useDeleteNote()
 
+  const isSaving = createNote.isPending || updateNote.isPending
+
   // ── Handlers ─────────────────────────────────────────────────────────────────
-  const handleSelectNote = (note: Note) => {
-    setSelectedNote(note)
-    setIsCreating(false)
+
+  const openModal = (note: Note | null) => {
+    setEditingNote(note)
+    setModalOpen(true)
   }
 
-  const handleNewNote = () => {
-    setSelectedNote(null)
-    setIsCreating(true)
+  const closeModal = () => {
+    setModalOpen(false)
+    setEditingNote(null)
   }
 
-  const handleSave = (data: { title: string; userDraftNote: string }) => {
-    if (isCreating) {
-      createNote.mutate(data, {
-        onSuccess: (newNote) => {
-          setSelectedNote(newNote)  // chuyển sang edit mode của note vừa tạo
-          setIsCreating(false)
-        },
-      })
-    } else if (selectedNote) {
-      updateNote.mutate({ id: selectedNote._id, payload: data })
+  const handleSave = (data: CreateNotePayload | UpdateNotePayload) => {
+    if (editingNote) {
+      updateNote.mutate(
+        { id: editingNote._id, payload: data as UpdateNotePayload },
+        { onSuccess: closeModal }
+      )
+    } else {
+      createNote.mutate(data as CreateNotePayload, { onSuccess: closeModal })
     }
   }
 
   const handleDelete = (id: string) => {
     if (!window.confirm(T.DELETE_CONFIRM)) return
-    deleteNote.mutate(id, {
-      onSuccess: () => {
-        if (selectedNote?._id === id) {
-          setSelectedNote(null)   // xóa note đang mở → về empty state
-          setIsCreating(false)
-        }
-      },
-    })
+    deleteNote.mutate(id)
   }
 
-  // ── Right panel content ──────────────────────────────────────────────────────
-  const showEditor  = isCreating || selectedNote !== null
-  const isSaving    = createNote.isPending || updateNote.isPending
+  // ── Header label ─────────────────────────────────────────────────────────────
+
+  const filterLabel = (() => {
+    if (activeFilter === null)   return T.FILTER_ALL
+    if (activeFilter === "none") return T.FILTER_UNCATEGORIZED
+    return collections.find((c) => c._id === activeFilter)?.name ?? ""
+  })()
+
+  // ── defaultCollectionId for modal ────────────────────────────────────────────
+  // Nếu đang xem bộ cụ thể → pre-fill bộ đó; ngược lại không pre-fill
+  const defaultCollectionId =
+    activeFilter && activeFilter !== "none" ? activeFilter : null
 
   // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
-    <div className="-m-6" style={{ height: "calc(100vh - 4rem)" }}>
-      <Allotment>
+    <div className="-m-6 flex" style={{ height: "calc(100vh - 4rem)" }}>
 
-        {/* Panel trái: danh sách ghi chú */}
-        <Allotment.Pane minSize={260} maxSize={400} preferredSize={300}>
-          <div className="flex h-full flex-col border-r border-border">
+      {/* Cột trái — Sidebar */}
+      <aside className="w-72 shrink-0 overflow-y-auto border-r border-border">
+        <CollectionSidebar
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+        />
+      </aside>
 
-            {/* Header */}
-            <div className="flex shrink-0 items-center justify-between px-4 py-3 border-b border-border">
-              <div>
-                <h1 className="text-sm font-bold text-foreground">{T.PAGE_TITLE}</h1>
-                <p className="text-xs text-muted-foreground">{notes.length} {T.NOTE_COUNT_LABEL}</p>
-              </div>
-              <button
-                onClick={handleNewNote}
-                className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition-colors"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {T.BTN_NEW_NOTE}
-              </button>
-            </div>
+      {/* Cột phải — Main content */}
+      <main className="flex flex-1 flex-col overflow-hidden">
 
-            {/* Danh sách */}
-            <div className="flex-1 overflow-y-auto">
-              <NoteList
-                notes={notes}
-                isLoading={isLoading}
-                activeNoteId={selectedNote?._id ?? null}
-                onSelect={handleSelectNote}
-                onDelete={handleDelete}
-              />
-            </div>
+        {/* Header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-3">
+          <h2 className="text-base font-semibold text-foreground">{filterLabel}</h2>
+          <button
+            onClick={() => openModal(null)}
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-primary/90"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {T.BTN_NEW_NOTE}
+          </button>
+        </div>
 
-          </div>
-        </Allotment.Pane>
+        {/* Danh sách ghi chú */}
+        <div className="flex-1 overflow-y-auto">
+          <NoteList
+            notes={notes}
+            isLoading={isLoading}
+            collections={collections}
+            onEdit={openModal}
+            onDelete={handleDelete}
+          />
+        </div>
 
-        {/* Panel phải: editor hoặc empty state */}
-        <Allotment.Pane minSize={400}>
-          <div className="h-full overflow-hidden">
-            {showEditor ? (
-              <NoteEditor
-                key={selectedNote?._id ?? "new"}  // ← reset form khi đổi note
-                initialNote={selectedNote ?? undefined}
-                isSaving={isSaving}
-                onSave={handleSave}
-              />
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <StickyNote className="h-10 w-10 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">{T.EMPTY_SELECT}</p>
-                <p className="text-xs text-muted-foreground/60">{T.EMPTY_SELECT_HINT}</p>
-              </div>
-            )}
-          </div>
-        </Allotment.Pane>
+      </main>
 
-      </Allotment>
+      {/* Modal soạn thảo */}
+      <NoteFormModal
+        open={modalOpen}
+        note={editingNote ?? undefined}
+        defaultCollectionId={defaultCollectionId}
+        isSaving={isSaving}
+        onClose={closeModal}
+        onSave={handleSave}
+      />
+
     </div>
   )
 }
