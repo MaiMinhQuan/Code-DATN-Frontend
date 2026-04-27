@@ -72,7 +72,7 @@ export function Sidebar() {
       {/* Toggle button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md hover:bg-indigo-500"
+        className="absolute -right-3 bottom-8 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md hover:bg-indigo-500"
       >
         <ChevronLeft
           className={cn("h-3.5 w-3.5 transition-transform", !isSidebarOpen && "rotate-180")}

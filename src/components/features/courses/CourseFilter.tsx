@@ -22,8 +22,8 @@ export function CourseFilter({ params, topics, onChange }: CourseFilterProps) {
   const hasFilter = !!params.topicId;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
+    <div className="flex items-center gap-3">
+      <div className="flex flex-1 gap-1 overflow-x-auto rounded-lg border border-border bg-card p-1 [&::-webkit-scrollbar]:hidden">
         {/* All topics */}
         <button
           onClick={() => onChange({ ...params, topicId: undefined })}
