@@ -53,6 +53,8 @@ function buildSegments(text: string, annotations: HighlightAnnotation[]) {
   return segments
 }
 
+type TooltipState = { ann: HighlightAnnotation; x: number; y: number } | null
+
 function AnnotatedSampleEssay({
   text,
   annotations,
@@ -64,6 +66,8 @@ function AnnotatedSampleEssay({
   activeId: number | null
   onSelect: (idx: number) => void
 }) {
+  const [tooltip, setTooltip] = useState<TooltipState>(null)
+
   if (annotations.length === 0) {
     return <p className="text-base leading-8 text-foreground whitespace-pre-wrap">{text}</p>
   }
@@ -71,30 +75,54 @@ function AnnotatedSampleEssay({
   const segments = buildSegments(text, annotations)
 
   return (
-    <p className="text-base leading-8 text-foreground whitespace-pre-wrap">
-      {segments.map((seg) => {
-        if (!seg.annotation) return <span key={seg.id}>{seg.text}</span>
+    <>
+      <p className="text-base leading-8 text-foreground whitespace-pre-wrap">
+        {segments.map((seg) => {
+          if (!seg.annotation) return <span key={seg.id}>{seg.text}</span>
 
-        const annIdx = annotations.indexOf(seg.annotation)
-        const style  = HIGHLIGHT_STYLE[seg.annotation.highlightType]
-        const isActive = activeId === annIdx
+          const annIdx   = annotations.indexOf(seg.annotation)
+          const style    = HIGHLIGHT_STYLE[seg.annotation.highlightType]
+          const isActive = activeId === annIdx
 
-        return (
-          <mark
-            key={seg.id}
-            onClick={() => onSelect(annIdx)}
-            className={cn(
-              "cursor-pointer rounded-sm px-0.5 transition-all",
-              style.bg,
-              isActive && "ring-2 ring-offset-1 ring-primary"
-            )}
-            title={seg.annotation.explanation}
-          >
-            {seg.text}
-          </mark>
-        )
-      })}
-    </p>
+          return (
+            <mark
+              key={seg.id}
+              onClick={() => onSelect(annIdx)}
+              onMouseEnter={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                setTooltip({ ann: seg.annotation!, x: rect.left + rect.width / 2, y: rect.top })
+              }}
+              onMouseLeave={() => setTooltip(null)}
+              className={cn(
+                "cursor-pointer rounded-sm px-0.5 transition-all",
+                style.bg,
+                isActive && "ring-2 ring-offset-1 ring-primary"
+              )}
+            >
+              {seg.text}
+            </mark>
+          )
+        })}
+      </p>
+
+      {tooltip && (
+        <div
+          className="pointer-events-none fixed z-50 w-72 rounded-lg border border-border bg-card p-0 shadow-lg"
+          style={{ left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)" }}
+        >
+          <div className="space-y-2 p-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">{T.TOOLTIP_TYPE_LABEL}:</span>
+              <span className={cn("h-2 w-2 shrink-0 rounded-full", HIGHLIGHT_STYLE[tooltip.ann.highlightType].dot)} />
+              <span className="text-xs font-semibold text-foreground">
+                {HIGHLIGHT_STYLE[tooltip.ann.highlightType].label}
+              </span>
+            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">{tooltip.ann.explanation}</p>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -134,6 +162,18 @@ function EssayInfoPanel({
           ))}
         </div>
       </div>
+
+      {/* Dàn ý */}
+      {essay.outlineContent && (
+        <div>
+          <h2 className="mb-2 text-sm font-semibold text-foreground">{T.DETAIL_LABEL_OUTLINE}</h2>
+          <div className="rounded-xl border border-border bg-muted/40 px-4 py-3">
+            <p className="whitespace-pre-wrap text-xs leading-relaxed text-foreground">
+              {essay.outlineContent}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Phân tích lỗi */}
       {annotations.length === 0 ? (
