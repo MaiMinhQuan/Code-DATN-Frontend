@@ -1,3 +1,4 @@
+// Trang làm bài writing dạng chia đôi: đề bên trái, editor + tiến trình chấm bên phải.
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -19,16 +20,24 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { SubmissionStatus } from "@/types/enums";
 import { cn } from "@/lib/utils";
 
+/*
+Component PracticeDetailPage.
 
+Output:
+- Giao diện viết bài theo đề cụ thể, hỗ trợ submit và nhận cập nhật chấm realtime.
+*/
 export default function PracticeDetailPage() {
   const { questionId } = useParams<{ questionId: string }>();
   const router = useRouter();
 
   const [essayContent, setEssayContent] = useState("");
+  // Lưu submissionId sau khi tạo draft để các lần submit sau tái sử dụng
   const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { gradingStatus, reset } = useSubmissionStore();
+
+  // Khóa editor khi bài đang chờ chấm hoặc đang được chấm
   const isGrading =
     gradingStatus === SubmissionStatus.SUBMITTED ||
     gradingStatus === SubmissionStatus.PROCESSING;
@@ -37,21 +46,32 @@ export default function PracticeDetailPage() {
   const createDraft = useCreateDraft();
   const submitEssay = useSubmitEssay();
 
+  // True khi có mutation tạo draft hoặc submit đang chạy
   const isMutating = createDraft.isPending || submitEssay.isPending;
+  // Cờ disable tổng hợp để khóa thao tác khi cần
   const disabled = isGrading || isMutating;
 
+  // Lắng nghe websocket chấm bài; hoàn thành thì chuyển sang trang kết quả
   useSubmissionSocket(submissionId, {
     onCompleted: (id) => router.push(`/practice/${questionId}/result/${id}`),
     onFailed: (_, msg) => toast.error(msg ?? UI_TEXT.PRACTICE.GRADING_FAILED),
   });
 
+  // Dọn trạng thái grading trong store khi rời trang
   useEffect(() => () => reset(), [reset]);
 
+  /*
+  Xử lý nộp bài.
+
+  Output:
+  - Tạo draft nếu chưa có, sau đó submit draft để chấm AI.
+  */
   const handleSubmit = useCallback(async () => {
     if (!essayContent.trim()) return;
     try {
       let id = submissionId;
       if (!id) {
+        // Lần submit đầu tiên: tạo draft và lưu lại ID
         const s = await createDraft.mutateAsync({ questionId, essayContent });
         id = s._id;
         setSubmissionId(id);
@@ -83,10 +103,11 @@ export default function PracticeDetailPage() {
 
   return (
     <div className="-m-6 flex flex-col" style={{ height: "calc(100vh - 4rem)" }}>
-      {/* Header bar */}
+      {/* Header chứa nút quay lại và tiêu đề đề bài */}
       <div className="flex h-11 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--card)] px-4">
         <button
           onClick={() => {
+            // Invalidate cache submissions để danh sách cập nhật mới nhất khi quay lại
             queryClient.invalidateQueries({ queryKey: ["submissions"] });
             router.push("/practice");
           }}
@@ -105,7 +126,7 @@ export default function PracticeDetailPage() {
         </span>
       </div>
 
-      {/* Split-screen editor */}
+      {/* Chia đôi màn hình: đề bài (trái) | editor + submit (phải) */}
       <div className="min-h-0 flex-1">
         <Allotment>
           <Allotment.Pane minSize={300} preferredSize="42%">
@@ -120,6 +141,7 @@ export default function PracticeDetailPage() {
                 disabled={disabled}
               />
 
+              {/* Khối trạng thái chấm bài realtime */}
               <GradingProgress />
 
               <div className="pb-2">

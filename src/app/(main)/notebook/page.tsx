@@ -1,3 +1,4 @@
+// Trang notebook dạng 2 cột: sidebar collection và danh sách note theo bộ lọc.
 "use client"
 
 import { useState } from "react"
@@ -13,7 +14,14 @@ import type { Note, CreateNotePayload, UpdateNotePayload } from "@/types/noteboo
 
 const T = UI_TEXT.NOTEBOOK
 
+/*
+Component NotebookPage.
+
+Output:
+- Quản lý note/collection, lọc theo collection và mở modal tạo/sửa note.
+*/
 export default function NotebookPage() {
+  // null = tất cả note; "none" = chưa phân loại; còn lại là collectionId
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [modalOpen,    setModalOpen]    = useState(false)
   const [editingNote,  setEditingNote]  = useState<Note | null>(null)
@@ -25,20 +33,43 @@ export default function NotebookPage() {
   const updateNote = useUpdateNote()
   const deleteNote = useDeleteNote()
 
+  // True khi mutation tạo/sửa note đang chạy
   const isSaving = createNote.isPending || updateNote.isPending
 
-  // ── Handlers ─────────────────────────────────────────────────────────────────
+  /*
+  Mở modal note.
 
+  Input:
+  - note — note cần sửa; truyền null để mở chế độ tạo mới.
+
+  Output:
+  - Mở modal với state phù hợp theo mode tạo/sửa.
+  */
   const openModal = (note: Note | null) => {
     setEditingNote(note)
     setModalOpen(true)
   }
 
+  /*
+  Đóng modal note.
+
+  Output:
+  - Tắt modal và reset trạng thái chỉnh sửa.
+  */
   const closeModal = () => {
     setModalOpen(false)
     setEditingNote(null)
   }
 
+  /*
+  Lưu note từ dữ liệu form modal.
+
+  Input:
+  - data — payload tạo/sửa note.
+
+  Output:
+  - Cập nhật note hiện có hoặc tạo note mới, rồi đóng modal khi thành công.
+  */
   const handleSave = (data: CreateNotePayload | UpdateNotePayload) => {
     if (editingNote) {
       updateNote.mutate(
@@ -50,30 +81,36 @@ export default function NotebookPage() {
     }
   }
 
+  /*
+  Xóa note theo ID.
+
+  Input:
+  - id — ID note cần xóa.
+
+  Output:
+  - Gọi mutation xóa sau khi người dùng xác nhận.
+  */
   const handleDelete = (id: string) => {
     if (!window.confirm(T.DELETE_CONFIRM)) return
     deleteNote.mutate(id)
   }
 
-  // ── Header label ─────────────────────────────────────────────────────────────
-
+  // Nhãn header thay đổi theo filter đang active
   const filterLabel = (() => {
     if (activeFilter === null)   return T.FILTER_ALL
     if (activeFilter === "none") return T.FILTER_UNCATEGORIZED
     return collections.find((c) => c._id === activeFilter)?.name ?? ""
   })()
 
-  // ── defaultCollectionId for modal ────────────────────────────────────────────
-  // Nếu đang xem bộ cụ thể → pre-fill bộ đó; ngược lại không pre-fill
+  // Prefill collection trong modal khi đang đứng ở filter collection cụ thể
   const defaultCollectionId =
     activeFilter && activeFilter !== "none" ? activeFilter : null
 
-  // ── Render ───────────────────────────────────────────────────────────────────
-
   return (
+    // Layout 2 cột full-height; -m-6 để bù padding trang cha
     <div className="-m-6 flex" style={{ height: "calc(100vh - 4rem)" }}>
 
-      {/* Cột trái — Sidebar */}
+      {/* Cột trái: sidebar collection */}
       <aside className="w-72 shrink-0 overflow-y-auto border-r border-border">
         <CollectionSidebar
           activeFilter={activeFilter}
@@ -81,10 +118,10 @@ export default function NotebookPage() {
         />
       </aside>
 
-      {/* Cột phải — Main content */}
+      {/* Cột phải: header + danh sách note */}
       <main className="flex flex-1 flex-col overflow-hidden">
 
-        {/* Header */}
+        {/* Header với tên filter hiện tại và nút tạo note */}
         <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-3">
           <h2 className="text-base font-semibold text-foreground">{filterLabel}</h2>
           <button
@@ -96,7 +133,7 @@ export default function NotebookPage() {
           </button>
         </div>
 
-        {/* Danh sách ghi chú */}
+        {/* Danh sách note có thể cuộn */}
         <div className="flex-1 overflow-y-auto">
           <NoteList
             notes={notes}
@@ -109,7 +146,7 @@ export default function NotebookPage() {
 
       </main>
 
-      {/* Modal soạn thảo */}
+      {/* Modal tạo/sửa note */}
       <NoteFormModal
         open={modalOpen}
         note={editingNote ?? undefined}

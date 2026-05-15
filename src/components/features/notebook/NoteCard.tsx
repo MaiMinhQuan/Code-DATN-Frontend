@@ -1,3 +1,4 @@
+// Item hiển thị một ghi chú trong danh sách notebook.
 "use client"
 
 import { useState } from "react"
@@ -8,12 +9,28 @@ import type { Note } from "@/types/notebook.types"
 const T = UI_TEXT.NOTEBOOK
 
 interface NoteCardProps {
+  // Dữ liệu note cần hiển thị.
   note: Note
+  // Màu của collection chứa note (nếu có).
   collectionColor?: string
+  // Callback mở note để chỉnh sửa.
   onEdit: (note: Note) => void
+  // Callback xóa note theo id.
   onDelete: (id: string) => void
 }
 
+/*
+Component item note.
+
+Input:
+- note — dữ liệu note.
+- collectionColor — màu collection của note (optional).
+- onEdit — hàm xử lý sửa note.
+- onDelete — hàm xử lý xóa note.
+
+Output:
+- Hàng note có preview nội dung và menu thao tác.
+*/
 export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const date = new Date(note.createdAt).toLocaleDateString("vi-VN")
@@ -25,7 +42,7 @@ export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardPr
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-2.5">
-          {/* Collection color dot */}
+          {/* Chấm màu collection */}
           {collectionColor && (
             <span
               className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
@@ -37,6 +54,7 @@ export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardPr
             <p className="line-clamp-1 text-sm font-semibold text-foreground">
               {note.title || T.UNTITLED}
             </p>
+            {/* Dòng preview nội dung note */}
             <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
               {note.userDraftNote}
             </p>
@@ -44,7 +62,7 @@ export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardPr
           </div>
         </div>
 
-        {/* ··· menu */}
+        {/* Nút mở menu ngữ cảnh */}
         <div className="relative shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
@@ -55,6 +73,7 @@ export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardPr
 
           {menuOpen && (
             <>
+              {/* Overlay bắt click ngoài để đóng menu */}
               <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false) }} />
               <div className="absolute right-0 top-7 z-20 min-w-36 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
                 <button

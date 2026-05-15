@@ -1,3 +1,4 @@
+// Trang danh sách khóa học với bộ lọc chủ đề.
 "use client";
 
 import { useState, useMemo } from "react";
@@ -9,16 +10,22 @@ import type { CourseQueryParams } from "@/types/course.types";
 
 const T = UI_TEXT.COURSES;
 
+/*
+Component CoursesPage.
+
+Output:
+- Danh sách khóa học theo filter chủ đề và trạng thái tải dữ liệu.
+*/
 export default function CoursesPage() {
   const [params, setParams] = useState<CourseQueryParams>({});
 
-  // Fetch all courses once (no topicId) để lấy danh sách topics
+  // Lấy toàn bộ khóa học để dựng danh sách topic unique cho filter
   const { data: allCourses = [] } = useCourses();
 
-  // Fetch theo filter hiện tại
+  // Lấy khóa học theo params đang filter
   const { data: courses = [], isLoading } = useCourses(params);
 
-  // Rút unique topics từ all courses — chỉ tính toán lại khi allCourses thay đổi
+  // Dựng danh sách topic unique từ allCourses
   const topics = useMemo(() => {
     const seen = new Set<string>();
     return allCourses
@@ -32,18 +39,18 @@ export default function CoursesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header trang */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">{T.PAGE_TITLE}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{T.PAGE_SUBTITLE}</p>
       </div>
 
-      {/* Filter — chỉ render khi đã có topics */}
+      {/* Bộ lọc chỉ hiển thị khi đã có topic */}
       {topics.length > 0 && (
         <CourseFilter params={params} topics={topics} onChange={setParams} />
       )}
 
-      {/* List */}
+      {/* Lưới danh sách khóa học */}
       <CourseList courses={courses} isLoading={isLoading} />
     </div>
   );

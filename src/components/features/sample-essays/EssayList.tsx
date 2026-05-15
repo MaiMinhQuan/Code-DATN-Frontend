@@ -1,3 +1,4 @@
+// Danh sách bài mẫu, hỗ trợ loading skeleton và empty state.
 import { FileText } from "lucide-react"
 import { UI_TEXT } from "@/constants/ui-text"
 import { EssayCard } from "./EssayCard"
@@ -5,6 +6,12 @@ import type { SampleEssay } from "@/types/sample-essay.types"
 
 const T = UI_TEXT.SAMPLE_ESSAYS
 
+/*
+Component skeleton card.
+
+Output:
+- Placeholder dùng trong lúc đang tải danh sách bài mẫu.
+*/
 function SkeletonCard() {
   return (
     <div className="flex animate-pulse flex-col rounded-xl border border-border bg-card p-4">
@@ -28,10 +35,22 @@ function SkeletonCard() {
 }
 
 interface EssayListProps {
+  // Danh sách bài mẫu cần hiển thị.
   essays: SampleEssay[]
+  // Trạng thái đang tải dữ liệu.
   isLoading: boolean
 }
 
+/*
+Component danh sách bài mẫu.
+
+Input:
+- essays — dữ liệu các bài mẫu.
+- isLoading — trạng thái tải.
+
+Output:
+- Grid `EssayCard`, skeleton hoặc empty state tùy dữ liệu.
+*/
 export function EssayList({ essays, isLoading }: EssayListProps) {
   if (isLoading) {
     return (

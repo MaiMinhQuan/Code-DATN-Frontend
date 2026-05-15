@@ -1,3 +1,4 @@
+// Tooltip hiển thị chi tiết lỗi AI cho đoạn text được highlight.
 import { Tooltip, TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import type { AIError } from "@/types/ai-result.types";
 import { ERROR_CATEGORY_STYLES } from "@/constants/error-category";
@@ -15,10 +16,22 @@ const SEVERITY_STYLES: Record<
 };
 
 interface ErrorTooltipProps {
+  // Danh sách lỗi gắn với đoạn highlight.
   errors: AIError[];
+  // Nội dung trigger tooltip.
   children: React.ReactNode;
 }
 
+/*
+Component tooltip lỗi AI.
+
+Input:
+- errors — các lỗi AI của đoạn đang hover.
+- children — node trigger để hiển thị tooltip.
+
+Output:
+- Popup chứa category, severity, suggestion và explanation của lỗi.
+*/
 export function ErrorTooltip({ errors, children }: ErrorTooltipProps) {
   return (
     <Tooltip>
@@ -35,11 +48,11 @@ export function ErrorTooltip({ errors, children }: ErrorTooltipProps) {
 
           return (
             <div key={i}>
+              {/* Ngăn cách khi có nhiều lỗi trên cùng một segment */}
               {i > 0 && <div className="border-t border-border" />}
 
               <div className="p-3 space-y-2">
-
-                {/* Header: Loại lỗi + Mức độ — mỗi cặp label:value nằm cùng dòng */}
+                {/* Header: category + severity */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">{T.TOOLTIP_CATEGORY_LABEL}:</span>
@@ -55,8 +68,7 @@ export function ErrorTooltip({ errors, children }: ErrorTooltipProps) {
                   </div>
                 </div>
 
-
-                {/* Gợi ý — chỉ hiện suggestion, bỏ originalText gạch ngang */}
+                {/* Suggestion thay thế đoạn lỗi */}
                 <div className="flex items-center gap-1.5 text-xs">
                   <span className="text-muted-foreground">{T.TOOLTIP_SUGGESTION_LABEL}:</span>
                   <span className="rounded bg-muted px-1.5 py-0.5 font-mono font-medium text-foreground">
@@ -64,7 +76,7 @@ export function ErrorTooltip({ errors, children }: ErrorTooltipProps) {
                   </span>
                 </div>
 
-                {/* Giải thích */}
+                {/* Giải thích lỗi */}
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   {error.explanation}
                 </p>

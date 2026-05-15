@@ -1,3 +1,4 @@
+// Trang kết quả chấm AI: bài viết annotate bên trái, bảng điểm + lỗi bên phải.
 "use client"
 
 import { useState } from "react"
@@ -16,6 +17,12 @@ import { SubmissionStatus } from "@/types/enums"
 
 const T = UI_TEXT.RESULT
 
+/*
+Component ResultPage.
+
+Output:
+- Hiển thị kết quả chấm cho submission đã hoàn thành, đồng bộ chọn lỗi giữa 2 panel.
+*/
 export default function ResultPage() {
   const { questionId, submissionId } = useParams<{
     questionId: string
@@ -24,18 +31,22 @@ export default function ResultPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
 
+  /*
+  Quay về trang practice và làm mới cache submissions.
+
+  Output:
+  - Điều hướng về `/practice` với danh sách dữ liệu đã được refresh.
+  */
   const handleBackToPractice = () => {
     queryClient.invalidateQueries({ queryKey: ["submissions"] })
     router.push("/practice")
   }
 
-  // State bridge: sync highlight giữa 2 panel
+  // ID lỗi đang active, đồng bộ giữa panel bài viết và panel danh sách lỗi
   const [activeErrorId, setActiveErrorId] = useState<string | null>(null)
 
   const { data: submission, isLoading, isError } = useSubmission(submissionId)
   const { data: question } = useExamQuestion(questionId)
-
-  // ── Loading ─────────────────────────────────────────────────────────────────
 
   if (isLoading) {
     return (
@@ -44,8 +55,6 @@ export default function ResultPage() {
       </div>
     )
   }
-
-  // ── Error ───────────────────────────────────────────────────────────────────
 
   if (isError || !submission) {
     return (
@@ -62,8 +71,7 @@ export default function ResultPage() {
     )
   }
 
-  // ── Chưa có kết quả AI (navigate trực tiếp khi chưa COMPLETED) ──────────────
-
+  // Chặn trường hợp truy cập URL kết quả khi AI chưa chấm xong
   if (!submission.aiResult || submission.status !== SubmissionStatus.COMPLETED) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
@@ -73,17 +81,15 @@ export default function ResultPage() {
     )
   }
 
-  // ── Main layout ─────────────────────────────────────────────────────────────
-
   return (
     <div className="-m-6" style={{ height: "calc(100vh - 4rem)" }}>
       <Allotment>
 
-        {/* Panel trái: Đề bài + Essay có annotation */}
+        {/* Panel trái: đề bài + bài viết đã annotate */}
         <Allotment.Pane minSize={320} preferredSize="55%">
           <div className="flex h-full flex-col overflow-hidden">
 
-            {/* Header */}
+            {/* Header với điều hướng và nút làm lại */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-3 shrink-0">
               <button
                 onClick={handleBackToPractice}
@@ -104,7 +110,7 @@ export default function ResultPage() {
               </span>
             </div>
 
-            {/* Đề bài — compact, collapsible bằng line-clamp */}
+            {/* Prompt đề bài giới hạn 3 dòng */}
             {question && (
               <div className="shrink-0 border-b border-border bg-muted/40 px-5 py-3">
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Đề bài</p>
@@ -114,7 +120,7 @@ export default function ResultPage() {
               </div>
             )}
 
-            {/* Bài viết có highlight */}
+            {/* Nội dung bài viết với highlight lỗi inline */}
             <div className="flex-1 overflow-y-auto px-5 py-5">
               <AnnotatedEssay
                 text={submission.essayContent}
@@ -127,7 +133,7 @@ export default function ResultPage() {
           </div>
         </Allotment.Pane>
 
-        {/* Panel phải: Điểm số + Danh sách lỗi */}
+        {/* Panel phải: điểm band, radar chart và danh sách lỗi có filter */}
         <Allotment.Pane minSize={320}>
           <div className="h-full overflow-y-auto">
             <BandScorePanel

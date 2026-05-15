@@ -1,3 +1,4 @@
+// Trang đăng ký: tạo tài khoản mới và thử tự động đăng nhập.
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -11,7 +12,7 @@ import { Loader2, GraduationCap } from "lucide-react";
 import { authService } from "@/services/auth.service";
 import { UI_TEXT } from "@/constants/ui-text";
 
-
+// Schema validate dữ liệu đăng ký.
 const schema = z
   .object({
     fullName: z.string().min(2, UI_TEXT.VALIDATION.FULL_NAME_MIN).max(30, UI_TEXT.VALIDATION.FULL_NAME_MAX),
@@ -21,11 +22,17 @@ const schema = z
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: UI_TEXT.VALIDATION.PASSWORD_MISMATCH,
-    path: ["confirmPassword"],
+    path: ["confirmPassword"], // Gắn lỗi vào field xác nhận mật khẩu
   });
 
 type FormData = z.infer<typeof schema>;
 
+/*
+Component trang đăng ký.
+
+Output:
+- Form tạo tài khoản, validate dữ liệu và xử lý auto-login sau đăng ký.
+*/
 export default function RegisterPage() {
   const router = useRouter();
   const {
@@ -34,6 +41,15 @@ export default function RegisterPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  /*
+  Xử lý submit form đăng ký.
+
+  Input:
+  - data — dữ liệu form đã validate.
+
+  Output:
+  - Tạo user mới, thử auto-login, sau đó điều hướng phù hợp.
+  */
   const onSubmit = async (data: FormData) => {
     try {
       await authService.register({
@@ -42,7 +58,7 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      // Tự động đăng nhập sau khi đăng ký thành công
+      // Thử tự động đăng nhập ngay sau khi đăng ký thành công
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -55,12 +71,20 @@ export default function RegisterPage() {
       } else {
         toast.success(UI_TEXT.REGISTER.TOAST_SUCCESS_AUTO_LOGIN);
         router.push("/dashboard");
-        router.refresh();
+        router.refresh(); // Đồng bộ session phía server
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : UI_TEXT.REGISTER.TOAST_ERROR_FALLBACK);
     }
   };
+
+  // Cấu hình field để render form theo cùng một pattern.
+  const fields = [
+    { name: "fullName", label: UI_TEXT.REGISTER.LABEL_FULL_NAME, type: "text", placeholder: UI_TEXT.REGISTER.PLACEHOLDER_FULL_NAME },
+    { name: "email", label: UI_TEXT.REGISTER.LABEL_EMAIL, type: "email", placeholder: UI_TEXT.COMMON.PLACEHOLDER_EMAIL },
+    { name: "password", label: UI_TEXT.REGISTER.LABEL_PASSWORD, type: "password", placeholder: UI_TEXT.COMMON.PLACEHOLDER_PASSWORD },
+    { name: "confirmPassword", label: UI_TEXT.REGISTER.LABEL_CONFIRM_PASSWORD, type: "password", placeholder: UI_TEXT.COMMON.PLACEHOLDER_PASSWORD },
+  ];
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
@@ -75,12 +99,7 @@ export default function RegisterPage() {
 
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {[
-              { name: "fullName", label: UI_TEXT.REGISTER.LABEL_FULL_NAME, type: "text", placeholder: UI_TEXT.REGISTER.PLACEHOLDER_FULL_NAME },
-              { name: "email", label: UI_TEXT.REGISTER.LABEL_EMAIL, type: "email", placeholder: UI_TEXT.COMMON.PLACEHOLDER_EMAIL },
-              { name: "password", label: UI_TEXT.REGISTER.LABEL_PASSWORD, type: "password", placeholder: UI_TEXT.COMMON.PLACEHOLDER_PASSWORD },
-              { name: "confirmPassword", label: UI_TEXT.REGISTER.LABEL_CONFIRM_PASSWORD, type: "password", placeholder: UI_TEXT.COMMON.PLACEHOLDER_PASSWORD },
-            ].map((field) => (
+            {fields.map((field) => (
               <div key={field.name}>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">
                   {field.label}

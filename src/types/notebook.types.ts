@@ -1,5 +1,6 @@
-// ─── NoteCollection ───────────────────────────────────────────────────────────
+// Type cho notebook notes và note collections (kèm request/response).
 
+// Collection nhóm các note, có màu hex để phân biệt.
 export interface NoteCollection {
   _id: string;
   userId: string;
@@ -9,18 +10,19 @@ export interface NoteCollection {
   updatedAt: string;
 }
 
+// Payload POST /note-collections.
 export interface CreateCollectionPayload {
   name: string;
   color?: string;
 }
 
+// Payload PATCH /note-collections/:id.
 export interface UpdateCollectionPayload {
   name?: string;
   color?: string;
 }
 
-// ─── Core entity ──────────────────────────────────────────────────────────────
-
+// Một note thuộc user đã đăng nhập.
 export interface Note {
   _id: string;
   userId: string;
@@ -31,22 +33,21 @@ export interface Note {
   updatedAt: string;
 }
 
-// ─── Request payloads ─────────────────────────────────────────────────────────
-
+// Payload POST /notebook.
 export interface CreateNotePayload {
   userDraftNote: string;
   title?: string;
   collectionId?: string | null;
 }
 
+// Payload PATCH /notebook/:id.
 export interface UpdateNotePayload {
   userDraftNote?: string;
   title?: string;
   collectionId?: string | null;
 }
 
-// ─── Response shapes ──────────────────────────────────────────────────────────
-
+// Shape response của DELETE /notebook/:id.
 export interface DeleteNoteResponse {
   message: string;
 }

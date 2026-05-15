@@ -1,3 +1,4 @@
+// Panel hiển thị đầy đủ thông tin đề bài writing hiện tại.
 import { Layers, Gauge, Hash } from "lucide-react";
 import { ExamQuestion } from "@/types/exam-question.types";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -5,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/ui/MarkdownContent";
 
 interface QuestionPanelProps {
+  // Dữ liệu đề cần render.
   question: ExamQuestion;
 }
 
@@ -19,16 +21,22 @@ const DIFFICULTY_CONFIG: Record<
   5: { label: "Rất khó",   dot: "bg-red-500",     bg: "bg-red-50",     text: "text-red-700",     ring: "ring-red-200"     },
 };
 
+/*
+Component panel đề bài.
+
+Input:
+- question — dữ liệu đề thi writing.
+
+Output:
+- Header metadata, prompt đề và phần hướng dẫn gợi ý (nếu có).
+*/
 export function QuestionPanel({ question }: QuestionPanelProps) {
   const difficulty = DIFFICULTY_CONFIG[question.difficultyLevel];
 
   return (
     <div className="flex h-full flex-col overflow-y-auto px-6 py-5 space-y-5">
-
-      {/* Row 1: Topic + Difficulty */}
+      {/* Nhãn chủ đề + độ khó */}
       <div className="flex flex-wrap items-center gap-2">
-
-        {/* Topic badge */}
         {question.topicId?.name && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
             <Layers className="h-3 w-3" />
@@ -36,7 +44,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
           </span>
         )}
 
-        {/* Difficulty badge với dots indicator */}
+        
         {difficulty && (
           <span
             className={cn(
@@ -47,7 +55,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
           >
             <Gauge className="h-3 w-3" />
             {difficulty.label}
-            {/* Dots: filled = đã đạt level, empty = chưa */}
+            {/* Dot biểu diễn mức độ khó */}
             <span className="flex items-center gap-0.5">
               {Array.from({ length: 5 }, (_, i) => (
                 <span
@@ -63,7 +71,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
         )}
       </div>
 
-      {/* Row 2: Tags (tách riêng, nhỏ hơn) */}
+      {/* Danh sách tag của đề */}
       {question.tags?.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {question.tags.map((tag) => (
@@ -78,12 +86,12 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
         </div>
       )}
 
-      {/* Title */}
+      {/* Tiêu đề đề bài */}
       <h1 className="text-lg font-semibold leading-snug text-[var(--foreground)]">
         {question.title}
       </h1>
 
-      {/* questionPrompt */}
+      {/* Prompt chính để người học viết bài */}
       <div className={cn(
         "rounded-lg border-l-4 border-indigo-500 bg-indigo-50 px-4 py-4",
         "text-sm leading-relaxed text-[var(--foreground)]"
@@ -91,7 +99,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
         {question.questionPrompt}
       </div>
 
-      {/* suggestedOutline */}
+      {/* Gợi ý triển khai dàn ý */}
       {question.suggestedOutline && (
         <div className="space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">

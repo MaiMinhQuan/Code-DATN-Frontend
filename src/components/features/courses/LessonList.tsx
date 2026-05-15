@@ -1,3 +1,4 @@
+// Danh sách lesson ở panel trái của trang chi tiết khóa học.
 import { BookOpen } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import { LessonItem } from "./LessonItem";
@@ -6,12 +7,28 @@ import type { Lesson } from "@/types/course.types";
 const T = UI_TEXT.COURSES;
 
 interface LessonListProps {
+  // Danh sách lesson cần hiển thị.
   lessons: Lesson[];
+  // Trạng thái tải dữ liệu lesson.
   isLoading: boolean;
+  // ID lesson đang được chọn.
   activeLessonId: string | null;
+  // Callback khi chọn một lesson.
   onSelect: (lesson: Lesson) => void;
 }
 
+/*
+Component danh sách lessons.
+
+Input:
+- lessons — danh sách lesson.
+- isLoading — trạng thái tải.
+- activeLessonId — lesson đang active.
+- onSelect — hàm xử lý khi chọn lesson.
+
+Output:
+- Skeleton, empty state hoặc danh sách `LessonItem`.
+*/
 export function LessonList({ lessons, isLoading, activeLessonId, onSelect }: LessonListProps) {
   if (isLoading) {
     return (

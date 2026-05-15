@@ -1,5 +1,6 @@
 "use client";
 
+// Bộ lọc course theo chủ đề trên trang danh sách khóa học.
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -13,18 +14,33 @@ interface TopicOption {
 }
 
 interface CourseFilterProps {
+  // Trạng thái filter hiện tại.
   params: CourseQueryParams;
-  topics: TopicOption[];           // derived từ courses data
+  // Danh sách topic dùng để render các nút lọc.
+  topics: TopicOption[];
+  // Callback trả params mới về component cha.
   onChange: (params: CourseQueryParams) => void;
 }
 
+/*
+Component bộ lọc courses.
+
+Input:
+- params — trạng thái filter hiện tại.
+- topics — danh sách topic khả dụng.
+- onChange — hàm cập nhật filter.
+
+Output:
+- Cụm nút lọc topic và nút reset khi đang có filter.
+*/
 export function CourseFilter({ params, topics, onChange }: CourseFilterProps) {
   const hasFilter = !!params.topicId;
 
   return (
     <div className="flex items-center gap-3">
+      {/* Danh sách nút lọc theo topic (cuộn ngang khi tràn) */}
       <div className="flex flex-1 gap-1 overflow-x-auto rounded-lg border border-border bg-card p-1 [&::-webkit-scrollbar]:hidden">
-        {/* All topics */}
+        {/* Nút hiển thị tất cả topic */}
         <button
           onClick={() => onChange({ ...params, topicId: undefined })}
           className={cn(
@@ -37,7 +53,7 @@ export function CourseFilter({ params, topics, onChange }: CourseFilterProps) {
           {T.FILTER_TOPIC_ALL}
         </button>
 
-        {/* Per-topic buttons */}
+        {/* Một nút cho mỗi topic */}
         {topics.map((topic) => (
           <button
             key={topic._id}
@@ -54,6 +70,7 @@ export function CourseFilter({ params, topics, onChange }: CourseFilterProps) {
         ))}
       </div>
 
+      {/* Nút reset chỉ hiện khi có filter */}
       {hasFilter && (
         <button
           onClick={() => onChange({})}

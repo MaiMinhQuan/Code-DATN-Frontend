@@ -1,3 +1,4 @@
+// Trang chi tiết khóa học và danh sách lesson theo filter band.
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -9,6 +10,7 @@ import { useState } from "react";
 
 const T = UI_TEXT.COURSES;
 
+// Các mức filter target band (null = hiển thị tất cả).
 const BAND_FILTERS = [
   { value: null,          label: T.FILTER_BAND_ALL     },
   { value: "BAND_5_0",   label: T.FILTER_BAND_5_0     },
@@ -16,18 +18,26 @@ const BAND_FILTERS = [
   { value: "BAND_7_PLUS",label: T.FILTER_BAND_7_PLUS  },
 ] as const;
 
+// Nhãn hiển thị cho từng target band.
 const BAND_LABEL: Record<string, string> = {
   BAND_5_0:    "Band 5.0",
   BAND_6_0:    "Band 6.0",
   BAND_7_PLUS: "Band 7+",
 };
 
+// Màu badge theo từng target band.
 const BAND_COLOR: Record<string, string> = {
   BAND_5_0:    "bg-blue-100 text-blue-700",
   BAND_6_0:    "bg-emerald-100 text-emerald-700",
   BAND_7_PLUS: "bg-amber-100 text-amber-700",
 };
 
+/*
+Component CourseDetailPage.
+
+Output:
+- Thông tin khóa học, filter band và danh sách lesson có thể truy cập.
+*/
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>();
   const router = useRouter();
@@ -37,8 +47,10 @@ export default function CourseDetailPage() {
   const { data: lessons = [], isLoading: lessonsLoading } =
     useLessons({ courseId });
 
+  // Null là hiển thị tất cả; string là filter theo band cụ thể
   const [selectedBand, setSelectedBand] = useState<string | null>(null);
 
+  // Áp dụng filter band phía client sau khi tải dữ liệu
   const filteredLessons = selectedBand
     ? lessons.filter((l) => l.targetBand === selectedBand)
     : lessons;
@@ -69,7 +81,7 @@ export default function CourseDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back */}
+      {/* Quay lại danh sách khóa học */}
       <button
         onClick={() => router.push("/courses")}
         className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -78,7 +90,7 @@ export default function CourseDetailPage() {
         {T.DETAIL_BACK}
       </button>
 
-      {/* Course header */}
+      {/* Card thông tin khóa học */}
       <div className="rounded-xl border border-border bg-card p-5">
         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
           {course.topicId.name}
@@ -94,7 +106,7 @@ export default function CourseDetailPage() {
         </p>
       </div>
 
-      {/* Band filter */}
+      {/* Nhóm filter theo band */}
       <div className="flex flex-wrap gap-2">
         {BAND_FILTERS.map((f) => (
           <button
@@ -113,7 +125,7 @@ export default function CourseDetailPage() {
       </div>
 
 
-      {/* Lesson list */}
+      {/* Danh sách lesson: skeleton / empty / danh sách nút lesson */}
       {lessonsLoading ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -135,12 +147,12 @@ export default function CourseDetailPage() {
               }
               className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm"
             >
-              {/* Số thứ tự */}
+              {/* Số thứ tự lesson */}
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                 {index + 1}
               </span>
 
-              {/* Title + description */}
+              {/* Tiêu đề và mô tả lesson */}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground">
                   {lesson.title}
@@ -152,7 +164,7 @@ export default function CourseDetailPage() {
                 )}
               </div>
 
-              {/* Band badge */}
+              {/* Badge target band */}
               <span
                 className={cn(
                   "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold",

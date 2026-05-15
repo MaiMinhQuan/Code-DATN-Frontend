@@ -1,3 +1,4 @@
+// Danh sách note trong notebook, kèm loading và empty state.
 "use client"
 
 import { useMemo } from "react"
@@ -9,14 +10,33 @@ import type { Note, NoteCollection } from "@/types/notebook.types"
 const T = UI_TEXT.NOTEBOOK
 
 interface NoteListProps {
+  // Danh sách note cần hiển thị.
   notes: Note[]
+  // Trạng thái tải dữ liệu note.
   isLoading: boolean
+  // Danh sách collection để map màu.
   collections: NoteCollection[]
+  // Callback mở note để chỉnh sửa.
   onEdit: (note: Note) => void
+  // Callback xóa note theo id.
   onDelete: (id: string) => void
 }
 
+/*
+Component danh sách note.
+
+Input:
+- notes — danh sách note.
+- isLoading — trạng thái tải.
+- collections — danh sách collection.
+- onEdit — hàm xử lý sửa note.
+- onDelete — hàm xử lý xóa note.
+
+Output:
+- Danh sách `NoteCard`, skeleton hoặc empty state tương ứng.
+*/
 export function NoteList({ notes, isLoading, collections, onEdit, onDelete }: NoteListProps) {
+  // Map nhanh collectionId -> color để truyền xuống từng NoteCard
   const colorMap = useMemo(
     () => Object.fromEntries(collections.map((c) => [c._id, c.color])),
     [collections]
@@ -52,6 +72,7 @@ export function NoteList({ notes, isLoading, collections, onEdit, onDelete }: No
         <NoteCard
           key={note._id}
           note={note}
+          // Lấy màu collection từ map đã memo
           collectionColor={note.collectionId ? colorMap[note.collectionId] : undefined}
           onEdit={onEdit}
           onDelete={onDelete}

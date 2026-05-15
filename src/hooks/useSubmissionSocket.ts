@@ -1,3 +1,5 @@
+// Hook WebSocket nhận tiến trình chấm AI realtime cho submission.
+
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -7,8 +9,7 @@ import { useSubmissionStore } from "@/stores/submission.store";
 import { submissionKeys } from "@/hooks/useSubmission";
 import { SubmissionStatus } from "@/types/enums";
 
-// ─── Payload types (khớp với backend WebSocket events) ───────────────────────
-
+// Payload event submission_status_updated từ backend.
 interface StatusUpdatedPayload {
   submissionId: string;
   status: SubmissionStatus;
@@ -18,22 +19,32 @@ interface StatusUpdatedPayload {
   timestamp: string;
 }
 
+// Payload event submission_progress từ backend.
 interface ProgressPayload {
   submissionId: string;
-  progress: number;
+  progress: number; // 0–100
   message: string;
   timestamp: string;
 }
 
-// ─── Hook options ─────────────────────────────────────────────────────────────
-
+// Options truyền vào useSubmissionSocket để xử lý trạng thái kết thúc.
 interface UseSubmissionSocketOptions {
+  // Callback khi submission chuyển sang COMPLETED.
   onCompleted?: (submissionId: string) => void;
+  // Callback khi submission chuyển sang FAILED.
   onFailed?: (submissionId: string, errorMessage?: string) => void;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+/*
+Hook tạo kết nối Socket.io theo user hiện tại và lắng nghe event chấm AI.
 
+Input:
+- submissionId — submission cần theo dõi (null nếu chưa chọn cụ thể).
+- options — callback cho trạng thái COMPLETED/FAILED.
+
+Output:
+- { isConnected } cho biết socket có đang kết nối hay không.
+*/
 export function useSubmissionSocket(
   submissionId: string | null,
   options: UseSubmissionSocketOptions = {}
@@ -43,12 +54,12 @@ export function useSubmissionSocket(
   const { setGradingStatus, setGradingProgress } = useSubmissionStore();
   const [isConnected, setIsConnected] = useState(false);
 
-  // Dùng ref để event handlers có giá trị mới nhất
-  // mà không trigger reconnect khi submissionId hoặc callbacks thay đổi
+  // Dùng ref để handler luôn đọc được giá trị mới nhất mà không reconnect socket
   const socketRef = useRef<Socket | null>(null);
   const submissionIdRef = useRef(submissionId);
   const optionsRef = useRef(options);
 
+  // Đồng bộ ref với props mới nhất
   useEffect(() => {
     submissionIdRef.current = submissionId;
   }, [submissionId]);
@@ -57,7 +68,7 @@ export function useSubmissionSocket(
     optionsRef.current = options;
   });
 
-  // ── Kết nối socket — chỉ chạy lại khi auth thay đổi ──────────────────────
+  // Tạo socket theo session hiện tại và cleanup khi unmount
   useEffect(() => {
     if (!session?.accessToken || !session?.user?.id) return;
 
@@ -71,16 +82,16 @@ export function useSubmissionSocket(
 
     socketRef.current = socket;
 
-    // ── connect ──────────────────────────────────────────────────────────────
     socket.on("connect", () => {
       setIsConnected(true);
+      // Join room theo user để server emit đúng người nhận
       socket.emit("join_room", { room: `user:${session.user.id}` });
     });
 
     socket.on("disconnect", () => setIsConnected(false));
 
-    // ── submission_status_updated ─────────────────────────────────────────────
     socket.on("submission_status_updated", (payload: StatusUpdatedPayload) => {
+      // Bỏ qua event của submission khác
       if (!submissionIdRef.current) return;
       if (payload.submissionId !== submissionIdRef.current) return;
 
@@ -92,7 +103,7 @@ export function useSubmissionSocket(
 
       if (payload.status === SubmissionStatus.COMPLETED) {
         setGradingProgress(100, "Chấm bài hoàn tất!");
-        // Refetch để lấy aiResult đầy đủ — đây là lần duy nhất cần gọi server
+        // Refetch chi tiết submission để lấy aiResult mới nhất
         queryClient.refetchQueries({
           queryKey: submissionKeys.detail(payload.submissionId),
         });
@@ -108,8 +119,8 @@ export function useSubmissionSocket(
       }
     });
 
-    // ── submission_progress ───────────────────────────────────────────────────
     socket.on("submission_progress", (payload: ProgressPayload) => {
+      // Bỏ qua progress event của submission khác
       if (!submissionIdRef.current) return;
       if (payload.submissionId !== submissionIdRef.current) return;
 

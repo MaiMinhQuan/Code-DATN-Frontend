@@ -1,3 +1,4 @@
+// Danh sách bộ thẻ flashcard, kèm trạng thái loading và empty.
 import { Layers } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import { SetCard } from "./SetCard";
@@ -5,6 +6,7 @@ import type { FlashcardSet } from "@/types/flashcard.types";
 
 const T = UI_TEXT.FLASHCARDS;
 
+// Card skeleton dùng khi đang tải danh sách bộ thẻ.
 function SkeletonCard() {
   return (
     <div className="animate-pulse rounded-xl border border-border bg-card p-5">
@@ -22,11 +24,25 @@ function SkeletonCard() {
 }
 
 interface SetListProps {
+  // Danh sách bộ thẻ cần hiển thị.
   sets: FlashcardSet[];
+  // Trạng thái tải dữ liệu.
   isLoading: boolean;
+  // Callback xử lý xóa bộ thẻ.
   onDelete: (id: string) => void;
 }
 
+/*
+Component danh sách bộ flashcard.
+
+Input:
+- sets — dữ liệu các bộ thẻ.
+- isLoading — trạng thái tải.
+- onDelete — hàm xử lý xóa.
+
+Output:
+- Grid `SetCard` hoặc skeleton/empty state.
+*/
 export function SetList({ sets, isLoading, onDelete }: SetListProps) {
   if (isLoading) {
     return (

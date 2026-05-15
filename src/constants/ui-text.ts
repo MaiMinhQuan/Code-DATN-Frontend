@@ -1,12 +1,13 @@
+// Hằng số text UI dùng chung cho toàn bộ trang, tách khỏi component.
 export const UI_TEXT = {
-  // ─── Metadata ────────────────────────────────────────────
+  // Metadata website dùng trong thẻ <head>
   META: {
     SITE_NAME: "IELTS Writing AI",
     SITE_DESCRIPTION:
       "Nền tảng luyện IELTS Writing Task 2 tích hợp AI chấm bài",
   },
 
-  // ─── Dùng chung ──────────────────────────────────────────
+  // Placeholder và giá trị fallback dùng chung nhiều trang
   COMMON: {
     PLACEHOLDER_EMAIL: "example@email.com",
     PLACEHOLDER_PASSWORD: "••••••••",
@@ -15,7 +16,7 @@ export const UI_TEXT = {
     FALLBACK_USER_DISPLAY: "Người dùng",
   },
 
-  // ─── Validation ──────────────────────────────────────────
+  // Thông báo validation cho form
   VALIDATION: {
     EMAIL_INVALID: "Email không hợp lệ",
     PASSWORD_MIN: "Mật khẩu tối thiểu 6 ký tự",
@@ -24,7 +25,7 @@ export const UI_TEXT = {
     PASSWORD_MISMATCH: "Mật khẩu xác nhận không khớp",
   },
 
-  // ─── Trang Login ─────────────────────────────────────────
+  // Text trang đăng nhập
   LOGIN: {
     HEADING: "IELTS Writing AI",
     SUBHEADING: "Đăng nhập để tiếp tục luyện tập",
@@ -37,7 +38,7 @@ export const UI_TEXT = {
     TOAST_SUCCESS: "Đăng nhập thành công!",
   },
 
-  // ─── Trang Register ──────────────────────────────────────
+  // Text trang đăng ký
   REGISTER: {
     HEADING: "Tạo tài khoản",
     SUBHEADING: "Bắt đầu hành trình IELTS của bạn",
@@ -54,7 +55,7 @@ export const UI_TEXT = {
     TOAST_ERROR_FALLBACK: "Đăng ký thất bại",
   },
 
-  // ─── Sidebar ─────────────────────────────────────────────
+  // Nhãn điều hướng sidebar
   SIDEBAR: {
     LOGO_TEXT: "IELTS Writing AI",
     NAV_DASHBOARD: "Tổng quan",
@@ -65,30 +66,44 @@ export const UI_TEXT = {
     NAV_NOTEBOOK: "Sổ tay",
   },
 
-  // ─── Topbar ──────────────────────────────────────────────
+  // Text topbar
   TOPBAR: {
-    GREETING: "Chào mừng trở lại 👋",
+    GREETING: "Chào mừng trở lại",
     BTN_LOGOUT: "Đăng xuất",
   },
 
-  // ─── Dashboard ───────────────────────────────────────────
+  // Text trang dashboard (có hàm nội suy giá trị động)
   DASHBOARD: {
-    GREETING: (name: string) => `Xin chào, ${name} 👋`,
+    GREETING: (name: string) => `Xin chào, ${name}`,
     SUBHEADING: "Hôm nay bạn muốn luyện tập chủ đề nào?",
     STAT_SUBMISSIONS: "Bài đã nộp",
     STAT_AVG_BAND: "Band trung bình",
     STAT_STREAK: "Streak hiện tại",
-    PLACEHOLDER_COMING_SOON:
-      "Các module đang được phát triển — Giai đoạn 2 & 3 sắp ra mắt.",
+    STAT_DUE_CARDS: "Thẻ cần ôn",
+    QUICK_PRACTICE_TITLE: "Luyện viết ngay",
+    QUICK_PRACTICE_DESC: "Chọn đề và bắt đầu viết",
+    QUICK_FLASHCARD_TITLE: "Ôn flashcard hôm nay",
+    QUICK_FLASHCARD_DESC: (n: number) => `${n} thẻ cần ôn hôm nay`,
+    QUICK_FLASHCARD_EMPTY: "Không có thẻ nào cần ôn",
+    RECENT_TITLE: "Bài nộp gần đây",
+    RECENT_EMPTY: "Chưa có bài nộp nào",
+    RECENT_EMPTY_HINT: "Bắt đầu luyện viết để xem kết quả tại đây",
+    RECENT_SUBMISSION_LABEL: (n: number) => `Bài luyện #${n}`,
+    ERROR_CHART_TITLE: "Top lỗi thường gặp",
+    ERROR_CHART_EMPTY: "Chưa có dữ liệu lỗi",
+    ERROR_CHART_EMPTY_HINT: "Nộp bài để xem phân tích lỗi",
+    ERROR_CHART_SUFFIX: "lần",
+    CHART_EMPTY: "Chưa có dữ liệu",
+    CHART_TITLE: "Band Score",
   },
 
-  // ─── Practice ────────────────────────────────────────────
+  // Text trang luyện viết
   PRACTICE: {
     BTN_SAVE_DRAFT: "Lưu nháp",
     BTN_SUBMIT: "Nộp bài",
     BTN_SUBMITTING: "Đang nộp...",
     LABEL_WORD_COUNT: (count: number) => `${count} từ`,
-    WORD_COUNT_MIN: 250,
+    WORD_COUNT_MIN: 250, // số từ tối thiểu khuyến nghị cho Task 2
     WORD_COUNT_HINT: "Tối thiểu 250 từ",
     DRAFT_SAVED: "Đã lưu nháp",
     TOPIC_LABEL: "Chủ đề",
@@ -103,7 +118,7 @@ export const UI_TEXT = {
     PLACEHOLDER_ESSAY: "Bắt đầu viết bài của bạn tại đây...",
   },
 
-  // ─── Result ──────────────────────────────────────────────
+  // Text trang kết quả chấm bài
   RESULT: {
     TOOLTIP_SUGGESTION_LABEL: "Gợi ý",
     SEVERITY_HIGH: "Cao",
@@ -125,7 +140,7 @@ export const UI_TEXT = {
     TOOLTIP_SEVERITY_LABEL: "Mức độ",
   },
 
-  // ─── Sample Essays ───────────────────────────────────────────
+  // Text trang bài mẫu
   SAMPLE_ESSAYS: {
     PAGE_TITLE: "Bài mẫu IELTS",
     PAGE_SUBTITLE: "Tham khảo các bài viết mẫu đã được AI chấm điểm",
@@ -156,6 +171,7 @@ export const UI_TEXT = {
     DETAIL_NOT_FOUND: "Không tìm thấy bài mẫu",
   },
 
+  // Text trang notebook
   NOTEBOOK: {
     PAGE_TITLE:          "Sổ tay của tôi",
     PAGE_SUBTITLE:       "Ghi chú cá nhân trong quá trình luyện tập",
@@ -186,6 +202,7 @@ export const UI_TEXT = {
     MENU_DELETE:         "Xoá",
   },
 
+  // Text trang courses (có hàm format thời lượng)
   COURSES: {
     PAGE_TITLE: "Khoá học",
     PAGE_SUBTITLE: "Tài liệu học IELTS Writing theo từng band điểm",
@@ -207,6 +224,7 @@ export const UI_TEXT = {
     EMPTY_VOCABULARY: "Chưa có từ vựng",
     EMPTY_GRAMMAR: "Chưa có ngữ pháp",
     EMPTY_NOTES: "Chưa có ghi chú",
+    // Format thời lượng giây sang chuỗi MM:SS.
     LABEL_DURATION: (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`,
     BTN_RESET_FILTER: "Đặt lại",
     DETAIL_BACK: "Quay lại",
@@ -214,6 +232,7 @@ export const UI_TEXT = {
     DETAIL_LESSON_LOADING: "Đang tải bài học...",
   },
 
+  // Text trang flashcards
   FLASHCARDS: {
     PAGE_TITLE: "Thẻ ghi nhớ",
     PAGE_SUBTITLE: "Ôn tập với hệ thống lặp lại thông minh",
@@ -237,6 +256,11 @@ export const UI_TEXT = {
     REVIEW_PROGRESS: (cur: number, total: number) => `${cur} / ${total}`,
     REVIEW_COMPLETE: "Hoàn thành buổi ôn tập!",
     REVIEW_COMPLETE_HINT: (n: number) => `Bạn đã ôn ${n} thẻ trong buổi này`,
+    REVIEW_QUALITY_PROMPT: "Bạn nhớ được đến mức nào?",
+    REVIEW_FLIP_HINT: "Nhấn vào thẻ để xem đáp án",
+    CARD_FACE_FRONT: "Mặt trước",
+    CARD_FACE_BACK: "Mặt sau",
+    // Nhãn theo nhóm ReviewQuality: 0–1 quên, 2–3 còn mơ hồ, 4–5 nhớ rõ.
     QUALITY_LABELS: ["Không nhớ", "Còn lơ mơ", "Nhớ rõ"] as const,
     CONFIRM_DELETE_SET: "Bộ thẻ và toàn bộ thẻ bên trong sẽ bị xoá.",
     DETAIL_BACK: "Quay lại",
@@ -253,7 +277,7 @@ export const UI_TEXT = {
     REVIEW_MODE_DUE_EMPTY: "Không có thẻ nào đến hạn",
   },
 
-  // ─── Practice List ───────────────────────────────────
+  // Text trang danh sách đề luyện tập
   PRACTICE_LIST: {
     HEADING: "Luyện tập",
     SUBHEADING: "Chọn đề và bắt đầu luyện viết",
@@ -265,6 +289,7 @@ export const UI_TEXT = {
     LABEL_ATTEMPTS: (n: number) => `${n} lượt làm`,
     EMPTY_TITLE: "Không có đề thi nào",
     EMPTY_DESC: "Thử thay đổi bộ lọc hoặc quay lại sau.",
+    // Index 0 bỏ trống; index 1–5 tương ứng độ khó 1–5.
     DIFFICULTY_LABELS: ["", "Cơ bản", "Dễ", "Trung bình", "Khó", "Rất khó"] as const,
   },
 
