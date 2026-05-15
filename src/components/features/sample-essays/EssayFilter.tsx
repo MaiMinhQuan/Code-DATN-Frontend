@@ -1,3 +1,4 @@
+// Bộ lọc topic và target band cho danh sách bài mẫu.
 "use client"
 
 import { X } from "lucide-react"
@@ -16,10 +17,14 @@ const BAND_OPTIONS: { label: string; value: TargetBand | undefined }[] = [
 ]
 
 interface EssayFilterProps {
+  // Params lọc hiện tại.
   params: GetSampleEssaysParams
+  
+  // Callback cập nhật params lọc.
   onChange: (params: GetSampleEssaysParams) => void
 }
 
+// Nhóm button filter có cùng kiểu hiển thị.
 function FilterGroup({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">
@@ -28,6 +33,7 @@ function FilterGroup({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Nút filter tái sử dụng cho topic/band.
 function FilterButton({
   active,
   onClick,
@@ -50,19 +56,31 @@ function FilterButton({
   )
 }
 
+/*
+Component bộ lọc bài mẫu.
+
+Input:
+- params — điều kiện lọc hiện tại.
+- onChange — hàm cập nhật điều kiện lọc.
+
+Output:
+- Nhóm filter theo topic, target band và nút reset.
+*/
 export function EssayFilter({ params, onChange }: EssayFilterProps) {
   const { data: topics = [] } = useTopics()
 
   const hasActiveFilter = !!params.targetBand || !!params.topicId
 
+  // Cập nhật filter target band.
   const setBand  = (value: TargetBand | undefined) => onChange({ ...params, targetBand: value })
+  // Cập nhật filter topic.
   const setTopic = (value: string | undefined)     => onChange({ ...params, topicId: value })
+  // Xóa toàn bộ điều kiện lọc.
   const reset    = () => onChange({})
 
   return (
     <div className="flex flex-col gap-2">
-
-      {/* Hàng 1: Filter chủ đề */}
+      {/* Filter theo chủ đề */}
       <FilterGroup>
         <FilterButton active={!params.topicId} onClick={() => setTopic(undefined)}>
           {T.FILTER_TOPIC_ALL}
@@ -78,7 +96,7 @@ export function EssayFilter({ params, onChange }: EssayFilterProps) {
         ))}
       </FilterGroup>
 
-      {/* Hàng 2: Filter band điểm + Reset */}
+      {/* Filter theo band + nút reset */}
       <div className="flex items-center gap-3">
         <FilterGroup>
           {BAND_OPTIONS.map((opt) => (

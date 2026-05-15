@@ -1,3 +1,4 @@
+// Trang đăng nhập: validate form, gọi NextAuth và điều hướng sau khi thành công.
 "use client";
 
 import { signIn } from "next-auth/react";
@@ -10,7 +11,7 @@ import { toast } from "sonner";
 import { Loader2, GraduationCap } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 
-
+// Schema validate dữ liệu đăng nhập.
 const schema = z.object({
   email: z.string().email(UI_TEXT.VALIDATION.EMAIL_INVALID),
   password: z.string().min(6, UI_TEXT.VALIDATION.PASSWORD_MIN),
@@ -18,6 +19,12 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+/*
+Component trang đăng nhập.
+
+Output:
+- Form email/password, hiển thị lỗi validate và đăng nhập qua credentials.
+*/
 export default function LoginPage() {
   const router = useRouter();
   const {
@@ -26,11 +33,20 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  /*
+  Gửi thông tin đăng nhập lên NextAuth.
+
+  Input:
+  - data — dữ liệu form đã validate.
+
+  Output:
+  - Hiển thị toast và điều hướng về dashboard khi đăng nhập thành công.
+  */
   const onSubmit = async (data: FormData) => {
     const result = await signIn("credentials", {
       email: data.email,
       password: data.password,
-      redirect: false,
+      redirect: false, // Tự xử lý redirect để hiển thị toast trước
     });
 
     if (result?.error) {
@@ -38,14 +54,14 @@ export default function LoginPage() {
     } else {
       toast.success(UI_TEXT.LOGIN.TOAST_SUCCESS);
       router.push("/dashboard");
-      router.refresh();
+      router.refresh(); // Đồng bộ session phía server
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
+        {/* Khối logo và tiêu đề */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600">
             <GraduationCap className="h-7 w-7 text-white" />
@@ -54,7 +70,7 @@ export default function LoginPage() {
           <p className="text-sm text-slate-500">{UI_TEXT.LOGIN.SUBHEADING}</p>
         </div>
 
-        {/* Card */}
+        {/* Card chứa form đăng nhập */}
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>

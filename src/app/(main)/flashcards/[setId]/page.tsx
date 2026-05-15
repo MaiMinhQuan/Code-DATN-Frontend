@@ -1,3 +1,4 @@
+// Trang chi tiết flashcard set: xem, thêm, sửa, xóa từng thẻ.
 "use client";
 
 import { useState } from "react";
@@ -16,35 +17,46 @@ import type { Flashcard } from "@/types/flashcard.types";
 
 const T = UI_TEXT.FLASHCARDS;
 
+/*
+Component FlashcardSetPage.
+
+Output:
+- Quản lý chi tiết card trong set, bao gồm chỉnh sửa thông tin set và thao tác CRUD card.
+*/
 export default function FlashcardSetPage() {
   const { setId } = useParams<{ setId: string }>();
   const router = useRouter();
 
-  // ─── Card form state ──────────────────────────────────────────────────────
-  const [showForm, setShowForm] = useState(false);
+  // State form card (dùng chung cho chế độ thêm/sửa)
+  const [showForm,    setShowForm]    = useState(false);
   const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
-  const [front, setFront] = useState("");
-  const [back, setBack] = useState("");
+  const [front,       setFront]       = useState("");
+  const [back,        setBack]        = useState("");
 
-  // ─── Inline edit set info state ──────────────────────────────────────────
-  const [editingInfo, setEditingInfo] = useState(false);
-  const [titleDraft, setTitleDraft] = useState("");
+  // State sửa thông tin set inline
+  const [editingInfo,      setEditingInfo]      = useState(false);
+  const [titleDraft,       setTitleDraft]       = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
 
-  // ─── Data ─────────────────────────────────────────────────────────────────
   const { data, isLoading, isError } = useFlashcardSetDetail(setId);
   const { set, cards = [] } = data ?? {};
 
-  // ─── Mutations ────────────────────────────────────────────────────────────
   const createCard = useCreateFlashcard();
   const updateCard = useUpdateFlashcard();
   const deleteCard = useDeleteFlashcard();
-  const updateSet = useUpdateFlashcardSet();
+  const updateSet  = useUpdateFlashcardSet();
 
+  // True khi đang sửa card hiện có
   const isEditing = !!editingCard;
-  const isSaving = createCard.isPending || updateCard.isPending;
+  // True khi mutation tạo/sửa card đang chạy
+  const isSaving  = createCard.isPending || updateCard.isPending;
 
-  // ─── Card handlers ────────────────────────────────────────────────────────
+  /*
+  Mở form thêm card mới.
+
+  Output:
+  - Reset dữ liệu form và chuyển sang chế độ thêm.
+  */
   const openAddForm = () => {
     setEditingCard(null);
     setFront("");
@@ -52,6 +64,15 @@ export default function FlashcardSetPage() {
     setShowForm(true);
   };
 
+  /*
+  Mở form sửa card.
+
+  Input:
+  - card — card cần chỉnh sửa.
+
+  Output:
+  - Prefill form bằng dữ liệu card được chọn.
+  */
   const openEditForm = (card: Flashcard) => {
     setEditingCard(card);
     setFront(card.frontContent);
@@ -59,6 +80,12 @@ export default function FlashcardSetPage() {
     setShowForm(true);
   };
 
+  /*
+  Đóng form card.
+
+  Output:
+  - Reset state form và thoát chế độ thêm/sửa.
+  */
   const closeForm = () => {
     setShowForm(false);
     setEditingCard(null);
@@ -66,6 +93,12 @@ export default function FlashcardSetPage() {
     setBack("");
   };
 
+  /*
+  Lưu dữ liệu card từ form.
+
+  Output:
+  - Tạo card mới hoặc cập nhật card hiện tại tùy theo mode.
+  */
   const handleSave = () => {
     if (!front.trim() || !back.trim()) return;
     if (isEditing && editingCard) {
@@ -81,25 +114,45 @@ export default function FlashcardSetPage() {
     }
   };
 
+  /*
+  Xóa card theo ID.
+
+  Input:
+  - cardId — ID card cần xóa.
+
+  Output:
+  - Gọi mutation xóa card sau khi xác nhận.
+  */
   const handleDelete = (cardId: string) => {
     if (!window.confirm(T.CONFIRM_DELETE_CARD)) return;
     deleteCard.mutate({ cardId, setId });
   };
 
-  // ─── Set info edit handlers ───────────────────────────────────────────────
+  /*
+  Bật chế độ sửa thông tin set inline.
+
+  Output:
+  - Prefill title/description vào draft để người dùng chỉnh sửa.
+  */
   const startEditInfo = () => {
     setTitleDraft(set?.title ?? "");
     setDescriptionDraft(set?.description ?? "");
     setEditingInfo(true);
   };
 
+  /*
+  Lưu thông tin set đã chỉnh sửa.
+
+  Output:
+  - Cập nhật title/description và thoát chế độ edit khi thành công.
+  */
   const saveInfo = () => {
     if (!titleDraft.trim()) return;
     updateSet.mutate(
       {
         id: setId,
         payload: {
-          title: titleDraft.trim(),
+          title:       titleDraft.trim(),
           description: descriptionDraft.trim() || undefined,
         },
       },
@@ -107,13 +160,18 @@ export default function FlashcardSetPage() {
     );
   };
 
+  /*
+  Hủy chỉnh sửa thông tin set.
+
+  Output:
+  - Thoát edit mode và xóa dữ liệu draft.
+  */
   const cancelEditInfo = () => {
     setEditingInfo(false);
     setTitleDraft("");
     setDescriptionDraft("");
   };
 
-  // ─── Loading / Error ──────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -139,7 +197,7 @@ export default function FlashcardSetPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back */}
+      {/* Nút quay về danh sách set */}
       <button
         onClick={() => router.push("/flashcards")}
         className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -148,7 +206,7 @@ export default function FlashcardSetPage() {
         {T.DETAIL_BACK}
       </button>
 
-      {/* Set header */}
+      {/* Header set: icon, title/description editable và nút thao tác */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
@@ -156,6 +214,7 @@ export default function FlashcardSetPage() {
           </div>
           <div>
             {editingInfo ? (
+              /* Chế độ sửa inline */
               <div className="flex flex-col gap-2">
                 <input
                   autoFocus
@@ -193,6 +252,7 @@ export default function FlashcardSetPage() {
                 </div>
               </div>
             ) : (
+              /* Chế độ xem bình thường; icon sửa hiện khi hover */
               <div className="group/info">
                 <div className="flex items-center gap-1.5">
                   <h1 className="text-xl font-bold text-foreground">{set.title}</h1>
@@ -216,6 +276,7 @@ export default function FlashcardSetPage() {
           </div>
         </div>
 
+        {/* Nút hành động: review set và thêm card */}
         <div className="flex shrink-0 items-center gap-2">
           {cards.length > 0 && (
             <button
@@ -237,13 +298,14 @@ export default function FlashcardSetPage() {
         </div>
       </div>
 
-      {/* Add / Edit form */}
+      {/* Form thêm/sửa card */}
       {showForm && (
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-foreground">
             {isEditing ? T.FORM_TITLE_EDIT : T.FORM_TITLE_ADD}
           </h2>
 
+          {/* Bố cục 2 cột cho mặt trước và mặt sau */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-muted-foreground">Mặt trước</label>
@@ -286,7 +348,7 @@ export default function FlashcardSetPage() {
         </div>
       )}
 
-      {/* Card list */}
+      {/* Danh sách card; empty state chỉ hiển thị khi form không mở */}
       {cards.length === 0 && !showForm ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
           <Layers className="mb-3 h-10 w-10 text-muted-foreground/40" />

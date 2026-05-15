@@ -1,3 +1,4 @@
+// Sidebar quản lý collection và bộ lọc ghi chú trong notebook.
 "use client"
 
 import { useState } from "react"
@@ -13,16 +14,20 @@ import {
 
 const T = UI_TEXT.NOTEBOOK
 
+// Danh sách màu preset khi tạo collection mới.
 const PRESET_COLORS = [
   "#6366f1", "#10b981", "#ef4444", "#f59e0b",
   "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6",
 ]
 
 interface CollectionSidebarProps {
+  // Bộ lọc đang active: null (tất cả), "none" (chưa phân loại), hoặc collectionId.
   activeFilter: string | null
+  // Callback đổi bộ lọc.
   onFilterChange: (filter: string | null) => void
 }
 
+// Nút điều hướng dùng cho các mục filter cố định.
 function NavItem({
   label,
   filter,
@@ -52,6 +57,16 @@ function NavItem({
   )
 }
 
+/*
+Component sidebar notebook.
+
+Input:
+- activeFilter — bộ lọc hiện tại.
+- onFilterChange — hàm xử lý đổi bộ lọc.
+
+Output:
+- Sidebar gồm filter, danh sách collection và form tạo collection mới.
+*/
 export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSidebarProps) {
   const { data: collections = [] } = useNoteCollections()
   const createCollection = useCreateCollection()
@@ -65,6 +80,12 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
   const [renameValue, setRenameValue] = useState("")
   const [openMenuId,  setOpenMenuId]  = useState<string | null>(null)
 
+  /*
+  Tạo collection mới.
+
+  Output:
+  - Gọi mutation tạo collection và reset form khi thành công.
+  */
   const handleCreate = () => {
     if (!newName.trim()) return
     createCollection.mutate(
@@ -79,6 +100,15 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
     )
   }
 
+  /*
+  Đổi tên collection.
+
+  Input:
+  - id — collectionId cần đổi tên.
+
+  Output:
+  - Gọi mutation cập nhật tên và thoát chế độ rename khi thành công.
+  */
   const handleRename = (id: string) => {
     if (!renameValue.trim()) return
     updateCollection.mutate(
@@ -87,10 +117,20 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
     )
   }
 
+  /*
+  Xóa collection.
+
+  Input:
+  - id — collectionId cần xóa.
+
+  Output:
+  - Xóa collection; nếu đang lọc theo collection đó thì reset về tất cả.
+  */
   const handleDelete = (id: string) => {
     if (!window.confirm(T.DELETE_COLLECTION_CONFIRM)) return
     deleteCollection.mutate(id, {
       onSuccess: () => {
+        // Nếu collection đang xem bị xóa thì chuyển về chế độ xem tất cả
         if (activeFilter === id) onFilterChange(null)
       },
     })
@@ -100,7 +140,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
     <div className="flex h-full flex-col px-3 py-4">
       <h1 className="mb-4 px-3 text-lg font-bold text-foreground">{T.PAGE_TITLE}</h1>
 
-      {/* Mục cố định */}
+      {/* Nhóm filter cố định */}
       <nav className="flex flex-col gap-0.5">
         <NavItem
           label={T.FILTER_ALL}
@@ -118,7 +158,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
         />
       </nav>
 
-      {/* Danh sách collections */}
+      {/* Danh sách collection do người dùng tạo */}
       <div className="mt-5 flex-1 overflow-y-auto">
         <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {T.COLLECTIONS_LABEL}
@@ -128,7 +168,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
           {collections.map((col) => (
             <div key={col._id} className="group relative">
               {renamingId === col._id ? (
-                /* Inline rename input */
+                /* Hàng nhập liệu đổi tên inline */
                 <div className="flex items-center gap-1.5 rounded-lg bg-muted px-2 py-1.5">
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -152,7 +192,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
                   </button>
                 </div>
               ) : (
-                /* Collection item */
+                /* Hàng collection bình thường */
                 <button
                   onClick={() => onFilterChange(col._id)}
                   className={cn(
@@ -167,6 +207,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
                     style={{ backgroundColor: col.color }}
                   />
                   <span className="flex-1 truncate">{col.name}</span>
+                  
                   <span
                     onClick={(e) => {
                       e.stopPropagation()
@@ -179,9 +220,10 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
                 </button>
               )}
 
-              {/* Dropdown menu */}
+              {/* Menu ngữ cảnh đổi tên / xóa */}
               {openMenuId === col._id && (
                 <>
+                  {/* Overlay để đóng menu khi click ra ngoài */}
                   <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
                   <div className="absolute right-0 top-9 z-20 min-w-36 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
                     <button
@@ -208,7 +250,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
         </div>
       </div>
 
-      {/* Tạo bộ sưu tập mới */}
+      {/* Khu vực tạo collection mới */}
       <div className="shrink-0 pt-3">
         {isCreating ? (
           <div className="rounded-xl border border-border bg-muted/40 p-3">
@@ -223,6 +265,7 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
               }}
               className="mb-2 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
+            {/* Chọn màu cho collection */}
             <div className="mb-2.5 flex flex-wrap gap-1.5">
               {PRESET_COLORS.map((c) => (
                 <button

@@ -1,3 +1,4 @@
+// Danh sách card khóa học, kèm trạng thái loading và empty.
 import { BookOpen } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import { CourseCard } from "./CourseCard";
@@ -23,10 +24,22 @@ function SkeletonCard() {
 }
 
 interface CourseListProps {
+  // Danh sách khóa học cần hiển thị.
   courses: Course[];
+  // Trạng thái đang tải dữ liệu.
   isLoading: boolean;
 }
 
+/*
+Component danh sách courses.
+
+Input:
+- courses — danh sách course.
+- isLoading — trạng thái tải dữ liệu.
+
+Output:
+- Grid card course hoặc skeleton/empty state tương ứng.
+*/
 export function CourseList({ courses, isLoading }: CourseListProps) {
   if (isLoading) {
     return (

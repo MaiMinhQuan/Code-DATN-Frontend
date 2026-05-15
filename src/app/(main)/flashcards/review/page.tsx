@@ -1,3 +1,4 @@
+// Trang ôn tập tổng hợp: lấy toàn bộ thẻ đến hạn từ tất cả set.
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -9,17 +10,33 @@ import type { ReviewQuality } from "@/types/flashcard.types";
 
 const T = UI_TEXT.FLASHCARDS;
 
+/*
+Component FlashcardsReviewPage.
+
+Output:
+- Phiên ôn tập thẻ đến hạn toàn cục, kèm empty state và điều hướng quay lại.
+*/
 export default function FlashcardsReviewPage() {
   const router = useRouter();
 
+  // Lấy toàn bộ card có `nextReviewDate` tới hôm nay hoặc đã quá hạn
   const { data: cards = [], isLoading } = useReviewCards();
   const reviewCard = useReviewFlashcard();
 
+  /*
+  Gửi kết quả review cho một card.
+
+  Input:
+  - cardId — ID card vừa review.
+  - quality — điểm chất lượng nhớ bài (1/3/5).
+
+  Output:
+  - Gọi mutation cập nhật lịch ôn tập theo spaced repetition.
+  */
   const handleReview = (cardId: string, quality: ReviewQuality) => {
     reviewCard.mutate({ cardId, payload: { quality } });
   };
 
-  // ─── Loading ──────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -28,7 +45,7 @@ export default function FlashcardsReviewPage() {
     );
   }
 
-  // ─── Không có thẻ cần ôn ─────────────────────────────────────────────────
+  // Empty state khi không còn card nào đến hạn
   if (cards.length === 0) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-4 text-center">
@@ -54,10 +71,10 @@ export default function FlashcardsReviewPage() {
     );
   }
 
-  // ─── Review session ───────────────────────────────────────────────────────
+  // Phiên review đang diễn ra
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header với nút quay lại và số thẻ đến hạn */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => router.push("/flashcards")}
@@ -71,7 +88,7 @@ export default function FlashcardsReviewPage() {
         </span>
       </div>
 
-      {/* Centered review area */}
+      {/* Khu vực review chính */}
       <div className="mx-auto w-full max-w-lg">
         <ReviewSession
           cards={cards}

@@ -1,3 +1,4 @@
+// Trang danh sách bộ flashcard, hỗ trợ tạo set mới ngay trên trang.
 "use client";
 
 import { useState } from "react";
@@ -12,15 +13,27 @@ import { UI_TEXT } from "@/constants/ui-text";
 
 const T = UI_TEXT.FLASHCARDS;
 
+/*
+Component FlashcardsPage.
+
+Output:
+- Danh sách flashcard set, form tạo mới và thao tác xóa set.
+*/
 export default function FlashcardsPage() {
-  const [showForm, setShowForm] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [showForm,     setShowForm]     = useState(false);
+  const [title,        setTitle]        = useState("");
+  const [description,  setDescription]  = useState("");
 
   const { data: sets = [], isLoading } = useFlashcardSets();
   const createSet = useCreateFlashcardSet();
   const deleteSet = useDeleteFlashcardSet();
 
+  /*
+  Tạo flashcard set mới.
+
+  Output:
+  - Gọi mutation tạo set, reset form và đóng form khi thành công.
+  */
   const handleCreate = () => {
     if (!title.trim()) return;
     createSet.mutate(
@@ -35,12 +48,27 @@ export default function FlashcardsPage() {
     );
   };
 
+  /*
+  Hủy form tạo set.
+
+  Output:
+  - Đóng form và reset dữ liệu nhập.
+  */
   const handleCancelForm = () => {
     setShowForm(false);
     setTitle("");
     setDescription("");
   };
 
+  /*
+  Xóa flashcard set.
+
+  Input:
+  - id — ID của set cần xóa.
+
+  Output:
+  - Gọi mutation xóa set sau khi người dùng xác nhận.
+  */
   const handleDelete = (id: string) => {
     if (!window.confirm(T.CONFIRM_DELETE_SET)) return;
     deleteSet.mutate(id);
@@ -48,7 +76,7 @@ export default function FlashcardsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header trang + nút tạo set mới */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">{T.PAGE_TITLE}</h1>
@@ -67,7 +95,7 @@ export default function FlashcardsPage() {
         </div>
       </div>
 
-      {/* Form tạo bộ thẻ */}
+      {/* Form tạo set hiển thị inline */}
       {showForm && (
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-foreground">
@@ -113,7 +141,7 @@ export default function FlashcardsPage() {
         </div>
       )}
 
-      {/* Danh sách bộ thẻ */}
+      {/* Danh sách set hiện có */}
       <SetList sets={sets} isLoading={isLoading} onDelete={handleDelete} />
     </div>
   );

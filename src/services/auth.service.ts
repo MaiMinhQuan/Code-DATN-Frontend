@@ -1,8 +1,15 @@
 import { API_BASE_URL } from "@/lib/constants";
 import { AuthResponse } from "@/types/user.types";
 
-// Chỉ dùng fetch thuần (không qua axios) vì register không cần auth
+// Dùng `fetch` trực tiếp thay vì `apiClient` vì endpoint đăng ký không cần header Authorization.
 export const authService = {
+  /*
+  Đăng ký tài khoản mới
+  Input:
+  - data — payload đăng ký (email/password/fullName).
+  Output:
+  - AuthResponse (thông tin user và access token).
+  */
   register: async (data: {
     email: string;
     password: string;

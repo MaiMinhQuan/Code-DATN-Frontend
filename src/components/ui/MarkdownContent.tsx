@@ -1,12 +1,25 @@
+// Renderer Markdown với style Tailwind thống nhất trong ứng dụng.
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 
 interface MarkdownContentProps {
+  // Chuỗi markdown thô cần render.
   content: string;
+  // Class bổ sung cho thẻ wrapper (optional).
   className?: string;
 }
 
+/*
+Component MarkdownContent.
+
+Input:
+- content — nội dung markdown đầu vào.
+- className — class CSS bổ sung cho wrapper (optional).
+
+Output:
+- Nội dung markdown đã render với mapping style cho heading, list, quote, code...
+*/
 export function MarkdownContent({ content, className }: MarkdownContentProps) {
   return (
     <div className={cn("text-sm leading-relaxed text-[var(--foreground)]", className)}>
@@ -45,6 +58,7 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
               {children}
             </blockquote>
           ),
+          // Định dạng code inline theo font monospace.
           code: ({ children }) => (
             <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs text-slate-700">
               {children}

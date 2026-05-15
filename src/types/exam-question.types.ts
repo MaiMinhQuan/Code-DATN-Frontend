@@ -1,3 +1,6 @@
+// Type cho exam question (đề viết) và query params.
+
+// Topic tối giản khi topicId được populate.
 export interface PopulatedTopic {
   _id: string;
   name: string;
@@ -5,6 +8,7 @@ export interface PopulatedTopic {
   description?: string;
 }
 
+// Một đề IELTS Writing Task 2 trả về từ backend.
 export interface ExamQuestion {
   _id: string;
   title: string;
@@ -20,6 +24,7 @@ export interface ExamQuestion {
   updatedAt: string;
 }
 
+// Query params của GET /exam-questions.
 export interface GetExamQuestionsParams {
   topicId?: string;
   difficultyLevel?: number;

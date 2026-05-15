@@ -1,5 +1,6 @@
 "use client";
 
+// Thẻ flashcard dạng flip 3D (mặt trước/mặt sau).
 import { useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -7,13 +8,28 @@ import { UI_TEXT } from "@/constants/ui-text";
 const T = UI_TEXT.FLASHCARDS;
 
 interface FlashcardViewerProps {
+  // Nội dung mặt trước.
   frontContent: string;
+  // Nội dung mặt sau.
   backContent: string;
-  // optional: controlled mode cho ReviewSession
+  // Trạng thái lật thẻ (dùng khi component chạy chế độ controlled).
   isFlipped?: boolean;
+  // Callback lật thẻ (dùng khi component chạy chế độ controlled).
   onFlip?: () => void;
 }
 
+/*
+Component hiển thị và lật flashcard.
+
+Input:
+- frontContent — nội dung mặt trước.
+- backContent — nội dung mặt sau.
+- isFlipped — trạng thái lật từ component cha (optional).
+- onFlip — callback lật thẻ từ component cha (optional).
+
+Output:
+- Thẻ có hiệu ứng flip 3D và hiển thị đúng mặt theo trạng thái hiện tại.
+*/
 export function FlashcardViewer({
   frontContent,
   backContent,
@@ -22,8 +38,15 @@ export function FlashcardViewer({
 }: FlashcardViewerProps) {
   const [internalFlipped, setInternalFlipped] = useState(false);
 
-  // Controlled nếu truyền isFlipped, uncontrolled nếu không
+  // Ưu tiên trạng thái controlled, fallback sang state nội bộ.
   const isFlipped = controlledFlipped ?? internalFlipped;
+
+  /*
+  Xử lý hành động lật thẻ.
+
+  Output:
+  - Gọi onFlip nếu đang controlled, hoặc tự đổi state nội bộ nếu uncontrolled.
+  */
   const handleFlip = () => {
     if (onFlip) {
       onFlip();
@@ -38,6 +61,7 @@ export function FlashcardViewer({
       style={{ perspective: "1200px" }}
       onClick={handleFlip}
     >
+      {/* Container xoay trục Y để tạo hiệu ứng lật */}
       <div
         className="relative h-64 w-full transition-transform duration-500"
         style={{
@@ -51,7 +75,7 @@ export function FlashcardViewer({
           style={{ backfaceVisibility: "hidden" }}
         >
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-            Mặt trước
+            {T.CARD_FACE_FRONT}
           </p>
           <p className="text-center text-xl font-semibold text-foreground">
             {frontContent}
@@ -71,7 +95,7 @@ export function FlashcardViewer({
           }}
         >
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-widest text-primary/60">
-            Mặt sau
+            {T.CARD_FACE_BACK}
           </p>
           <p className="text-center text-xl font-semibold text-foreground">
             {backContent}

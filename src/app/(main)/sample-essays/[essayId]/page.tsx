@@ -1,3 +1,4 @@
+// Trang chi tiết bài mẫu với layout chia panel và annotation tương tác.
 "use client"
 
 import { useState } from "react"
@@ -13,14 +14,14 @@ import type { HighlightAnnotation, HighlightType, SampleEssay, TargetBand } from
 
 const T = UI_TEXT.SAMPLE_ESSAYS
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
+// Nhãn hiển thị cho từng mức target band.
 const TARGET_BAND_LABEL: Record<TargetBand, string> = {
   BAND_5_0:    "Band 5.0",
   BAND_6_0:    "Band 6.0",
   BAND_7_PLUS: "Band 7+",
 }
 
+// Style màu nền, dot và nhãn theo từng loại annotation.
 const HIGHLIGHT_STYLE: Record<HighlightType, { bg: string; dot: string; label: string }> = {
   VOCABULARY: { bg: "bg-amber-100 text-amber-900",  dot: "bg-amber-400",  label: "Từ vựng"   },
   GRAMMAR:    { bg: "bg-red-100 text-red-900",      dot: "bg-red-400",    label: "Ngữ pháp"  },
@@ -28,8 +29,16 @@ const HIGHLIGHT_STYLE: Record<HighlightType, { bg: string; dot: string; label: s
   ARGUMENT:   { bg: "bg-green-100 text-green-900",  dot: "bg-green-400",  label: "Lập luận"  },
 }
 
-// ─── Essay text with inline highlights ────────────────────────────────────────
+/*
+Tách nội dung bài viết thành các segment thường và segment highlight.
 
+Input:
+- text — toàn bộ nội dung essay.
+- annotations — danh sách annotation có chỉ số start/end.
+
+Output:
+- Mảng segment theo đúng thứ tự hiển thị trong văn bản.
+*/
 function buildSegments(text: string, annotations: HighlightAnnotation[]) {
   const sorted = [...annotations].sort((a, b) => a.startIndex - b.startIndex)
   const segments: Array<{ text: string; annotation?: HighlightAnnotation; id: number }> = []
@@ -37,15 +46,18 @@ function buildSegments(text: string, annotations: HighlightAnnotation[]) {
   let id = 0
 
   for (const ann of sorted) {
+    // Phần text thường đứng trước annotation hiện tại
     if (ann.startIndex > cursor) {
       segments.push({ id: id++, text: text.slice(cursor, ann.startIndex) })
     }
     if (ann.endIndex > ann.startIndex) {
       segments.push({ id: id++, text: text.slice(ann.startIndex, ann.endIndex), annotation: ann })
     }
+    // Tiến con trỏ; dùng Math.max để tránh lặp text khi annotation liền nhau/chồng nhau
     cursor = Math.max(cursor, ann.endIndex)
   }
 
+  // Phần text còn lại sau annotation cuối cùng
   if (cursor < text.length) {
     segments.push({ id: id++, text: text.slice(cursor) })
   }
@@ -53,8 +65,21 @@ function buildSegments(text: string, annotations: HighlightAnnotation[]) {
   return segments
 }
 
+// State tooltip nổi khi hover vào annotation.
 type TooltipState = { ann: HighlightAnnotation; x: number; y: number } | null
 
+/*
+Component AnnotatedSampleEssay.
+
+Input:
+- text — nội dung essay gốc.
+- annotations — danh sách annotation để highlight.
+- activeId — index annotation đang active (hoặc null).
+- onSelect — callback khi click annotation.
+
+Output:
+- Essay đã highlight từng đoạn và hiển thị tooltip giải thích khi hover.
+*/
 function AnnotatedSampleEssay({
   text,
   annotations,
@@ -68,6 +93,7 @@ function AnnotatedSampleEssay({
 }) {
   const [tooltip, setTooltip] = useState<TooltipState>(null)
 
+  // Không có annotation thì render text thường
   if (annotations.length === 0) {
     return <p className="text-base leading-8 text-foreground whitespace-pre-wrap">{text}</p>
   }
@@ -89,6 +115,7 @@ function AnnotatedSampleEssay({
               key={seg.id}
               onClick={() => onSelect(annIdx)}
               onMouseEnter={(e) => {
+                // Đặt tooltip ngay phía trên đoạn highlight được hover
                 const rect = e.currentTarget.getBoundingClientRect()
                 setTooltip({ ann: seg.annotation!, x: rect.left + rect.width / 2, y: rect.top })
               }}
@@ -105,6 +132,7 @@ function AnnotatedSampleEssay({
         })}
       </p>
 
+      {/* Tooltip fixed ngoài luồng text để tránh layout shift */}
       {tooltip && (
         <div
           className="pointer-events-none fixed z-50 w-72 rounded-lg border border-border bg-card p-0 shadow-lg"
@@ -126,8 +154,17 @@ function AnnotatedSampleEssay({
   )
 }
 
-// ─── Right panel ──────────────────────────────────────────────────────────────
+/*
+Component EssayInfoPanel.
 
+Input:
+- essay — dữ liệu bài mẫu đầy đủ.
+- activeAnnotationId — index annotation đang chọn.
+- onAnnotationSelect — callback chọn annotation.
+
+Output:
+- Panel thông tin bài mẫu và danh sách annotation có thể click để đồng bộ highlight.
+*/
 function EssayInfoPanel({
   essay,
   activeAnnotationId,
@@ -150,7 +187,7 @@ function EssayInfoPanel({
   return (
     <div className="flex flex-col gap-4 p-5">
 
-      {/* Thông tin cơ bản */}
+      {/* Bảng thông tin cơ bản */}
       <div>
         <h2 className="mb-2 text-sm font-semibold text-foreground">{T.DETAIL_LABEL_INFO}</h2>
         <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -163,7 +200,7 @@ function EssayInfoPanel({
         </div>
       </div>
 
-      {/* Dàn ý */}
+      {/* Dàn ý gợi ý (nếu có) */}
       {essay.outlineContent && (
         <div>
           <h2 className="mb-2 text-sm font-semibold text-foreground">{T.DETAIL_LABEL_OUTLINE}</h2>
@@ -175,7 +212,7 @@ function EssayInfoPanel({
         </div>
       )}
 
-      {/* Phân tích lỗi */}
+      {/* Danh sách annotation và legend màu */}
       {annotations.length === 0 ? (
         <p className="text-xs text-muted-foreground">{T.DETAIL_NO_ANNOTATION}</p>
       ) : (
@@ -187,7 +224,7 @@ function EssayInfoPanel({
             </span>
           </div>
 
-          {/* Legend */}
+          {/* Chú thích màu cho từng loại highlight */}
           <div className="mb-3 flex flex-wrap gap-2">
             {(Object.entries(HIGHLIGHT_STYLE) as [HighlightType, typeof HIGHLIGHT_STYLE[HighlightType]][]).map(([type, s]) => (
               <span key={type} className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -229,12 +266,17 @@ function EssayInfoPanel({
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+/*
+Component SampleEssayDetailPage.
 
+Output:
+- Màn chi tiết bài mẫu dạng split view: nội dung essay annotate + panel phân tích.
+*/
 export default function SampleEssayDetailPage() {
   const { essayId } = useParams<{ essayId: string }>()
   const router = useRouter()
 
+  // Theo dõi annotation đang active để đồng bộ giữa 2 panel
   const [activeAnnotationId, setActiveAnnotationId] = useState<number | null>(null)
 
   const { data: essay, isLoading, isError } = useSampleEssay(essayId)
@@ -263,14 +305,15 @@ export default function SampleEssayDetailPage() {
   }
 
   return (
+    // Split view full-height; -m-6 để bù padding trang cha
     <div className="-m-6" style={{ height: "calc(100vh - 4rem)" }}>
       <Allotment>
 
-        {/* Panel trái: Đề bài + Nội dung bài viết */}
+        {/* Panel trái: đề bài + nội dung essay đã annotate */}
         <Allotment.Pane minSize={320} preferredSize="55%">
           <div className="flex h-full flex-col overflow-hidden">
 
-            {/* Header */}
+            {/* Header với nút quay lại và tiêu đề bài mẫu */}
             <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-3">
               <button
                 onClick={() => router.push("/sample-essays")}
@@ -285,7 +328,7 @@ export default function SampleEssayDetailPage() {
               </span>
             </div>
 
-            {/* Đề bài */}
+            {/* Prompt đề bài (giới hạn 3 dòng) */}
             <div className="shrink-0 border-b border-border bg-muted/40 px-5 py-3">
               <p className="mb-1 text-xs font-medium text-muted-foreground">
                 {T.DETAIL_LABEL_QUESTION}
@@ -295,7 +338,7 @@ export default function SampleEssayDetailPage() {
               </p>
             </div>
 
-            {/* Nội dung bài viết */}
+            {/* Vùng nội dung essay có thể cuộn với highlight inline */}
             <div className="flex-1 overflow-y-auto px-5 py-5">
               <AnnotatedSampleEssay
                 text={essay.fullEssayContent}
@@ -308,7 +351,7 @@ export default function SampleEssayDetailPage() {
           </div>
         </Allotment.Pane>
 
-        {/* Panel phải: Thông tin + Phân tích */}
+        {/* Panel phải: metadata + danh sách annotation */}
         <Allotment.Pane minSize={300}>
           <div className="h-full overflow-y-auto">
             <EssayInfoPanel

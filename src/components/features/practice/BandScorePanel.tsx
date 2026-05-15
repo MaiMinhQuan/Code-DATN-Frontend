@@ -1,3 +1,4 @@
+// Panel kết quả chấm bài: điểm band, phản hồi và danh sách lỗi AI.
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -15,14 +16,13 @@ type FilterOption = ErrorCategory | "ALL"
 
 const T = UI_TEXT.RESULT
 
-// ─── SeverityBadge ───────────────────────────────────────────────────────────
-
 const SEVERITY_BADGE: Record<string, string> = {
   high:   "bg-red-100 text-red-700",
   medium: "bg-amber-100 text-amber-700",
   low:    "bg-green-100 text-green-700",
 }
 
+// Badge mức độ nghiêm trọng cho từng lỗi.
 function SeverityBadge({ severity }: { severity: string }) {
   const label =
     severity === "high" ? T.SEVERITY_HIGH
@@ -35,13 +35,12 @@ function SeverityBadge({ severity }: { severity: string }) {
   )
 }
 
-// ─── FeedbackSection ─────────────────────────────────────────────────────────
-
 const FEEDBACK_ACCENT: Record<string, string> = {
   green: "border-green-200 bg-green-50/50",
   amber: "border-amber-200 bg-amber-50/50",
 }
 
+// Block feedback tái sử dụng cho general/strengths/improvements.
 function FeedbackSection({
   title,
   content,
@@ -59,8 +58,6 @@ function FeedbackSection({
   )
 }
 
-// ─── BandScorePanel ───────────────────────────────────────────────────────────
-
 const SCORE_CARDS = (r: AIResult) => [
   { label: "TR", fullLabel: T.SCORE_LABEL_TASK,      score: r.taskResponseScore },
   { label: "CC", fullLabel: T.SCORE_LABEL_COHERENCE, score: r.coherenceScore   },
@@ -68,6 +65,7 @@ const SCORE_CARDS = (r: AIResult) => [
   { label: "GR", fullLabel: T.SCORE_LABEL_GRAMMAR,   score: r.grammarScore     },
 ]
 
+// Dữ liệu trục cho radar chart 4 tiêu chí IELTS.
 const RADAR_DATA = (r: AIResult) => [
   { axis: "Task Response", score: r.taskResponseScore },
   { axis: "Coherence",     score: r.coherenceScore    },
@@ -78,11 +76,25 @@ const RADAR_DATA = (r: AIResult) => [
 const FILTERS: FilterOption[] = ["ALL", ...Object.values(ErrorCategory)]
 
 interface BandScorePanelProps {
-  aiResult: AIResult
-  activeErrorId?: string | null
-  onErrorSelect?: (errorId: string) => void
+  // Kết quả chấm AI đầy đủ.
+  aiResult: AIResult;
+  // ID lỗi đang được active từ bài viết annotated (optional).
+  activeErrorId?: string | null;
+  // Callback đồng bộ click lỗi giữa list và essay (optional).
+  onErrorSelect?: (errorId: string) => void;
 }
 
+/*
+Component bảng điểm và lỗi.
+
+Input:
+- aiResult — dữ liệu kết quả AI.
+- activeErrorId — lỗi đang chọn (optional).
+- onErrorSelect — hàm chọn lỗi (optional).
+
+Output:
+- Tổng quan band score, radar chart, feedback và danh sách lỗi có filter.
+*/
 export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandScorePanelProps) {
   const [activeFilter, setActiveFilter] = useState<FilterOption>("ALL")
   const listRef = useRef<HTMLDivElement>(null)
@@ -92,7 +104,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
       ? aiResult.errors
       : aiResult.errors.filter((e) => e.category === activeFilter)
 
-  // Tự scroll error list đến item đang active
+  // Tự động cuộn tới lỗi active được chọn từ AnnotatedEssay
   useEffect(() => {
     if (!activeErrorId || !listRef.current) return
     const el = listRef.current.querySelector(`[data-error-id="${activeErrorId}"]`)
@@ -101,8 +113,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
 
   return (
     <div className="flex flex-col gap-4 p-4">
-
-      {/* Overall Band + Sub-scores */}
+      {/* Khối điểm overall + 4 tiêu chí */}
       <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
         <div>
           <p className="text-xs text-muted-foreground">{T.SCORE_LABEL_OVERALL}</p>
@@ -124,7 +135,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
         </div>
       </div>
 
-      {/* Radar Chart */}
+      {/* Radar chart phân bổ điểm theo tiêu chí IELTS */}
       <div className="rounded-xl border border-border bg-card p-2">
         <ResponsiveContainer width="100%" height={220}>
           <RadarChart data={RADAR_DATA(aiResult)} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
@@ -147,7 +158,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
         </ResponsiveContainer>
       </div>
 
-      {/* Feedback */}
+      {/* Feedback tổng quan và chi tiết */}
       {aiResult.generalFeedback && (
         <FeedbackSection title={T.FEEDBACK_GENERAL} content={aiResult.generalFeedback} />
       )}
@@ -162,10 +173,9 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
         </div>
       )}
 
-      {/* Error List */}
+      {/* Danh sách lỗi AI có bộ lọc category */}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
-
-        {/* Header */}
+        {/* Header danh sách lỗi */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <h3 className="text-sm font-semibold text-foreground">{T.ERROR_LIST_TITLE}</h3>
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
@@ -173,7 +183,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
           </span>
         </div>
 
-        {/* Filter buttons */}
+        {/* Nhóm filter category */}
         <div className="flex flex-wrap gap-1.5 border-b border-border px-3 py-2">
           {FILTERS.map((f) => {
             const isAll    = f === "ALL"
@@ -195,7 +205,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
           })}
         </div>
 
-        {/* Error items */}
+        {/* Danh sách item lỗi theo filter */}
         <div ref={listRef} className="divide-y divide-border">
           {filteredErrors.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Không có lỗi nào</p>
@@ -221,6 +231,7 @@ export function BandScorePanel({ aiResult, activeErrorId, onErrorSelect }: BandS
                     </div>
                     <SeverityBadge severity={error.severity ?? "medium"} />
                   </div>
+                    {/* Cặp original -> suggestion */}
                   <div className="mt-1.5 flex items-center gap-1.5 pl-3.5 text-xs">
                     <span className="font-mono text-muted-foreground">{error.originalText}</span>
                     <span className="text-muted-foreground">→</span>

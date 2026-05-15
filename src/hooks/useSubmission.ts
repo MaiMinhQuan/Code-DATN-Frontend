@@ -1,3 +1,5 @@
+// React Query hooks cho submissions và vòng đời chấm AI.
+
 import {
   useQuery,
   useMutation,
@@ -14,17 +16,31 @@ import {
 import { SubmissionStatus } from "@/types/enums";
 import { useSubmissionStore } from "@/stores/submission.store";
 
+// Factory query key cho cache submissions.
 export const submissionKeys = {
   all: ["submissions"] as const,
+
   lists: () => [...submissionKeys.all, "list"] as const,
+
+  // Sinh key danh sách submissions theo params.
   list: (params?: GetSubmissionsParams) =>
     [...submissionKeys.lists(), params] as const,
+
   details: () => [...submissionKeys.all, "detail"] as const,
+
+  // Sinh key chi tiết submission theo id.
   detail: (id: string) => [...submissionKeys.details(), id] as const,
 };
 
-// ─── Queries ────────────────────────────────────────────────────────────────
+/*
+Hook lấy chi tiết một submission.
 
+Input:
+- id — submissionId.
+
+Output:
+- Kết quả useQuery chứa chi tiết submission.
+*/
 export function useSubmission(id: string) {
   return useQuery({
     queryKey: submissionKeys.detail(id),
@@ -33,6 +49,15 @@ export function useSubmission(id: string) {
   });
 }
 
+/*
+Hook lấy danh sách submissions của user hiện tại (phân trang).
+
+Input:
+- params — pagination/filter params (optional).
+
+Output:
+- Kết quả useQuery chứa danh sách submissions.
+*/
 export function useSubmissions(params?: GetSubmissionsParams) {
   return useQuery({
     queryKey: submissionKeys.list(params),
@@ -40,8 +65,9 @@ export function useSubmissions(params?: GetSubmissionsParams) {
   });
 }
 
-// ─── Mutations ──────────────────────────────────────────────────────────────
-
+/*
+Hook tạo draft mới và đồng bộ vào submission store.
+*/
 export function useCreateDraft() {
   const { setDraft, setGradingStatus } = useSubmissionStore();
 
@@ -55,6 +81,9 @@ export function useCreateDraft() {
   });
 }
 
+/*
+Hook cập nhật draft hiện tại mà không submit để chấm.
+*/
 export function useUpdateDraft() {
   const queryClient = useQueryClient();
   const { setDraft } = useSubmissionStore();
@@ -64,7 +93,7 @@ export function useUpdateDraft() {
       submissionsService.updateDraft(id, dto),
     onSuccess: (submission) => {
       setDraft(submission);
-      // Cập nhật cache ngay, không cần refetch
+      // Ghi thẳng vào cache để tránh refetch
       queryClient.setQueryData(
         submissionKeys.detail(submission._id),
         submission
@@ -73,6 +102,9 @@ export function useUpdateDraft() {
   });
 }
 
+/*
+Hook submit draft để chấm AI.
+*/
 export function useSubmitEssay() {
   const queryClient = useQueryClient();
   const { setGradingStatus, setGradingProgress } = useSubmissionStore();
@@ -80,10 +112,10 @@ export function useSubmitEssay() {
   return useMutation({
     mutationFn: (id: string) => submissionsService.submitEssay(id),
     onSuccess: (_, submissionId) => {
-      // Backend trả 202 → bài đã vào queue, WebSocket sẽ cập nhật tiếp
+      // Backend trả 202 nghĩa là job đã vào queue; trạng thái tiếp theo qua WebSocket
       setGradingStatus(SubmissionStatus.SUBMITTED);
       setGradingProgress(0, "Đang chờ xử lý...");
-      // Invalidate để khi WebSocket báo COMPLETED → refetch sẽ lấy được aiResult
+      // Invalidate trước để lần refetch sau khi COMPLETED lấy được aiResult mới
       queryClient.invalidateQueries({
         queryKey: submissionKeys.detail(submissionId),
       });
@@ -91,6 +123,9 @@ export function useSubmitEssay() {
   });
 }
 
+/*
+Hook xóa draft, clear store và xóa cache liên quan.
+*/
 export function useDeleteDraft() {
   const queryClient = useQueryClient();
   const { clearDraft } = useSubmissionStore();
@@ -99,6 +134,7 @@ export function useDeleteDraft() {
     mutationFn: (id: string) => submissionsService.deleteDraft(id),
     onSuccess: (_, deletedId) => {
       clearDraft();
+      // Xóa cache detail ngay để tránh dữ liệu stale
       queryClient.removeQueries({
         queryKey: submissionKeys.detail(deletedId),
       });

@@ -1,3 +1,4 @@
+// Trang danh sách đề luyện tập với filter chủ đề, độ khó và nút lấy đề ngẫu nhiên.
 "use client";
 
 import { useState, useMemo } from "react";
@@ -12,6 +13,15 @@ import { SubmissionStatus } from "@/types/enums";
 import { Submission } from "@/types/submission.types";
 import { cn } from "@/lib/utils";
 
+/*
+Lấy questionId từ submission.
+
+Input:
+- sub — submission có thể chứa `questionId` dạng string hoặc object populate.
+
+Output:
+- Trả về questionId dạng chuỗi.
+*/
 function getQuestionId(sub: Submission): string {
   if (typeof sub.questionId === "string") return sub.questionId;
   return (sub.questionId as any)?._id?.toString() ?? "";
@@ -19,6 +29,12 @@ function getQuestionId(sub: Submission): string {
 
 const DIFFICULTY_OPTIONS = [1, 2, 3, 4, 5] as const;
 
+/*
+Component PracticePage.
+
+Output:
+- Danh sách đề thi có filter client-side và hiển thị lịch sử điểm tốt nhất.
+*/
 export default function PracticePage() {
   const router = useRouter();
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -27,13 +43,14 @@ export default function PracticePage() {
 
   const { data: questions = [], isLoading, isError } = useExamQuestions();
 
+  // Chỉ lấy bài đã chấm xong để dựng map điểm tốt nhất và lịch sử làm bài
   const { data: submissionsData } = useSubmissions({
     status: SubmissionStatus.COMPLETED,
     limit: 50,
   });
   const completedSubmissions = submissionsData?.data ?? [];
 
-  // Map questionId → band score tốt nhất
+  /* Map questionId -> band cao nhất người dùng từng đạt cho đề đó. */
   const bestBandByQuestion = useMemo(() => {
     const map = new Map<string, number>();
     completedSubmissions.forEach((sub) => {
@@ -41,12 +58,13 @@ export default function PracticePage() {
       const band = sub.aiResult?.overallBand;
       if (!qId || band === undefined) return;
       const current = map.get(qId);
+      // Luôn giữ band cao nhất qua mọi lần nộp
       if (current === undefined || band > current) map.set(qId, band);
     });
     return map;
   }, [completedSubmissions]);
 
-  // Map questionId → danh sách submissions để truyền vào từng card
+  /* Map questionId -> danh sách submission hoàn thành để hiển thị lịch sử mỗi card. */
   const submissionsByQuestion = useMemo(() => {
     const map = new Map<string, typeof completedSubmissions>();
     completedSubmissions.forEach((sub) => {
@@ -58,7 +76,7 @@ export default function PracticePage() {
     return map;
   }, [completedSubmissions]);
 
-  // Derive unique topics từ danh sách câu hỏi
+  /* Danh sách topic unique lấy trực tiếp từ dữ liệu đề thi. */
   const topics = useMemo(() => {
     const seen = new Map<string, { _id: string; name: string }>();
     questions.forEach((q) => {
@@ -69,7 +87,7 @@ export default function PracticePage() {
     return Array.from(seen.values());
   }, [questions]);
 
-  // Filter client-side
+  /* Danh sách đề sau khi áp dụng filter topic + độ khó. */
   const filtered = useMemo(() => {
     return questions.filter((q) => {
       const matchTopic = !selectedTopicId || q.topicId?._id === selectedTopicId;
@@ -78,6 +96,12 @@ export default function PracticePage() {
     });
   }, [questions, selectedTopicId, selectedDifficulty]);
 
+  /*
+  Lấy ngẫu nhiên một đề đã publish và điều hướng sang trang làm bài.
+
+  Output:
+  - Chuyển tới `/practice/{questionId}` khi thành công.
+  */
   const handleRandom = async () => {
     setIsLoadingRandom(true);
     try {
@@ -90,8 +114,7 @@ export default function PracticePage() {
 
   return (
     <div className="space-y-6">
-
-      {/* Header */}
+      {/* Header trang */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
@@ -119,10 +142,9 @@ export default function PracticePage() {
         </button>
       </div>
 
-      {/* Filters */}
+      {/* Nhóm bộ lọc */}
       <div className="flex flex-wrap items-center gap-3">
-
-        {/* Topic filter */}
+        {/* Filter chủ đề */}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedTopicId(null)}
@@ -139,6 +161,7 @@ export default function PracticePage() {
             <button
               key={topic._id}
               onClick={() => setSelectedTopicId(
+                // Bấm lại đúng topic đang chọn để bỏ chọn
                 selectedTopicId === topic._id ? null : topic._id
               )}
               className={cn(
@@ -153,10 +176,10 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {/* Divider */}
+        {/* Vạch ngăn giữa filter chủ đề và độ khó */}
         <div className="h-5 w-px bg-[var(--border)]" />
 
-        {/* Difficulty filter */}
+        {/* Filter độ khó 1-5 */}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedDifficulty(null)}
@@ -173,6 +196,7 @@ export default function PracticePage() {
             <button
               key={level}
               onClick={() => setSelectedDifficulty(
+                // Bấm lại mức đang chọn để bỏ chọn
                 selectedDifficulty === level ? null : level
               )}
               className={cn(
@@ -188,7 +212,7 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Nội dung: loading / error / rỗng / lưới đề thi */}
       {isLoading ? (
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />

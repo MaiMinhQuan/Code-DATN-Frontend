@@ -1,3 +1,4 @@
+// Modal tạo/chỉnh sửa note với chọn collection.
 "use client"
 
 import { useState, useEffect } from "react"
@@ -10,14 +11,34 @@ import type { Note, CreateNotePayload, UpdateNotePayload } from "@/types/noteboo
 const T = UI_TEXT.NOTEBOOK
 
 interface NoteFormModalProps {
+  // Trạng thái mở/đóng modal.
   open: boolean
+  // Dữ liệu note khi ở chế độ sửa (optional).
   note?: Note
+  // Collection mặc định khi mở modal tạo mới.
   defaultCollectionId?: string | null
+  // Trạng thái đang lưu dữ liệu.
   isSaving: boolean
+  // Callback đóng modal.
   onClose: () => void
+  // Callback lưu dữ liệu form.
   onSave: (data: CreateNotePayload | UpdateNotePayload) => void
 }
 
+/*
+Component modal form note.
+
+Input:
+- open — trạng thái mở modal.
+- note — dữ liệu note cần sửa (optional).
+- defaultCollectionId — collection mặc định (optional).
+- isSaving — trạng thái lưu.
+- onClose — callback đóng modal.
+- onSave — callback lưu dữ liệu.
+
+Output:
+- Modal nhập tiêu đề, nội dung, collection và nút lưu.
+*/
 export function NoteFormModal({
   open,
   note,
@@ -32,7 +53,7 @@ export function NoteFormModal({
 
   const { data: collections = [] } = useNoteCollections()
 
-  // Reset form mỗi khi modal mở
+  // Reset và prefill form mỗi lần modal mở
   useEffect(() => {
     if (open) {
       setTitle(note?.title ?? "")
@@ -41,12 +62,18 @@ export function NoteFormModal({
     }
   }, [open, note?._id, defaultCollectionId])
 
+  /*
+  Xử lý submit dữ liệu form.
+
+  Output:
+  - Gọi onSave với payload đã normalize.
+  */
   const handleSave = () => {
     if (!content.trim()) return
     onSave({
-      title:        title.trim() || undefined,
+      title:         title.trim() || undefined,
       userDraftNote: content,
-      collectionId: collectionId || null,
+      collectionId:  collectionId || null,
     })
   }
 
@@ -58,7 +85,7 @@ export function NoteFormModal({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[540px] max-h-[90vh] w-[640px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border border-border bg-card shadow-xl focus:outline-none">
 
-          {/* Header */}
+          {/* Header modal */}
           <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-3">
             <Dialog.Title className="text-sm font-semibold text-foreground">
               {isEdit ? T.MODAL_TITLE_EDIT : T.MODAL_TITLE_CREATE}
@@ -68,7 +95,7 @@ export function NoteFormModal({
             </Dialog.Close>
           </div>
 
-          {/* Collection picker */}
+          {/* Hàng chọn collection */}
           <div className="flex shrink-0 items-center gap-2 border-b border-border px-5 py-2">
             <span className="text-xs text-muted-foreground">{T.COLLECTION_FIELD}:</span>
             <div className="flex items-center gap-1.5">
@@ -93,7 +120,7 @@ export function NoteFormModal({
             </div>
           </div>
 
-          {/* Title */}
+          {/* Input tiêu đề */}
           <div className="shrink-0 border-b border-border px-5 py-3">
             <input
               type="text"
@@ -104,7 +131,7 @@ export function NoteFormModal({
             />
           </div>
 
-          {/* Content */}
+          {/* Textarea nội dung note */}
           <textarea
             placeholder={T.PLACEHOLDER_CONTENT}
             value={content}
@@ -112,7 +139,7 @@ export function NoteFormModal({
             className="flex-1 resize-none bg-transparent px-5 py-4 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
 
-          {/* Footer */}
+          {/* Footer với nút lưu */}
           <div className="flex shrink-0 justify-end border-t border-border px-5 py-3">
             <button
               onClick={handleSave}

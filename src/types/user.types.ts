@@ -1,3 +1,4 @@
+// Type cho User và response auth từ backend.
 import { UserRole } from "./enums";
 
 export interface User {
@@ -12,6 +13,7 @@ export interface User {
   updatedAt: string;
 }
 
+// Shape response của POST /auth/login và POST /auth/register.
 export interface AuthResponse {
   access_token: string;
   user: User;

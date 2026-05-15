@@ -1,5 +1,6 @@
 "use client";
 
+// Thanh tiến trình chấm bài theo trạng thái submission realtime.
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Loader2, ClipboardList } from "lucide-react";
 import { SubmissionStatus } from "@/types/enums";
@@ -45,9 +46,16 @@ const STATUS_CONFIG = {
   },
 } as const;
 
+/*
+Component tiến trình chấm bài.
+
+Output:
+- Trạng thái hiện tại, progress bar và thông điệp tiến trình/lỗi.
+*/
 export function GradingProgress() {
   const { gradingStatus, gradingProgress, gradingMessage } = useSubmissionStore();
 
+  // Quy đổi trạng thái DRAFT/null về trạng thái idle để hiển thị mặc định
   const configKey =
     gradingStatus === SubmissionStatus.DRAFT || gradingStatus === null
       ? "idle"
@@ -56,6 +64,7 @@ export function GradingProgress() {
   const config = STATUS_CONFIG[configKey] ?? STATUS_CONFIG.idle;
   const Icon = config.icon;
 
+  // Chỉ coi là active khi bài vừa submit hoặc đang processing
   const isActive =
     gradingStatus === SubmissionStatus.SUBMITTED ||
     gradingStatus === SubmissionStatus.PROCESSING;
@@ -64,12 +73,12 @@ export function GradingProgress() {
     gradingStatus === SubmissionStatus.COMPLETED
       ? 100
       : gradingStatus === SubmissionStatus.SUBMITTED
-        ? 5   // nhỏ để biết đang chờ nhưng chưa xử lý
+        ? 5
         : gradingProgress;
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-4">
-      {/* Header */}
+      {/* Dòng trạng thái hiện tại */}
       <div className="flex items-center gap-2">
         <Icon
           className={cn("h-5 w-5", config.textColor, config.spin && "animate-spin")}
@@ -88,7 +97,7 @@ export function GradingProgress() {
         </AnimatePresence>
       </div>
 
-      {/* Progress bar */}
+      {/* Thanh phần trăm tiến trình */}
       <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--muted)]">
         <motion.div
           className={cn("h-full rounded-full", config.barColor)}
@@ -98,7 +107,7 @@ export function GradingProgress() {
         />
       </div>
 
-      {/* Message từ WebSocket */}
+      {/* Thông điệp chi tiết từ backend/websocket */}
       <AnimatePresence>
         {(isActive || gradingStatus === SubmissionStatus.FAILED) && gradingMessage && (
           <motion.p

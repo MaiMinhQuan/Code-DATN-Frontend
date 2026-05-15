@@ -1,5 +1,6 @@
 "use client";
 
+// Khối lịch sử các lần nộp bài cho một đề viết.
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, History, ArrowUpRight } from "lucide-react";
@@ -9,9 +10,19 @@ import { SubmissionStatus } from "@/types/enums";
 import { cn } from "@/lib/utils";
 
 interface SubmissionHistoryProps {
+  // ID của đề để lấy danh sách submission đã chấm xong.
   questionId: string;
 }
 
+/*
+Component lịch sử nộp bài.
+
+Input:
+- questionId — mã đề hiện tại.
+
+Output:
+- Accordion hiển thị danh sách bài đã nộp và link sang trang kết quả.
+*/
 export function SubmissionHistory({ questionId }: SubmissionHistoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,13 +35,12 @@ export function SubmissionHistory({ questionId }: SubmissionHistoryProps) {
   const submissions = data?.data ?? [];
   const total = data?.total ?? 0;
 
-  // Ẩn hoàn toàn nếu chưa có lần nộp nào
+  // Không render gì nếu không có lịch sử nộp bài
   if (!isLoading && total === 0) return null;
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
-
-      {/* Toggle header */}
+      {/* Header đóng/mở danh sách lịch sử */}
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-[var(--muted)]"
@@ -52,7 +62,7 @@ export function SubmissionHistory({ questionId }: SubmissionHistoryProps) {
         }
       </button>
 
-      {/* List */}
+      {/* Danh sách các lần nộp */}
       {isOpen && (
         <div className="border-t border-[var(--border)]">
           {isLoading ? (
@@ -66,7 +76,7 @@ export function SubmissionHistory({ questionId }: SubmissionHistoryProps) {
                 href={`/practice/${questionId}/result/${sub._id}`}
                 className="group flex items-center justify-between px-4 py-3 transition-colors hover:bg-[var(--muted)] border-b border-[var(--border)] last:border-b-0"
               >
-                {/* Left: attempt + date */}
+                {/* Thông tin thời gian + số từ của lần nộp */}
                 <div className="flex items-center gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
                     #{sub.attemptNumber}
@@ -84,7 +94,7 @@ export function SubmissionHistory({ questionId }: SubmissionHistoryProps) {
                   </div>
                 </div>
 
-                {/* Right: band score + icon */}
+                {/* Điểm band tổng quan và icon điều hướng */}
                 <div className="flex items-center gap-2">
                   {sub.aiResult?.overallBand !== undefined && (
                     <div className="text-right">
@@ -94,6 +104,7 @@ export function SubmissionHistory({ questionId }: SubmissionHistoryProps) {
                           : sub.aiResult.overallBand >= 5.5 ? "text-amber-600"
                           : "text-red-500"
                       )}>
+                        
                         {sub.aiResult.overallBand % 1 === 0
                           ? sub.aiResult.overallBand.toFixed(0)
                           : sub.aiResult.overallBand.toFixed(1)}

@@ -1,5 +1,6 @@
 "use client";
 
+// Phiên ôn tập thẻ: lật thẻ, chấm mức độ nhớ và theo dõi tiến độ.
 import { useState } from "react";
 import { CheckCircle2, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ import type { FlashcardForReview, ReviewQuality } from "@/types/flashcard.types"
 
 const T = UI_TEXT.FLASHCARDS;
 
+// Cấu hình 3 nút chấm mức độ nhớ theo thang chất lượng review.
 const QUALITY_BUTTONS: { label: string; quality: ReviewQuality; className: string }[] = [
   { label: T.QUALITY_LABELS[0], quality: 1, className: "bg-red-100 text-red-700 hover:bg-red-200" },
   { label: T.QUALITY_LABELS[1], quality: 3, className: "bg-amber-100 text-amber-700 hover:bg-amber-200" },
@@ -16,29 +18,53 @@ const QUALITY_BUTTONS: { label: string; quality: ReviewQuality; className: strin
 ];
 
 interface ReviewSessionProps {
+  // Danh sách thẻ cần ôn trong phiên hiện tại.
   cards: FlashcardForReview[];
+  // Trạng thái đang gửi kết quả review.
   isSubmitting: boolean;
+  // Callback ghi nhận điểm quality cho thẻ hiện tại.
   onReview: (cardId: string, quality: ReviewQuality) => void;
 }
 
+/*
+Component phiên ôn tập flashcard.
+
+Input:
+- cards — danh sách thẻ cần ôn.
+- isSubmitting — trạng thái submit.
+- onReview — hàm ghi nhận kết quả review.
+
+Output:
+- Màn hình ôn tập theo từng thẻ và màn hình hoàn thành khi đã ôn xong.
+*/
 export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [currentIndex,  setCurrentIndex]  = useState(0);
+  const [isFlipped,     setIsFlipped]     = useState(false);
   const [reviewedCount, setReviewedCount] = useState(0);
 
-  const isComplete = currentIndex >= cards.length;
+  const isComplete  = currentIndex >= cards.length;
   const currentCard = cards[currentIndex];
-  const progress = (currentIndex / cards.length) * 100;
 
+  // Tiến độ phiên ôn theo phần trăm số thẻ đã xử lý.
+  const progress    = (currentIndex / cards.length) * 100;
+
+  /*
+  Xử lý khi người dùng chọn quality cho thẻ hiện tại.
+
+  Input:
+  - quality — điểm đánh giá mức độ nhớ.
+
+  Output:
+  - Gửi kết quả review, chuyển sang thẻ tiếp theo và reset trạng thái lật thẻ.
+  */
   const handleQuality = (quality: ReviewQuality) => {
     if (!currentCard || isSubmitting) return;
     onReview(currentCard._id, quality);
     setReviewedCount((n) => n + 1);
     setCurrentIndex((i) => i + 1);
-    setIsFlipped(false);
+    setIsFlipped(false); // reset trạng thái lật cho thẻ kế tiếp
   };
 
-  // ── Màn hình hoàn thành ───────────────────────────────────────────────────
   if (isComplete) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
@@ -53,10 +79,9 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
     );
   }
 
-  // ── Session đang diễn ra ──────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-6">
-      {/* Progress */}
+      {/* Thanh tiến độ phiên ôn */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">
@@ -74,14 +99,14 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
         </div>
       </div>
 
-      {/* Set name badge */}
+      {/* Tên bộ thẻ hiện tại */}
       <div className="flex justify-center">
         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
           {currentCard.setId.title}
         </span>
       </div>
 
-      {/* Flip card */}
+      {/* Thẻ hiện tại (lật trước/sau) */}
       <FlashcardViewer
         frontContent={currentCard.frontContent}
         backContent={currentCard.backContent}
@@ -89,11 +114,11 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
         onFlip={() => setIsFlipped((f) => !f)}
       />
 
-      {/* Quality buttons — chỉ hiện sau khi lật */}
+      {/* Sau khi lật mới hiển thị nhóm nút chọn quality */}
       {isFlipped ? (
         <div className="flex flex-col gap-3">
           <p className="text-center text-xs font-medium text-muted-foreground">
-            Bạn nhớ được đến mức nào?
+            {T.REVIEW_QUALITY_PROMPT}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {QUALITY_BUTTONS.map(({ label, quality, className }) => (
@@ -113,7 +138,7 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
         </div>
       ) : (
         <p className="text-center text-xs text-muted-foreground">
-          Nhấn vào thẻ để xem đáp án
+          {T.REVIEW_FLIP_HINT}
         </p>
       )}
     </div>

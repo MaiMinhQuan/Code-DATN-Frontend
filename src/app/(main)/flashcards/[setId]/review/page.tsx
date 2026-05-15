@@ -1,3 +1,4 @@
+// Trang review cho một flashcard set, hỗ trợ chọn chế độ review.
 "use client";
 
 import { useState } from "react";
@@ -10,19 +11,37 @@ import type { Flashcard, FlashcardForReview, ReviewQuality } from "@/types/flash
 
 const T = UI_TEXT.FLASHCARDS;
 
+// Chế độ review: tất cả card hoặc chỉ card đến hạn.
 type ReviewMode = "all" | "due";
 
+/*
+Kiểm tra card có đến hạn review hay chưa.
+
+Input:
+- card — card cần kiểm tra.
+
+Output:
+- `true` nếu card đến hạn (hoặc chưa có `nextReviewDate`).
+*/
 function isDue(card: Flashcard): boolean {
   if (!card.nextReviewDate) return true;
+  // So sánh với cuối ngày hiện tại để tính cả card đến hạn trong hôm nay
   const today = new Date();
   today.setHours(23, 59, 59, 999);
   return new Date(card.nextReviewDate) <= today;
 }
 
+/*
+Component SetReviewPage.
+
+Output:
+- Cho phép chọn mode review và chạy phiên ôn tập cho set hiện tại.
+*/
 export default function SetReviewPage() {
   const { setId } = useParams<{ setId: string }>();
   const router = useRouter();
 
+  // null = màn chọn mode; "all"/"due" = đang review
   const [mode, setMode] = useState<ReviewMode | null>(null);
 
   const { data, isLoading } = useFlashcardSetDetail(setId);
@@ -30,16 +49,29 @@ export default function SetReviewPage() {
 
   const { set, cards = [] } = data ?? {};
 
+  // Lọc trước danh sách card đến hạn để hiển thị số lượng chính xác
   const dueCards = cards.filter(isDue);
 
+  // Chọn mảng card theo mode đang active
   const selectedCards: Flashcard[] =
     mode === "all" ? cards : mode === "due" ? dueCards : [];
 
+  // Bổ sung thông tin title của set để `ReviewSession` hiển thị
   const reviewCards: FlashcardForReview[] = selectedCards.map((card) => ({
     ...card,
     setId: { title: set?.title ?? "" },
   }));
 
+  /*
+  Gửi kết quả review cho một card.
+
+  Input:
+  - cardId — ID card vừa review.
+  - quality — điểm chất lượng nhớ bài (1/3/5).
+
+  Output:
+  - Gọi mutation cập nhật lịch ôn tập.
+  */
   const handleReview = (cardId: string, quality: ReviewQuality) => {
     reviewCard.mutate({ cardId, payload: { quality } });
   };
@@ -52,7 +84,7 @@ export default function SetReviewPage() {
     );
   }
 
-  // ─── Mode selection ────────────────────────────────────────────────────────
+  // Màn chọn mode trước khi bắt đầu review
   if (mode === null) {
     return (
       <div className="space-y-6">
@@ -72,7 +104,7 @@ export default function SetReviewPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {/* Thẻ đến hạn */}
+          {/* Tùy chọn review card đến hạn */}
           <button
             onClick={() => setMode("due")}
             disabled={dueCards.length === 0}
@@ -91,7 +123,7 @@ export default function SetReviewPage() {
             </div>
           </button>
 
-          {/* Tất cả thẻ */}
+          {/* Tùy chọn review toàn bộ card trong set */}
           <button
             onClick={() => setMode("all")}
             disabled={cards.length === 0}
@@ -112,7 +144,7 @@ export default function SetReviewPage() {
     );
   }
 
-  // ─── No cards empty state (sau khi chọn mode) ─────────────────────────────
+  // Empty state khi mode đã chọn nhưng không còn card phù hợp
   if (reviewCards.length === 0) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-4 text-center">
@@ -134,7 +166,7 @@ export default function SetReviewPage() {
     );
   }
 
-  // ─── Review session ────────────────────────────────────────────────────────
+  // Phiên review đang diễn ra
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

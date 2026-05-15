@@ -1,5 +1,7 @@
+// Type cho kết quả chấm AI: danh sách lỗi và tổng hợp kết quả.
 import { ErrorCategory } from "./enums";
 
+// Một lỗi AI phát hiện trong bài viết.
 export interface AIError {
   startIndex: number;
   endIndex: number;
@@ -10,6 +12,7 @@ export interface AIError {
   severity: "low" | "medium" | "high";
 }
 
+// Kết quả chấm AI đầy đủ sau khi xử lý submission.
 export interface AIResult {
   taskResponseScore: number;
   coherenceScore: number;
