@@ -5,6 +5,7 @@ import {
   ExamQuestion,
   GetExamQuestionsParams,
 } from "@/types/exam-question.types";
+import type { CreateExamQuestionDto, UpdateExamQuestionDto } from "@/types/admin.types";
 
 export const examQuestionsService = {
   /*
@@ -43,9 +44,21 @@ export const examQuestionsService = {
   - ExamQuestion.
   */
   getExamQuestionById: async (id: string): Promise<ExamQuestion> => {
-    const { data } = await apiClient.get<ExamQuestion>(
-      `/exam-questions/${id}`
-    );
+    const { data } = await apiClient.get<ExamQuestion>(`/exam-questions/${id}`);
     return data;
+  },
+
+  createExamQuestion: async (dto: CreateExamQuestionDto): Promise<ExamQuestion> => {
+    const { data } = await apiClient.post<ExamQuestion>("/exam-questions", dto);
+    return data;
+  },
+
+  updateExamQuestion: async (id: string, dto: UpdateExamQuestionDto): Promise<ExamQuestion> => {
+    const { data } = await apiClient.patch<ExamQuestion>(`/exam-questions/${id}`, dto);
+    return data;
+  },
+
+  deleteExamQuestion: async (id: string): Promise<void> => {
+    await apiClient.delete(`/exam-questions/${id}`);
   },
 };

@@ -35,6 +35,8 @@ export interface LessonVocabulary {
   definition: string;
   examples: string[];
   translation?: string;
+  timestamp?: number;
+  contextSentence?: string;
 }
 
 // Ngữ pháp embed trong lesson.
@@ -43,6 +45,8 @@ export interface LessonGrammar {
   explanation: string;
   examples: string[];
   structure?: string;
+  timestamp?: number;
+  contextSentence?: string;
 }
 
 // Lesson trả về từ GET /lessons (courseId là string).

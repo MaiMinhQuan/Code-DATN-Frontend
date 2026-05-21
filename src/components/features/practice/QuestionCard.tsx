@@ -217,22 +217,6 @@ export function QuestionCard({ question, userBestBand, userSubmissions = [] }: Q
           {question.questionPrompt}
         </p>
 
-        {/* Tag liên quan của đề */}
-        {question.tags?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {question.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-                #{tag}
-              </span>
-            ))}
-            {question.tags.length > 3 && (
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
-                +{question.tags.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-
         {/* Footer hành động */}
         <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3">
           <div>

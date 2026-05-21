@@ -11,8 +11,8 @@ interface DashboardStatsProps {
   avgBand: number | null;
   // Streak ngày luyện tập liên tiếp.
   streak: number;
-  // Số thẻ flashcard đến hạn ôn.
-  dueCards: number;
+  // Số bộ flashcard của user.
+  flashcardSets: number;
 }
 
 // Cấu hình card thống kê từ dữ liệu đầu vào.
@@ -37,8 +37,8 @@ const STATS = (p: DashboardStatsProps) => [
     color: "bg-orange-100 text-orange-600",
   },
   {
-    label: T.STAT_DUE_CARDS,
-    value: p.dueCards,
+    label: T.STAT_FLASHCARD_SETS,
+    value: p.flashcardSets,
     icon: BookOpen,
     color: "bg-violet-100 text-violet-600",
   },

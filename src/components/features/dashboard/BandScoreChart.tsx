@@ -1,162 +1,80 @@
-// Biểu đồ SVG thể hiện xu hướng band score theo thời gian.
+// Biểu đồ phân bổ số lượng bài nộp theo từng band score.
 import { BarChart2 } from "lucide-react";
-import { UI_TEXT } from "@/constants/ui-text";
 import type { Submission } from "@/types/submission.types";
 
-const T = UI_TEXT.DASHBOARD;
-
-interface ChartPoint {
-  // Giá trị band tại một thời điểm.
-  band: number;
-  // Nhãn ngày (dd/MM) để hiển thị trục X.
-  label: string;
-}
-
-// Kích thước viewport SVG.
-const W = 480, H = 160;
-
-// Padding của vùng vẽ biểu đồ.
-const PAD = { l: 28, r: 12, t: 14, b: 28 };
-const chartW = W - PAD.l - PAD.r;
-const chartH = H - PAD.t - PAD.b;
-
-// Tính vị trí X theo index điểm dữ liệu.
-function xPos(i: number, total: number): number {
-  // Nếu chỉ có 1 điểm thì đặt vào giữa biểu đồ
-  return PAD.l + (total === 1 ? chartW / 2 : (i / (total - 1)) * chartW);
-}
-
-// Tính vị trí Y từ band score (đảo trục vì SVG có Y tăng dần xuống dưới).
-function yPos(band: number, yMin: number, yMax: number): number {
-  return PAD.t + (1 - (band - yMin) / (yMax - yMin)) * chartH;
-}
-
 interface BandScoreChartProps {
-  // Danh sách submissions dùng để dựng biểu đồ.
   submissions: Submission[];
 }
 
-/*
-Component biểu đồ band score.
+// Màu sắc theo mức band.
+function getBandColor(band: number): { bar: string; bg: string; badge: string } {
+  if (band >= 7)   return { bar: "bg-emerald-500", bg: "bg-emerald-50",  badge: "bg-emerald-100 text-emerald-700" };
+  if (band >= 6)   return { bar: "bg-blue-500",    bg: "bg-blue-50",     badge: "bg-blue-100 text-blue-700"       };
+  if (band >= 5)   return { bar: "bg-amber-500",   bg: "bg-amber-50",    badge: "bg-amber-100 text-amber-700"     };
+  return             { bar: "bg-red-500",     bg: "bg-red-50",      badge: "bg-red-100 text-red-700"         };
+}
 
-Input:
-- submissions — danh sách submission đã chấm.
-
-Output:
-- Biểu đồ đường band score hoặc empty state khi thiếu dữ liệu.
-*/
 export function BandScoreChart({ submissions }: BandScoreChartProps) {
-  // Lấy tối đa 10 điểm gần nhất có đủ band + ngày nộp
-  const points: ChartPoint[] = submissions
-    .filter((s) => s.aiResult?.overallBand !== undefined && s.submittedAt)
-    .slice(-10)
-    .map((s) => ({
-      band: s.aiResult!.overallBand,
-      label: new Date(s.submittedAt!).toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-      }),
-    }));
+  // Đếm số bài theo từng band (làm tròn 1 chữ số thập phân)
+  const countMap = new Map<number, number>();
+  for (const s of submissions) {
+    const band = s.aiResult?.overallBand;
+    if (band === undefined) continue;
+    const key = Math.round(band * 2) / 2; // làm tròn về bội số 0.5
+    countMap.set(key, (countMap.get(key) ?? 0) + 1);
+  }
 
-  // Tính range trục Y và chừa padding để biểu đồ thoáng hơn
-  const yMin = Math.max(0, Math.floor(Math.min(...points.map((p) => p.band))) - 0.5);
-  const yMax = Math.min(9, Math.ceil(Math.max(...points.map((p) => p.band))) + 0.5);
-  const yRange = yMax - yMin || 1; // avoid division by zero when all scores are equal
+  // Sắp xếp giảm dần theo band
+  const rows = Array.from(countMap.entries())
+    .sort(([a], [b]) => b - a);
 
-  const coords = points.map((p, i) => ({
-    x: xPos(i, points.length),
-    y: yPos(p.band, yMin, yMax),
-    ...p,
-  }));
-
-  const polylinePoints = coords.map((c) => `${c.x},${c.y}`).join(" ");
-
-  // Sinh 4 mốc chia đều cho trục Y
-  const yTicks = Array.from({ length: 4 }, (_, i) =>
-    +(yMin + (i / 3) * yRange).toFixed(1),
-  );
+  const max = rows[0]?.[1] ?? 1;
+  const total = submissions.filter(s => s.aiResult?.overallBand !== undefined).length;
 
   return (
     <div className="flex flex-col rounded-xl border border-border bg-card shadow-sm">
-      <div className="border-b border-border px-5 py-4">
-        <h2 className="text-sm font-semibold text-foreground">{T.CHART_TITLE}</h2>
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <h2 className="text-sm font-semibold text-foreground">Phân bổ band score</h2>
+        {total > 0 && (
+          <span className="text-xs text-muted-foreground">{total} bài đã chấm</span>
+        )}
       </div>
 
-      {/* Cần ít nhất 2 điểm để vẽ đường xu hướng */}
-      {points.length < 2 ? (
+      {rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 px-5 py-10 text-center">
           <BarChart2 className="h-8 w-8 text-muted-foreground/30" />
-          <p className="text-xs text-muted-foreground">{T.CHART_EMPTY}</p>
+          <p className="text-xs text-muted-foreground">Chưa có dữ liệu</p>
         </div>
       ) : (
-        <div className="p-5">
-          <svg
-            viewBox={`0 0 ${W} ${H}`}
-            className="w-full"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* Grid ngang + nhãn trục Y */}
-            {yTicks.map((tick) => {
-              const y = yPos(tick, yMin, yMax);
-              return (
-                <g key={tick}>
-                  <line
-                    x1={PAD.l}
-                    y1={y}
-                    x2={W - PAD.r}
-                    y2={y}
-                    stroke="#e2e8f0"
-                    strokeWidth="1"
+        <div className="flex flex-col gap-3 p-5">
+          {rows.map(([band, count]) => {
+            const { bar, bg, badge } = getBandColor(band);
+            const pct = (count / max) * 100;
+            const share = Math.round((count / total) * 100);
+
+            return (
+              <div key={band} className="flex items-center gap-3">
+                {/* Badge band score */}
+                <span className={`w-12 shrink-0 rounded-md px-1.5 py-0.5 text-center text-xs font-bold ${badge}`}>
+                  {band.toFixed(1)}
+                </span>
+
+                {/* Thanh biểu đồ */}
+                <div className={`relative h-7 flex-1 overflow-hidden rounded-md ${bg}`}>
+                  <div
+                    className={`h-full rounded-md ${bar} transition-all duration-500`}
+                    style={{ width: `${pct}%` }}
                   />
-                  <text
-                    x={PAD.l - 4}
-                    y={y + 4}
-                    textAnchor="end"
-                    fontSize="10"
-                    fill="#94a3b8"
-                  >
-                    {tick}
-                  </text>
-                </g>
-              );
-            })}
+                </div>
 
-            {/* Đường xu hướng */}
-            <polyline
-              fill="none"
-              stroke="rgb(99 102 241)"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              points={polylinePoints}
-            />
-
-            {/* Điểm dữ liệu + nhãn band và ngày */}
-            {coords.map((c, i) => (
-              <g key={i}>
-                <circle cx={c.x} cy={c.y} r="4" fill="rgb(99 102 241)" />
-                <text
-                  x={c.x}
-                  y={c.y - 8}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="600"
-                  fill="rgb(99 102 241)"
-                >
-                  {c.band.toFixed(1)}
-                </text>
-                <text
-                  x={c.x}
-                  y={H - 4}
-                  textAnchor="middle"
-                  fontSize="9"
-                  fill="#94a3b8"
-                >
-                  {c.label}
-                </text>
-              </g>
-            ))}
-          </svg>
+                {/* Số bài + tỉ lệ % */}
+                <div className="flex w-20 shrink-0 items-center justify-end gap-1.5">
+                  <span className="text-xs font-semibold text-foreground">{count} bài</span>
+                  <span className="text-[11px] text-muted-foreground">({share}%)</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

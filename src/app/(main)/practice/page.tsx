@@ -27,7 +27,12 @@ function getQuestionId(sub: Submission): string {
   return (sub.questionId as any)?._id?.toString() ?? "";
 }
 
-const DIFFICULTY_OPTIONS = [1, 2, 3, 4, 5] as const;
+// Dễ gộp level 1-2, Trung bình = 3, Khó gộp level 4-5.
+const DIFFICULTY_GROUPS = [
+  { label: "Dễ",        values: [1, 2] },
+  { label: "Trung bình", values: [3] },
+  { label: "Khó",        values: [4, 5] },
+] as const;
 
 /*
 Component PracticePage.
@@ -38,7 +43,7 @@ Output:
 export default function PracticePage() {
   const router = useRouter();
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<readonly number[] | null>(null);
   const [isLoadingRandom, setIsLoadingRandom] = useState(false);
 
   const { data: questions = [], isLoading, isError } = useExamQuestions();
@@ -91,7 +96,7 @@ export default function PracticePage() {
   const filtered = useMemo(() => {
     return questions.filter((q) => {
       const matchTopic = !selectedTopicId || q.topicId?._id === selectedTopicId;
-      const matchDiff = !selectedDifficulty || q.difficultyLevel === selectedDifficulty;
+      const matchDiff = !selectedDifficulty || selectedDifficulty.includes(q.difficultyLevel);
       return matchTopic && matchDiff;
     });
   }, [questions, selectedTopicId, selectedDifficulty]);
@@ -142,73 +147,82 @@ export default function PracticePage() {
         </button>
       </div>
 
-      {/* Nhóm bộ lọc */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Filter chủ đề */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedTopicId(null)}
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-              !selectedTopicId
-                ? "bg-indigo-600 text-white"
-                : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
-            )}
-          >
-            {UI_TEXT.PRACTICE_LIST.FILTER_ALL_TOPICS}
-          </button>
-          {topics.map((topic) => (
+      {/* Nhóm bộ lọc — 2 cột bằng nhau: chủ đề (trái) | độ khó (phải) */}
+      <div className="flex items-stretch gap-0 rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
+        {/* Cột trái: filter chủ đề */}
+        <div className="flex flex-1 flex-col gap-2 px-4 py-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+            Chủ đề
+          </span>
+          <div className="flex flex-wrap gap-2">
             <button
-              key={topic._id}
-              onClick={() => setSelectedTopicId(
-                // Bấm lại đúng topic đang chọn để bỏ chọn
-                selectedTopicId === topic._id ? null : topic._id
-              )}
+              onClick={() => setSelectedTopicId(null)}
               className={cn(
                 "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-                selectedTopicId === topic._id
+                !selectedTopicId
                   ? "bg-indigo-600 text-white"
                   : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
               )}
             >
-              {topic.name}
+              {UI_TEXT.PRACTICE_LIST.FILTER_ALL_TOPICS}
             </button>
-          ))}
+            {topics.map((topic) => (
+              <button
+                key={topic._id}
+                onClick={() => setSelectedTopicId(
+                  selectedTopicId === topic._id ? null : topic._id
+                )}
+                className={cn(
+                  "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                  selectedTopicId === topic._id
+                    ? "bg-indigo-600 text-white"
+                    : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
+                )}
+              >
+                {topic.name}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Vạch ngăn giữa filter chủ đề và độ khó */}
-        <div className="h-5 w-px bg-[var(--border)]" />
+        {/* Đường kẻ dọc phân cách */}
+        <div className="w-px bg-[var(--border)]" />
 
-        {/* Filter độ khó 1-5 */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedDifficulty(null)}
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-              !selectedDifficulty
-                ? "bg-slate-700 text-white"
-                : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
-            )}
-          >
-            {UI_TEXT.PRACTICE_LIST.FILTER_ALL_DIFFICULTY}
-          </button>
-          {DIFFICULTY_OPTIONS.map((level) => (
+        {/* Cột phải: filter độ khó (3 mức) */}
+        <div className="flex flex-1 flex-col gap-2 px-4 py-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+            Độ khó
+          </span>
+          <div className="flex flex-wrap gap-2">
             <button
-              key={level}
-              onClick={() => setSelectedDifficulty(
-                // Bấm lại mức đang chọn để bỏ chọn
-                selectedDifficulty === level ? null : level
-              )}
+              onClick={() => setSelectedDifficulty(null)}
               className={cn(
                 "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-                selectedDifficulty === level
+                !selectedDifficulty
                   ? "bg-slate-700 text-white"
                   : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
               )}
             >
-              {UI_TEXT.PRACTICE_LIST.DIFFICULTY_LABELS[level]}
+              {UI_TEXT.PRACTICE_LIST.FILTER_ALL_DIFFICULTY}
             </button>
-          ))}
+            {DIFFICULTY_GROUPS.map((group) => {
+              const isActive = selectedDifficulty?.toString() === group.values.toString();
+              return (
+                <button
+                  key={group.label}
+                  onClick={() => setSelectedDifficulty(isActive ? null : group.values)}
+                  className={cn(
+                    "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                    isActive
+                      ? "bg-slate-700 text-white"
+                      : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
+                  )}
+                >
+                  {group.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

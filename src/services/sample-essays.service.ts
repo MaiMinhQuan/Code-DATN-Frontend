@@ -5,6 +5,7 @@ import type {
   SampleEssay,
   GetSampleEssaysParams,
 } from "@/types/sample-essay.types";
+import type { CreateSampleEssayDto, UpdateSampleEssayDto } from "@/types/admin.types";
 
 export const sampleEssaysService = {
   /*
@@ -31,5 +32,19 @@ export const sampleEssaysService = {
   getSampleEssayById: async (id: string): Promise<SampleEssay> => {
     const { data } = await apiClient.get<SampleEssay>(`/sample-essays/${id}`);
     return data;
+  },
+
+  createSampleEssay: async (dto: CreateSampleEssayDto): Promise<SampleEssay> => {
+    const { data } = await apiClient.post<SampleEssay>("/sample-essays", dto);
+    return data;
+  },
+
+  updateSampleEssay: async (id: string, dto: UpdateSampleEssayDto): Promise<SampleEssay> => {
+    const { data } = await apiClient.patch<SampleEssay>(`/sample-essays/${id}`, dto);
+    return data;
+  },
+
+  deleteSampleEssay: async (id: string): Promise<void> => {
+    await apiClient.delete(`/sample-essays/${id}`);
   },
 };

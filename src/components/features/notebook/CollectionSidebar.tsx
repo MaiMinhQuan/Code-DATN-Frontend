@@ -32,26 +32,24 @@ function NavItem({
   label,
   filter,
   activeFilter,
-  icon,
   onFilterChange,
 }: {
   label: string
   filter: string | null
   activeFilter: string | null
-  icon: React.ReactNode
   onFilterChange: (f: string | null) => void
 }) {
+  const isActive = activeFilter === filter
   return (
     <button
       onClick={() => onFilterChange(filter)}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors text-left",
-        activeFilter === filter
-          ? "bg-primary/10 font-medium text-primary"
-          : "text-foreground hover:bg-muted"
+        "flex w-full items-center rounded-r-lg border-l-2 py-2 pl-3 pr-3 text-sm transition-colors text-left",
+        isActive
+          ? "border-primary bg-primary/10 font-semibold text-primary"
+          : "border-transparent font-medium text-foreground hover:bg-muted hover:text-foreground"
       )}
     >
-      {icon}
       {label}
     </button>
   )
@@ -147,14 +145,12 @@ export function CollectionSidebar({ activeFilter, onFilterChange }: CollectionSi
           filter={null}
           activeFilter={activeFilter}
           onFilterChange={onFilterChange}
-          icon={<span className="text-base">📋</span>}
         />
         <NavItem
           label={T.FILTER_UNCATEGORIZED}
           filter="none"
           activeFilter={activeFilter}
           onFilterChange={onFilterChange}
-          icon={<span className="text-base">📁</span>}
         />
       </nav>
 

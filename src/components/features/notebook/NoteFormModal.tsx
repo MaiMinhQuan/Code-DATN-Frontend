@@ -1,11 +1,13 @@
 // Modal tạo/chỉnh sửa note với chọn collection.
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import * as Dialog from "@radix-ui/react-dialog"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2, ChevronDown, Check } from "lucide-react"
 import { UI_TEXT } from "@/constants/ui-text"
 import { useNoteCollections } from "@/hooks/useNoteCollections"
+import { RichTextEditor } from "@/components/ui/RichTextEditor"
+import { cn } from "@/lib/utils"
 import type { Note, CreateNotePayload, UpdateNotePayload } from "@/types/notebook.types"
 
 const T = UI_TEXT.NOTEBOOK
@@ -47,9 +49,11 @@ export function NoteFormModal({
   onClose,
   onSave,
 }: NoteFormModalProps) {
-  const [title,        setTitle]        = useState("")
-  const [content,      setContent]      = useState("")
-  const [collectionId, setCollectionId] = useState<string>("")
+  const [title,           setTitle]           = useState("")
+  const [content,         setContent]         = useState("")
+  const [collectionId,    setCollectionId]    = useState<string>("")
+  const [dropdownOpen,    setDropdownOpen]    = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const { data: collections = [] } = useNoteCollections()
 
@@ -68,8 +72,10 @@ export function NoteFormModal({
   Output:
   - Gọi onSave với payload đã normalize.
   */
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "").trim()
+
   const handleSave = () => {
-    if (!content.trim()) return
+    if (!stripHtml(content)) return
     onSave({
       title:         title.trim() || undefined,
       userDraftNote: content,
@@ -97,26 +103,61 @@ export function NoteFormModal({
 
           {/* Hàng chọn collection */}
           <div className="flex shrink-0 items-center gap-2 border-b border-border px-5 py-2">
-            <span className="text-xs text-muted-foreground">{T.COLLECTION_FIELD}:</span>
-            <div className="flex items-center gap-1.5">
-              {collectionId && (
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{
-                    backgroundColor: collections.find(c => c._id === collectionId)?.color,
-                  }}
-                />
-              )}
-              <select
-                value={collectionId}
-                onChange={(e) => setCollectionId(e.target.value)}
-                className="bg-transparent text-xs text-foreground focus:outline-none"
+            <span className="shrink-0 text-xs text-muted-foreground">{T.COLLECTION_FIELD}:</span>
+            <div ref={dropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setDropdownOpen((o) => !o)}
+                className="flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2.5 py-1 text-xs text-foreground transition-colors hover:bg-muted focus:outline-none"
               >
-                <option value="">{T.COLLECTION_NONE}</option>
-                {collections.map((c) => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
-                ))}
-              </select>
+                {collectionId ? (
+                  <>
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: collections.find(c => c._id === collectionId)?.color }}
+                    />
+                    <span>{collections.find(c => c._id === collectionId)?.name}</span>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">{T.COLLECTION_NONE}</span>
+                )}
+                <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform", dropdownOpen && "rotate-180")} />
+              </button>
+
+              {dropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
+                  <div className="absolute left-0 top-full z-20 mt-1 min-w-44 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+                    {/* Không có bộ */}
+                    <button
+                      type="button"
+                      onClick={() => { setCollectionId(""); setDropdownOpen(false) }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
+                    >
+                      <span className="h-2 w-2 shrink-0 rounded-full border border-border" />
+                      <span className="flex-1 text-left">{T.COLLECTION_NONE}</span>
+                      {!collectionId && <Check className="h-3 w-3 text-primary" />}
+                    </button>
+
+                    {collections.length > 0 && (
+                      <div className="mx-2 my-1 border-t border-border" />
+                    )}
+
+                    {collections.map((c) => (
+                      <button
+                        key={c._id}
+                        type="button"
+                        onClick={() => { setCollectionId(c._id); setDropdownOpen(false) }}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground transition-colors hover:bg-muted"
+                      >
+                        <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
+                        <span className="flex-1 truncate text-left">{c.name}</span>
+                        {collectionId === c._id && <Check className="h-3 w-3 text-primary" />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -131,13 +172,15 @@ export function NoteFormModal({
             />
           </div>
 
-          {/* Textarea nội dung note */}
-          <textarea
-            placeholder={T.PLACEHOLDER_CONTENT}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="flex-1 resize-none bg-transparent px-5 py-4 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
-          />
+          {/* Editor nội dung note với formatting */}
+          <div className="flex flex-1 min-h-0 flex-col px-3 py-2">
+            <RichTextEditor
+              value={content}
+              onChange={setContent}
+              placeholder={T.PLACEHOLDER_CONTENT}
+              grow
+            />
+          </div>
 
           {/* Footer với nút lưu */}
           <div className="flex shrink-0 justify-end border-t border-border px-5 py-3">

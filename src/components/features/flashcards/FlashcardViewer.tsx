@@ -63,7 +63,7 @@ export function FlashcardViewer({
     >
       {/* Container xoay trục Y để tạo hiệu ứng lật */}
       <div
-        className="relative h-64 w-full transition-transform duration-500"
+        className="relative h-[380px] w-full transition-transform duration-500"
         style={{
           transformStyle: "preserve-3d",
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -77,9 +77,10 @@ export function FlashcardViewer({
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
             {T.CARD_FACE_FRONT}
           </p>
-          <p className="text-center text-xl font-semibold text-foreground">
-            {frontContent}
-          </p>
+          <div
+            className="tiptap text-center text-2xl font-semibold text-foreground"
+            dangerouslySetInnerHTML={{ __html: frontContent }}
+          />
           <div className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground">
             <RotateCcw className="h-3.5 w-3.5" />
             {T.BTN_FLIP}
@@ -97,9 +98,10 @@ export function FlashcardViewer({
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-widest text-primary/60">
             {T.CARD_FACE_BACK}
           </p>
-          <p className="text-center text-xl font-semibold text-foreground">
-            {backContent}
-          </p>
+          <div
+            className="tiptap text-center text-2xl font-semibold text-foreground"
+            dangerouslySetInnerHTML={{ __html: backContent }}
+          />
         </div>
       </div>
     </div>
