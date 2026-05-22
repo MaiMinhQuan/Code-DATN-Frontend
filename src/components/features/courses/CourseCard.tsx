@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Course } from "@/types/course.types";
@@ -30,22 +29,6 @@ export function CourseCard({ course }: CourseCardProps) {
       href={`/courses/${course._id}`}
       className="group flex flex-col rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md overflow-hidden"
     >
-      {/* Ảnh thumbnail có hiệu ứng zoom khi hover; nếu thiếu ảnh thì hiện icon mặc định */}
-      <div className="relative h-36 w-full bg-muted">
-        {course.thumbnailUrl ? (
-          <Image
-            src={course.thumbnailUrl}
-            alt={course.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <BookOpen className="h-10 w-10 text-muted-foreground/30" />
-          </div>
-        )}
-      </div>
-
       {/* Nội dung text */}
       <div className="flex flex-1 flex-col p-4">
         {/* Badge topic */}

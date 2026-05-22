@@ -12,6 +12,7 @@ import {
   useUpdateFlashcardSet,
 } from "@/hooks/useFlashcards";
 import { CardItem } from "@/components/features/flashcards/CardItem";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Flashcard } from "@/types/flashcard.types";
 
@@ -99,8 +100,10 @@ export default function FlashcardSetPage() {
   Output:
   - Tạo card mới hoặc cập nhật card hiện tại tùy theo mode.
   */
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "").trim();
+
   const handleSave = () => {
-    if (!front.trim() || !back.trim()) return;
+    if (!stripHtml(front) || !stripHtml(back)) return;
     if (isEditing && editingCard) {
       updateCard.mutate(
         { cardId: editingCard._id, payload: { frontContent: front.trim(), backContent: back.trim() } },
@@ -309,22 +312,19 @@ export default function FlashcardSetPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-muted-foreground">Mặt trước</label>
-              <textarea
-                placeholder={T.PLACEHOLDER_FRONT}
+              <RichTextEditor
                 value={front}
-                onChange={(e) => setFront(e.target.value)}
-                rows={3}
-                className="w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                onChange={setFront}
+                placeholder={T.PLACEHOLDER_FRONT}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-muted-foreground">Mặt sau</label>
-              <textarea
-                placeholder={T.PLACEHOLDER_BACK}
+              <RichTextEditor
                 value={back}
-                onChange={(e) => setBack(e.target.value)}
-                rows={3}
-                className="w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                onChange={setBack}
+                placeholder={T.PLACEHOLDER_BACK}
+                minHeight="6rem"
               />
             </div>
           </div>
@@ -338,7 +338,7 @@ export default function FlashcardSetPage() {
             </button>
             <button
               onClick={handleSave}
-              disabled={!front.trim() || !back.trim() || isSaving}
+              disabled={!stripHtml(front) || !stripHtml(back) || isSaving}
               className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
               {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

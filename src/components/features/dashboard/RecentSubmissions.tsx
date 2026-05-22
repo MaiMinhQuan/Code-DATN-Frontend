@@ -1,6 +1,6 @@
 // Danh sách bài nộp gần đây trên dashboard.
 import Link from "next/link";
-import { FileText, ArrowRight } from "lucide-react";
+import { PenLine, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Submission } from "@/types/submission.types";
@@ -51,10 +51,14 @@ export function RecentSubmissions({ submissions, totalCount }: RecentSubmissions
 
       {/* Nội dung: empty state hoặc danh sách bài nộp */}
       {submissions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 px-5 py-10 text-center">
-          <FileText className="h-8 w-8 text-muted-foreground/30" />
-          <p className="text-sm font-medium text-muted-foreground">{T.RECENT_EMPTY}</p>
-          <p className="text-xs text-muted-foreground">{T.RECENT_EMPTY_HINT}</p>
+        <div className="flex flex-col items-center justify-center gap-3 px-5 py-10 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+            <PenLine className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">{T.RECENT_EMPTY}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{T.RECENT_EMPTY_HINT}</p>
+          </div>
         </div>
       ) : (
         <div className="divide-y divide-border">

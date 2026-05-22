@@ -1,6 +1,7 @@
 // Layout khung cho toàn bộ trang chính: Sidebar, Topbar và vùng nội dung cuộn.
 import { Sidebar } from "@/components/features/layout/Sidebar";
 import { Topbar } from "@/components/features/layout/Topbar";
+import { QuickNoteButton } from "@/components/features/notebook/QuickNoteButton";
 
 /*
 Component MainLayout.
@@ -22,6 +23,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
       </div>
+      <QuickNoteButton />
     </div>
   );
 }

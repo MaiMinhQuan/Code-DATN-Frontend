@@ -1,68 +1,48 @@
 "use client";
 
-// Phiên ôn tập thẻ: lật thẻ, chấm mức độ nhớ và theo dõi tiến độ.
 import { useState } from "react";
-import { CheckCircle2, PartyPopper } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, PartyPopper } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import { FlashcardViewer } from "./FlashcardViewer";
-import type { FlashcardForReview, ReviewQuality } from "@/types/flashcard.types";
+import type { Flashcard } from "@/types/flashcard.types";
 
 const T = UI_TEXT.FLASHCARDS;
 
-// Cấu hình 3 nút chấm mức độ nhớ theo thang chất lượng review.
-const QUALITY_BUTTONS: { label: string; quality: ReviewQuality; className: string }[] = [
-  { label: T.QUALITY_LABELS[0], quality: 1, className: "bg-red-100 text-red-700 hover:bg-red-200" },
-  { label: T.QUALITY_LABELS[1], quality: 3, className: "bg-amber-100 text-amber-700 hover:bg-amber-200" },
-  { label: T.QUALITY_LABELS[2], quality: 5, className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" },
-];
-
 interface ReviewSessionProps {
-  // Danh sách thẻ cần ôn trong phiên hiện tại.
-  cards: FlashcardForReview[];
-  // Trạng thái đang gửi kết quả review.
+  cards: Flashcard[];
+  setTitle: string;
   isSubmitting: boolean;
-  // Callback ghi nhận điểm quality cho thẻ hiện tại.
-  onReview: (cardId: string, quality: ReviewQuality) => void;
+  onReview: (cardId: string) => void;
+  onComplete?: () => void;
 }
 
-/*
-Component phiên ôn tập flashcard.
-
-Input:
-- cards — danh sách thẻ cần ôn.
-- isSubmitting — trạng thái submit.
-- onReview — hàm ghi nhận kết quả review.
-
-Output:
-- Màn hình ôn tập theo từng thẻ và màn hình hoàn thành khi đã ôn xong.
-*/
-export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionProps) {
-  const [currentIndex,  setCurrentIndex]  = useState(0);
-  const [isFlipped,     setIsFlipped]     = useState(false);
-  const [reviewedCount, setReviewedCount] = useState(0);
+export function ReviewSession({ cards, setTitle, isSubmitting, onReview, onComplete }: ReviewSessionProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped,    setIsFlipped]    = useState(false);
+  const [reviewedIds,  setReviewedIds]  = useState<Set<string>>(new Set());
 
   const isComplete  = currentIndex >= cards.length;
   const currentCard = cards[currentIndex];
+  const progress    = (reviewedIds.size / cards.length) * 100;
 
-  // Tiến độ phiên ôn theo phần trăm số thẻ đã xử lý.
-  const progress    = (currentIndex / cards.length) * 100;
+  const markReviewed = (card: Flashcard) => {
+    if (!reviewedIds.has(card._id)) {
+      onReview(card._id);
+      setReviewedIds((prev) => new Set(prev).add(card._id));
+    }
+  };
 
-  /*
-  Xử lý khi người dùng chọn quality cho thẻ hiện tại.
-
-  Input:
-  - quality — điểm đánh giá mức độ nhớ.
-
-  Output:
-  - Gửi kết quả review, chuyển sang thẻ tiếp theo và reset trạng thái lật thẻ.
-  */
-  const handleQuality = (quality: ReviewQuality) => {
+  const handleNext = () => {
     if (!currentCard || isSubmitting) return;
-    onReview(currentCard._id, quality);
-    setReviewedCount((n) => n + 1);
+    markReviewed(currentCard);
     setCurrentIndex((i) => i + 1);
-    setIsFlipped(false); // reset trạng thái lật cho thẻ kế tiếp
+    setIsFlipped(false);
+  };
+
+  const handleBack = () => {
+    if (currentIndex === 0) return;
+    setCurrentIndex((i) => i - 1);
+    setIsFlipped(false);
   };
 
   if (isComplete) {
@@ -73,19 +53,29 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
         </div>
         <h2 className="text-xl font-bold text-foreground">{T.REVIEW_COMPLETE}</h2>
         <p className="text-sm text-muted-foreground">
-          {T.REVIEW_COMPLETE_HINT(reviewedCount)}
+          {T.REVIEW_COMPLETE_HINT(reviewedIds.size)}
         </p>
+        {onComplete && (
+          <button
+            onClick={onComplete}
+            className="mt-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            {T.BTN_BACK_TO_LIST}
+          </button>
+        )}
       </div>
     );
   }
 
+  const isLastCard = currentIndex + 1 >= cards.length;
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Thanh tiến độ phiên ôn */}
+      {/* Thanh tiến độ */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">
-            {T.REVIEW_PROGRESS(currentIndex + 1, cards.length)}
+            {reviewedIds.size} / {cards.length} đã ôn
           </span>
           <span className="text-xs text-muted-foreground">
             {Math.round(progress)}%
@@ -99,14 +89,14 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
         </div>
       </div>
 
-      {/* Tên bộ thẻ hiện tại */}
+      {/* Badge tên bộ thẻ */}
       <div className="flex justify-center">
         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-          {currentCard.setId.title}
+          {setTitle}
         </span>
       </div>
 
-      {/* Thẻ hiện tại (lật trước/sau) */}
+      {/* Thẻ flip */}
       <FlashcardViewer
         frontContent={currentCard.frontContent}
         backContent={currentCard.backContent}
@@ -114,32 +104,47 @@ export function ReviewSession({ cards, isSubmitting, onReview }: ReviewSessionPr
         onFlip={() => setIsFlipped((f) => !f)}
       />
 
-      {/* Sau khi lật mới hiển thị nhóm nút chọn quality */}
-      {isFlipped ? (
-        <div className="flex flex-col gap-3">
-          <p className="text-center text-xs font-medium text-muted-foreground">
-            {T.REVIEW_QUALITY_PROMPT}
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            {QUALITY_BUTTONS.map(({ label, quality, className }) => (
-              <button
-                key={quality}
-                onClick={() => handleQuality(quality)}
-                disabled={isSubmitting}
-                className={cn(
-                  "rounded-xl py-2.5 text-xs font-semibold transition-colors disabled:opacity-50",
-                  className,
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p className="text-center text-xs text-muted-foreground">
-          {T.REVIEW_FLIP_HINT}
-        </p>
+      {/* Hint lật thẻ */}
+      {!isFlipped && (
+        <p className="text-center text-xs text-muted-foreground">{T.REVIEW_FLIP_HINT}</p>
+      )}
+
+      {/* Điều hướng dạng ← n / total → */}
+      <div className="flex items-center justify-center gap-5">
+        <button
+          onClick={handleBack}
+          disabled={currentIndex === 0}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/60 disabled:pointer-events-none disabled:opacity-30"
+        >
+          <ChevronLeft className="h-5 w-5 text-foreground" />
+        </button>
+
+        <span className="min-w-[5rem] text-center text-sm font-medium text-foreground">
+          {currentIndex + 1} / {cards.length}
+        </span>
+
+        <button
+          onClick={handleNext}
+          disabled={isSubmitting}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/60 disabled:pointer-events-none disabled:opacity-50"
+        >
+          {isLastCard ? (
+            <span className="text-[10px] font-bold text-primary">OK</span>
+          ) : (
+            <ChevronRight className="h-5 w-5 text-foreground" />
+          )}
+        </button>
+      </div>
+
+      {/* Nút Hoàn thành riêng khi ở thẻ cuối */}
+      {isLastCard && (
+        <button
+          onClick={handleNext}
+          disabled={isSubmitting}
+          className="rounded-xl bg-primary py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          Hoàn thành
+        </button>
       )}
     </div>
   );

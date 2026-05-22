@@ -36,9 +36,10 @@ export function CardItem({ card, onEdit, onDelete }: CardItemProps) {
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/60">
             {T.CARD_FACE_FRONT}
           </p>
-          <p className="mt-1 text-sm font-medium text-foreground">
-            {card.frontContent}
-          </p>
+          <div
+            className="tiptap mt-1 text-sm font-medium text-foreground"
+            dangerouslySetInnerHTML={{ __html: card.frontContent }}
+          />
         </div>
 
         {/* Cột mặt sau */}
@@ -46,7 +47,10 @@ export function CardItem({ card, onEdit, onDelete }: CardItemProps) {
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/60">
             {T.CARD_FACE_BACK}
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">{card.backContent}</p>
+          <div
+            className="tiptap mt-1 text-sm text-muted-foreground"
+            dangerouslySetInnerHTML={{ __html: card.backContent }}
+          />
         </div>
 
         {/* Nút sửa/xóa, chỉ hiện khi hover item */}

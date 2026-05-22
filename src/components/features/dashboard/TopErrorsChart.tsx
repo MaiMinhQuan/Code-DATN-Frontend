@@ -1,5 +1,5 @@
 // Biểu đồ top lỗi AI xuất hiện nhiều nhất trên dashboard.
-import { AlertCircle } from "lucide-react";
+import { Target } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ErrorCategory } from "@/types/enums";
 import type { Submission } from "@/types/submission.types";
@@ -55,10 +55,14 @@ export function TopErrorsChart({ submissions }: TopErrorsChartProps) {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 px-5 py-10 text-center">
-          <AlertCircle className="h-8 w-8 text-muted-foreground/30" />
-          <p className="text-sm font-medium text-muted-foreground">{T.ERROR_CHART_EMPTY}</p>
-          <p className="text-xs text-muted-foreground">{T.ERROR_CHART_EMPTY_HINT}</p>
+        <div className="flex flex-col items-center justify-center gap-3 px-5 py-10 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100">
+            <Target className="h-6 w-6 text-violet-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">{T.ERROR_CHART_EMPTY}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{T.ERROR_CHART_EMPTY_HINT}</p>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-3 p-5">

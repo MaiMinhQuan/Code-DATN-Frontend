@@ -1,9 +1,8 @@
 // Panel hiển thị đầy đủ thông tin đề bài writing hiện tại.
-import { Layers, Gauge, Hash } from "lucide-react";
+import { Layers, Gauge } from "lucide-react";
 import { ExamQuestion } from "@/types/exam-question.types";
 import { UI_TEXT } from "@/constants/ui-text";
 import { cn } from "@/lib/utils";
-import { MarkdownContent } from "@/components/ui/MarkdownContent";
 
 interface QuestionPanelProps {
   // Dữ liệu đề cần render.
@@ -71,20 +70,6 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
         )}
       </div>
 
-      {/* Danh sách tag của đề */}
-      {question.tags?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {question.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-500"
-            >
-              <Hash className="h-2.5 w-2.5" />
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
 
       {/* Tiêu đề đề bài */}
       <h1 className="text-lg font-semibold leading-snug text-[var(--foreground)]">
@@ -105,7 +90,10 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
             {UI_TEXT.PRACTICE.TASK_INSTRUCTION}
           </p>
-          <MarkdownContent content={question.suggestedOutline} />
+          <div
+            className="tiptap text-sm text-foreground"
+            dangerouslySetInnerHTML={{ __html: question.suggestedOutline }}
+          />
         </div>
       )}
 

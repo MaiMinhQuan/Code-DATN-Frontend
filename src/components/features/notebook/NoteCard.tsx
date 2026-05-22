@@ -34,6 +34,7 @@ Output:
 export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const date = new Date(note.createdAt).toLocaleDateString("vi-VN")
+  const previewText = note.userDraftNote.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
 
   return (
     <div
@@ -56,7 +57,7 @@ export function NoteCard({ note, collectionColor, onEdit, onDelete }: NoteCardPr
             </p>
             {/* Dòng preview nội dung note */}
             <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-              {note.userDraftNote}
+              {previewText}
             </p>
             <p className="mt-1.5 text-[11px] text-muted-foreground/60">{date}</p>
           </div>

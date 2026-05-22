@@ -1,16 +1,14 @@
-// Service gọi API flashcards: sets, cards và review (spaced repetition).
+// Service gọi API flashcards: sets, cards và ghi nhận lượt ôn tập.
 
 import { apiClient } from "./api.client";
 import type {
   FlashcardSet,
   FlashcardSetDetail,
-  FlashcardForReview,
   Flashcard,
   CreateFlashcardSetPayload,
   UpdateFlashcardSetPayload,
   CreateFlashcardPayload,
   UpdateFlashcardPayload,
-  ReviewFlashcardPayload,
 } from "@/types/flashcard.types";
 
 export const flashcardsService = {
@@ -23,18 +21,6 @@ export const flashcardsService = {
   */
   getSets: async (): Promise<FlashcardSet[]> => {
     const { data } = await apiClient.get<FlashcardSet[]>("/flashcard-sets");
-    return data;
-  },
-
-  /*
-  Lấy danh sách thẻ đến hạn ôn dựa trên `nextReviewDate` (hôm nay hoặc quá hạn).
-  Output:
-  - Danh sách FlashcardForReview.
-  */
-  getReviewCards: async (): Promise<FlashcardForReview[]> => {
-    const { data } = await apiClient.get<FlashcardForReview[]>(
-      "/flashcard-sets/review",
-    );
     return data;
   },
 
@@ -155,20 +141,15 @@ export const flashcardsService = {
   },
 
   /*
-  Ghi nhận kết quả review để backend cập nhật nextReviewDate và tăng reviewCount.
+  Ghi nhận lượt ôn tập — tăng reviewCount.
   Input:
   - cardId
-  - payload — kết quả review.
   Output:
-  - Flashcard sau khi cập nhật lịch ôn.
+  - Flashcard sau khi cập nhật reviewCount.
   */
-  reviewCard: async (
-    cardId: string,
-    payload: ReviewFlashcardPayload,
-  ): Promise<Flashcard> => {
+  reviewCard: async (cardId: string): Promise<Flashcard> => {
     const { data } = await apiClient.patch<Flashcard>(
       `/flashcard-sets/cards/${cardId}/review`,
-      payload,
     );
     return data;
   },

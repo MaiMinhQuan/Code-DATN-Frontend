@@ -12,10 +12,13 @@ import {
   NotebookPen,
   GraduationCap,
   ChevronLeft,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui.store";
 import { UI_TEXT } from "@/constants/ui-text";
+import { useSession } from "next-auth/react";
+import { UserRole } from "@/types/enums";
 
 // Danh sách route điều hướng hiển thị trong sidebar.
 const NAV_ITEMS = [
@@ -39,6 +42,8 @@ Output:
 export function Sidebar() {
   const pathname = usePathname();
   const { isSidebarOpen, toggleSidebar } = useUIStore();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === UserRole.ADMIN;
 
   return (
     <aside
@@ -80,6 +85,30 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Admin link — chỉ hiện với ADMIN role */}
+        {isAdmin && (
+          <>
+            {isSidebarOpen && (
+              <p className="mt-4 mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-indigo-500">
+                Quản trị
+              </p>
+            )}
+            {!isSidebarOpen && <div className="mt-4 border-t border-indigo-800" />}
+            <Link
+              href="/admin"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                pathname === "/admin" || pathname.startsWith("/admin/")
+                  ? "bg-indigo-600 text-white"
+                  : "text-indigo-300 hover:bg-indigo-800 hover:text-white"
+              )}
+            >
+              <Shield className="h-5 w-5 shrink-0" />
+              {isSidebarOpen && <span>Quản trị</span>}
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* Nút thu gọn/mở rộng sidebar */}

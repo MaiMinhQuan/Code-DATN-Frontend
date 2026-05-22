@@ -205,9 +205,10 @@ function EssayInfoPanel({
         <div>
           <h2 className="mb-2 text-sm font-semibold text-foreground">{T.DETAIL_LABEL_OUTLINE}</h2>
           <div className="rounded-xl border border-border bg-muted/40 px-4 py-3">
-            <p className="whitespace-pre-wrap text-xs leading-relaxed text-foreground">
-              {essay.outlineContent}
-            </p>
+            <div
+              className="tiptap text-xs leading-relaxed text-foreground"
+              dangerouslySetInnerHTML={{ __html: essay.outlineContent }}
+            />
           </div>
         </div>
       )}

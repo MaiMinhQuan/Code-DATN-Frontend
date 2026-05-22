@@ -6,20 +6,11 @@ import { UI_TEXT } from "@/constants/ui-text";
 const T = UI_TEXT.DASHBOARD;
 
 interface QuickActionsProps {
-  // Số thẻ flashcard đang đến hạn ôn.
-  dueCards: number;
+  // Số bộ flashcard của user.
+  flashcardSets: number;
 }
 
-/*
-Component nút hành động nhanh.
-
-Input:
-- dueCards — số thẻ cần ôn.
-
-Output:
-- Hai card điều hướng nhanh: luyện viết và ôn flashcard.
-*/
-export function QuickActions({ dueCards }: QuickActionsProps) {
+export function QuickActions({ flashcardSets }: QuickActionsProps) {
   const router = useRouter();
 
   return (
@@ -53,19 +44,11 @@ export function QuickActions({ dueCards }: QuickActionsProps) {
           <div>
             <p className="font-semibold text-foreground">{T.QUICK_FLASHCARD_TITLE}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {dueCards > 0 ? T.QUICK_FLASHCARD_DESC(dueCards) : T.QUICK_FLASHCARD_EMPTY}
+              {flashcardSets > 0 ? T.QUICK_FLASHCARD_DESC(flashcardSets) : T.QUICK_FLASHCARD_EMPTY}
             </p>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Badge hiện khi có thẻ đến hạn */}
-          {dueCards > 0 && (
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-600">
-              {dueCards}
-            </span>
-          )}
-          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
-        </div>
+        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
       </button>
     </div>
   );
