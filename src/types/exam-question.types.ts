@@ -18,7 +18,6 @@ export interface ExamQuestion {
   isPublished: boolean;
   attemptCount: number;
   sourceReference?: string;
-  tags: string[];
   topicId?: PopulatedTopic;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +27,5 @@ export interface ExamQuestion {
 export interface GetExamQuestionsParams {
   topicId?: string;
   difficultyLevel?: number;
-  tag?: string;
   isPublished?: boolean;
 }

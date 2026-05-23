@@ -24,10 +24,8 @@ const DIFFICULTY_CONFIG: Record<
   { dot: string; text: string; bg: string; ring: string }
 > = {
   1: { dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50", ring: "ring-emerald-200" },
-  2: { dot: "bg-teal-500",    text: "text-teal-700",    bg: "bg-teal-50",    ring: "ring-teal-200"    },
-  3: { dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50",   ring: "ring-amber-200"   },
-  4: { dot: "bg-orange-500",  text: "text-orange-700",  bg: "bg-orange-50",  ring: "ring-orange-200"  },
-  5: { dot: "bg-red-500",     text: "text-red-700",     bg: "bg-red-50",     ring: "ring-red-200"     },
+  2: { dot: "bg-amber-500",   text: "text-amber-700",   bg: "bg-amber-50",   ring: "ring-amber-200"   },
+  3: { dot: "bg-red-500",     text: "text-red-700",     bg: "bg-red-50",     ring: "ring-red-200"     },
 };
 
 // Màu badge điểm band theo mức điểm.
@@ -184,9 +182,9 @@ export function QuestionCard({ question, userBestBand, userSubmissions = [] }: Q
             {diff && (
               <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset", diff.bg, diff.text, diff.ring)}>
                 {label}
-                {/* Dot biểu diễn mức độ khó 1-5 */}
+                {/* Dot biểu diễn mức độ khó 1-3 */}
                 <span className="flex gap-0.5">
-                  {Array.from({ length: 5 }, (_, i) => (
+                  {Array.from({ length: 3 }, (_, i) => (
                     <span key={i} className={cn("h-1.5 w-1.5 rounded-full", i < question.difficultyLevel ? diff.dot : "bg-slate-200")} />
                   ))}
                 </span>

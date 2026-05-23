@@ -48,6 +48,11 @@ export const examQuestionsService = {
     return data;
   },
 
+  getAdminExamQuestions: async (params?: GetExamQuestionsParams): Promise<ExamQuestion[]> => {
+    const { data } = await apiClient.get<ExamQuestion[]>("/exam-questions/admin", { params });
+    return data;
+  },
+
   createExamQuestion: async (dto: CreateExamQuestionDto): Promise<ExamQuestion> => {
     const { data } = await apiClient.post<ExamQuestion>("/exam-questions", dto);
     return data;

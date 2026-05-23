@@ -34,10 +34,9 @@ export function LessonFormModal({ isOpen, onClose, lesson, courseId }: Props) {
         courseId,
         targetBand: lesson.targetBand,
         description: lesson.description ?? "",
-        orderIndex: lesson.orderIndex,
         isPublished: lesson.isPublished,
         notesContent: lesson.notesContent ?? "",
-      } : { courseId, targetBand: TargetBand.BAND_6_0, orderIndex: 0, isPublished: true });
+      } : { courseId, targetBand: TargetBand.BAND_6_0, isPublished: true });
     }
   }, [isOpen, lesson, courseId, reset]);
 
@@ -78,26 +77,16 @@ export function LessonFormModal({ isOpen, onClose, lesson, courseId }: Props) {
             {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Target Band</label>
-              <select
-                {...register("targetBand")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              >
-                {Object.entries(TARGET_BAND_LABELS).map(([val, label]) => (
-                  <option key={val} value={val}>{label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Thứ tự</label>
-              <input
-                type="number"
-                {...register("orderIndex", { valueAsNumber: true })}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              />
-            </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Target Band</label>
+            <select
+              {...register("targetBand")}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+            >
+              {Object.entries(TARGET_BAND_LABELS).map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
           </div>
 
           <div>

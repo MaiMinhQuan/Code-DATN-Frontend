@@ -8,13 +8,17 @@ import type {
   CreateLessonDto,
   UpdateLessonDto,
   AddVideoDto,
+  UpdateVideoDto,
   AddVocabularyDto,
+  UpdateVocabularyDto,
   AddGrammarDto,
+  UpdateGrammarDto,
 } from "@/types/admin.types";
 
 export const adminCourseKeys = {
   all: ["admin", "courses"] as const,
   list: () => [...adminCourseKeys.all, "list"] as const,
+  detail: (courseId: string) => [...adminCourseKeys.all, "detail", courseId] as const,
 };
 
 export const adminLessonKeys = {
@@ -23,29 +27,39 @@ export const adminLessonKeys = {
   detail: (lessonId: string) => [...adminLessonKeys.all, "detail", lessonId] as const,
 };
 
+export function useAdminCourse(courseId: string) {
+  return useQuery({
+    queryKey: adminCourseKeys.detail(courseId),
+    queryFn: () => coursesService.getAdminCourse(courseId),
+    enabled: !!courseId,
+    staleTime: 0,
+  });
+}
+
 export function useAdminCourses() {
   return useQuery({
     queryKey: adminCourseKeys.list(),
-    queryFn: () => coursesService.getCourses(),
-    staleTime: 2 * 60 * 1000,
+    queryFn: () => coursesService.getAdminCourses(),
+    staleTime: 0,
   });
 }
 
 export function useAdminLessons(courseId: string) {
   return useQuery({
     queryKey: adminLessonKeys.list(courseId),
-    queryFn: () => coursesService.getLessons({ courseId }),
+    queryFn: () => coursesService.getAdminLessons({ courseId }),
     enabled: !!courseId,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 
 export function useAdminLessonDetail(lessonId: string) {
   return useQuery({
     queryKey: adminLessonKeys.detail(lessonId),
-    queryFn: () => coursesService.getLesson(lessonId),
+    queryFn: () => coursesService.getAdminLesson(lessonId),
     enabled: !!lessonId,
-    staleTime: 1 * 60 * 1000,
+    staleTime: 0,
   });
 }
 
@@ -92,6 +106,7 @@ export function useCreateLesson() {
     mutationFn: (dto: CreateLessonDto) => coursesService.createLesson(dto),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: adminLessonKeys.list(vars.courseId) });
+      queryClient.invalidateQueries({ queryKey: adminCourseKeys.all });
       toast.success("Tạo bài học thành công");
     },
     onError: () => toast.error("Tạo bài học thất bại"),
@@ -119,6 +134,7 @@ export function useDeleteLesson() {
       coursesService.deleteLesson(id),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: adminLessonKeys.list(vars.courseId) });
+      queryClient.invalidateQueries({ queryKey: adminCourseKeys.all });
       toast.success("Xóa bài học thành công");
     },
     onError: () => toast.error("Xóa bài học thất bại"),
@@ -135,6 +151,19 @@ export function useAddVideo() {
       toast.success("Thêm video thành công");
     },
     onError: () => toast.error("Thêm video thất bại"),
+  });
+}
+
+export function useUpdateVideo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lessonId, index, dto }: { lessonId: string; index: number; dto: UpdateVideoDto }) =>
+      coursesService.updateVideo(lessonId, index, dto),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: adminLessonKeys.detail(vars.lessonId) });
+      toast.success("Cập nhật video thành công");
+    },
+    onError: () => toast.error("Cập nhật video thất bại"),
   });
 }
 
@@ -164,6 +193,19 @@ export function useAddVocabulary() {
   });
 }
 
+export function useUpdateVocabulary() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lessonId, index, dto }: { lessonId: string; index: number; dto: UpdateVocabularyDto }) =>
+      coursesService.updateVocabulary(lessonId, index, dto),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: adminLessonKeys.detail(vars.lessonId) });
+      toast.success("Cập nhật từ vựng thành công");
+    },
+    onError: () => toast.error("Cập nhật từ vựng thất bại"),
+  });
+}
+
 export function useRemoveVocabulary() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -187,6 +229,19 @@ export function useAddGrammar() {
       toast.success("Thêm ngữ pháp thành công");
     },
     onError: () => toast.error("Thêm ngữ pháp thất bại"),
+  });
+}
+
+export function useUpdateGrammar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lessonId, index, dto }: { lessonId: string; index: number; dto: UpdateGrammarDto }) =>
+      coursesService.updateGrammar(lessonId, index, dto),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: adminLessonKeys.detail(vars.lessonId) });
+      toast.success("Cập nhật ngữ pháp thành công");
+    },
+    onError: () => toast.error("Cập nhật ngữ pháp thất bại"),
   });
 }
 

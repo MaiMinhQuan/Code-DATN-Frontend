@@ -7,13 +7,23 @@ import type { CreateExamQuestionDto, UpdateExamQuestionDto } from "@/types/admin
 export const adminQuestionKeys = {
   all: ["admin", "exam-questions"] as const,
   list: () => [...adminQuestionKeys.all, "list"] as const,
+  detail: (id: string) => [...adminQuestionKeys.all, "detail", id] as const,
 };
+
+export function useAdminExamQuestion(id: string) {
+  return useQuery({
+    queryKey: adminQuestionKeys.detail(id),
+    queryFn: () => examQuestionsService.getExamQuestionById(id),
+    enabled: !!id,
+    staleTime: 0,
+  });
+}
 
 export function useAdminExamQuestions() {
   return useQuery({
     queryKey: adminQuestionKeys.list(),
-    queryFn: () => examQuestionsService.getExamQuestions(),
-    staleTime: 2 * 60 * 1000,
+    queryFn: () => examQuestionsService.getAdminExamQuestions(),
+    staleTime: 0,
   });
 }
 

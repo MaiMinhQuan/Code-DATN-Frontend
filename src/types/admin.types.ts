@@ -18,8 +18,6 @@ export interface AdminStats {
 export interface CreateTopicDto {
   name: string;
   description?: string;
-  iconUrl?: string;
-  orderIndex?: number;
 }
 
 export interface UpdateTopicDto extends Partial<CreateTopicDto> {
@@ -31,10 +29,7 @@ export interface CreateCourseDto {
   title: string;
   description?: string;
   topicId: string;
-  thumbnailUrl?: string;
-  orderIndex?: number;
   isPublished?: boolean;
-  instructorName?: string;
 }
 
 export interface UpdateCourseDto extends Partial<CreateCourseDto> {}
@@ -45,7 +40,6 @@ export interface CreateLessonDto {
   courseId: string;
   targetBand: TargetBand;
   description?: string;
-  orderIndex?: number;
   isPublished?: boolean;
   notesContent?: string;
 }
@@ -59,20 +53,30 @@ export interface AddVideoDto {
   thumbnailUrl?: string;
 }
 
+export interface UpdateVideoDto extends Partial<AddVideoDto> {}
+
 export interface AddVocabularyDto {
   word: string;
   pronunciation?: string;
   definition: string;
   examples?: string[];
   translation?: string;
+  timestamp?: number;
+  contextSentence?: string;
 }
+
+export interface UpdateVocabularyDto extends Partial<AddVocabularyDto> {}
 
 export interface AddGrammarDto {
   title: string;
   explanation: string;
   examples?: string[];
   structure?: string;
+  timestamp?: number;
+  contextSentence?: string;
 }
+
+export interface UpdateGrammarDto extends Partial<AddGrammarDto> {}
 
 // --- Exam Questions ---
 export interface CreateExamQuestionDto {
@@ -83,12 +87,18 @@ export interface CreateExamQuestionDto {
   difficultyLevel?: number;
   isPublished?: boolean;
   sourceReference?: string;
-  tags?: string[];
 }
 
 export interface UpdateExamQuestionDto extends Partial<CreateExamQuestionDto> {}
 
 // --- Sample Essays ---
+export interface CreateHighlightAnnotationDto {
+  text: string;
+  highlightType: HighlightType;
+  explanation: string;
+  color?: string;
+}
+
 export interface CreateSampleEssayDto {
   title: string;
   topicId: string;
@@ -96,6 +106,7 @@ export interface CreateSampleEssayDto {
   targetBand: TargetBand;
   outlineContent: string;
   fullEssayContent: string;
+  highlightAnnotations?: CreateHighlightAnnotationDto[];
   isPublished?: boolean;
   authorName?: string;
   overallBandScore?: number;

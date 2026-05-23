@@ -27,11 +27,11 @@ function getQuestionId(sub: Submission): string {
   return (sub.questionId as any)?._id?.toString() ?? "";
 }
 
-// Dễ gộp level 1-2, Trung bình = 3, Khó gộp level 4-5.
+// 1 = Dễ, 2 = Trung bình, 3 = Khó.
 const DIFFICULTY_GROUPS = [
-  { label: "Dễ",        values: [1, 2] },
-  { label: "Trung bình", values: [3] },
-  { label: "Khó",        values: [4, 5] },
+  { label: "Dễ",         values: [1] },
+  { label: "Trung bình", values: [2] },
+  { label: "Khó",        values: [3] },
 ] as const;
 
 /*

@@ -289,8 +289,8 @@ export const UI_TEXT = {
     LABEL_ATTEMPTS: (n: number) => `${n} lượt làm`,
     EMPTY_TITLE: "Không có đề thi nào",
     EMPTY_DESC: "Thử thay đổi bộ lọc hoặc quay lại sau.",
-    // Index 0 bỏ trống; 1–2 = Dễ, 3 = Trung bình, 4–5 = Khó.
-    DIFFICULTY_LABELS: ["", "Dễ", "Dễ", "Trung bình", "Khó", "Khó"] as const,
+    // Index 0 bỏ trống; 1 = Dễ, 2 = Trung bình, 3 = Khó.
+    DIFFICULTY_LABELS: ["", "Dễ", "Trung bình", "Khó"] as const,
   },
 
 

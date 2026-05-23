@@ -14,8 +14,11 @@ import type {
   CreateLessonDto,
   UpdateLessonDto,
   AddVideoDto,
+  UpdateVideoDto,
   AddVocabularyDto,
+  UpdateVocabularyDto,
   AddGrammarDto,
+  UpdateGrammarDto,
 } from "@/types/admin.types";
 
 export const coursesService = {
@@ -31,6 +34,11 @@ export const coursesService = {
     return data;
   },
 
+  getAdminCourses: async (params?: CourseQueryParams): Promise<Course[]> => {
+    const { data } = await apiClient.get<Course[]>("/courses/admin", { params });
+    return data;
+  },
+
   /*
   Lấy chi tiết một course theo id.
   Input:
@@ -40,6 +48,11 @@ export const coursesService = {
   */
   getCourse: async (id: string): Promise<Course> => {
     const { data } = await apiClient.get<Course>(`/courses/${id}`);
+    return data;
+  },
+
+  getAdminCourse: async (id: string): Promise<Course> => {
+    const { data } = await apiClient.get<Course>(`/courses/admin/${id}`);
     return data;
   },
 
@@ -55,8 +68,18 @@ export const coursesService = {
     return data;
   },
 
+  getAdminLessons: async (params: LessonQueryParams): Promise<Lesson[]> => {
+    const { data } = await apiClient.get<Lesson[]>("/lessons/admin", { params });
+    return data;
+  },
+
   getLesson: async (id: string): Promise<LessonDetail> => {
     const { data } = await apiClient.get<LessonDetail>(`/lessons/${id}`);
+    return data;
+  },
+
+  getAdminLesson: async (id: string): Promise<LessonDetail> => {
+    const { data } = await apiClient.get<LessonDetail>(`/lessons/admin/${id}`);
     return data;
   },
 
@@ -94,6 +117,11 @@ export const coursesService = {
     return data;
   },
 
+  updateVideo: async (lessonId: string, index: number, dto: UpdateVideoDto): Promise<LessonDetail> => {
+    const { data } = await apiClient.patch<LessonDetail>(`/lessons/${lessonId}/videos/${index}`, dto);
+    return data;
+  },
+
   removeVideo: async (lessonId: string, index: number): Promise<LessonDetail> => {
     const { data } = await apiClient.delete<LessonDetail>(`/lessons/${lessonId}/videos/${index}`);
     return data;
@@ -104,6 +132,11 @@ export const coursesService = {
     return data;
   },
 
+  updateVocabulary: async (lessonId: string, index: number, dto: UpdateVocabularyDto): Promise<LessonDetail> => {
+    const { data } = await apiClient.patch<LessonDetail>(`/lessons/${lessonId}/vocabularies/${index}`, dto);
+    return data;
+  },
+
   removeVocabulary: async (lessonId: string, index: number): Promise<LessonDetail> => {
     const { data } = await apiClient.delete<LessonDetail>(`/lessons/${lessonId}/vocabularies/${index}`);
     return data;
@@ -111,6 +144,11 @@ export const coursesService = {
 
   addGrammar: async (lessonId: string, dto: AddGrammarDto): Promise<LessonDetail> => {
     const { data } = await apiClient.post<LessonDetail>(`/lessons/${lessonId}/grammars`, dto);
+    return data;
+  },
+
+  updateGrammar: async (lessonId: string, index: number, dto: UpdateGrammarDto): Promise<LessonDetail> => {
+    const { data } = await apiClient.patch<LessonDetail>(`/lessons/${lessonId}/grammars/${index}`, dto);
     return data;
   },
 

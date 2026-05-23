@@ -7,7 +7,17 @@ import type { CreateSampleEssayDto, UpdateSampleEssayDto } from "@/types/admin.t
 export const adminEssayKeys = {
   all: ["admin", "sample-essays"] as const,
   list: () => [...adminEssayKeys.all, "list"] as const,
+  detail: (id: string) => [...adminEssayKeys.all, "detail", id] as const,
 };
+
+export function useAdminSampleEssay(id: string) {
+  return useQuery({
+    queryKey: adminEssayKeys.detail(id),
+    queryFn: () => sampleEssaysService.getSampleEssayById(id),
+    enabled: !!id,
+    staleTime: 0,
+  });
+}
 
 export function useAdminSampleEssays() {
   return useQuery({

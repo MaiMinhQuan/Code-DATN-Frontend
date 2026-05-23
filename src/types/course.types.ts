@@ -10,11 +10,8 @@ export interface Course {
   title: string;
   description?: string;
   topicId: PopulatedTopic;
-  thumbnailUrl?: string;
-  orderIndex: number;
   isPublished: boolean;
   totalLessons: number;
-  instructorName?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -56,7 +53,6 @@ export interface Lesson {
   courseId: string;
   targetBand: TargetBand;
   description?: string;
-  orderIndex: number;
   isPublished: boolean;
   videos: LessonVideo[];
   vocabularies: LessonVocabulary[];
