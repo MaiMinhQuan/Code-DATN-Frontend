@@ -13,11 +13,9 @@ const DIFFICULTY_CONFIG: Record<
   number,
   { label: string; dot: string; bg: string; text: string; ring: string }
 > = {
-  1: { label: "Cơ bản",    dot: "bg-emerald-500", bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-200" },
-  2: { label: "Dễ",        dot: "bg-teal-500",    bg: "bg-teal-50",    text: "text-teal-700",    ring: "ring-teal-200"    },
-  3: { label: "Trung bình",dot: "bg-amber-500",   bg: "bg-amber-50",   text: "text-amber-700",   ring: "ring-amber-200"   },
-  4: { label: "Khó",       dot: "bg-orange-500",  bg: "bg-orange-50",  text: "text-orange-700",  ring: "ring-orange-200"  },
-  5: { label: "Rất khó",   dot: "bg-red-500",     bg: "bg-red-50",     text: "text-red-700",     ring: "ring-red-200"     },
+  1: { label: "Dễ",        dot: "bg-emerald-500", bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-200" },
+  2: { label: "Trung bình",dot: "bg-amber-500",   bg: "bg-amber-50",   text: "text-amber-700",   ring: "ring-amber-200"   },
+  3: { label: "Khó",       dot: "bg-red-500",     bg: "bg-red-50",     text: "text-red-700",     ring: "ring-red-200"     },
 };
 
 /*
@@ -56,7 +54,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
             {difficulty.label}
             {/* Dot biểu diễn mức độ khó */}
             <span className="flex items-center gap-0.5">
-              {Array.from({ length: 5 }, (_, i) => (
+              {Array.from({ length: 3 }, (_, i) => (
                 <span
                   key={i}
                   className={cn(

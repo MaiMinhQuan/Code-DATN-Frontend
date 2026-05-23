@@ -31,33 +31,53 @@ const HIGHLIGHT_STYLE: Record<HighlightType, { bg: string; dot: string; label: s
 
 /*
 Tách nội dung bài viết thành các segment thường và segment highlight.
+Dùng text.indexOf() để tìm vị trí mỗi phrase, đảm bảo không có vùng chồng nhau.
 
 Input:
 - text — toàn bộ nội dung essay.
-- annotations — danh sách annotation có chỉ số start/end.
+- annotations — danh sách annotation, mỗi annotation có field `text` là phrase cần highlight.
 
 Output:
 - Mảng segment theo đúng thứ tự hiển thị trong văn bản.
 */
 function buildSegments(text: string, annotations: HighlightAnnotation[]) {
-  const sorted = [...annotations].sort((a, b) => a.startIndex - b.startIndex)
-  const segments: Array<{ text: string; annotation?: HighlightAnnotation; id: number }> = []
-  let cursor = 0
-  let id = 0
+  type Located = { ann: HighlightAnnotation; start: number; end: number }
 
-  for (const ann of sorted) {
-    // Phần text thường đứng trước annotation hiện tại
-    if (ann.startIndex > cursor) {
-      segments.push({ id: id++, text: text.slice(cursor, ann.startIndex) })
-    }
-    if (ann.endIndex > ann.startIndex) {
-      segments.push({ id: id++, text: text.slice(ann.startIndex, ann.endIndex), annotation: ann })
-    }
-    // Tiến con trỏ; dùng Math.max để tránh lặp text khi annotation liền nhau/chồng nhau
-    cursor = Math.max(cursor, ann.endIndex)
+  // 1. Tìm vị trí của mỗi phrase trong essay
+  const located: Located[] = []
+  for (const ann of annotations) {
+    if (!ann.text) continue
+    const start = text.indexOf(ann.text)
+    if (start === -1) continue
+    located.push({ ann, start, end: start + ann.text.length })
   }
 
-  // Phần text còn lại sau annotation cuối cùng
+  // 2. Sắp xếp theo vị trí tăng dần
+  located.sort((a, b) => a.start - b.start)
+
+  // 3. Loại bỏ annotation chồng lên vùng đã highlight (giữ cái xuất hiện trước)
+  const noOverlap: Located[] = []
+  let cursor = 0
+  for (const loc of located) {
+    if (loc.start >= cursor) {
+      noOverlap.push(loc)
+      cursor = loc.end
+    }
+  }
+
+  // 4. Ghép thành mảng segment
+  const segments: Array<{ text: string; annotation?: HighlightAnnotation; id: number }> = []
+  cursor = 0
+  let id = 0
+
+  for (const loc of noOverlap) {
+    if (loc.start > cursor) {
+      segments.push({ id: id++, text: text.slice(cursor, loc.start) })
+    }
+    segments.push({ id: id++, text: loc.ann.text, annotation: loc.ann })
+    cursor = loc.end
+  }
+
   if (cursor < text.length) {
     segments.push({ id: id++, text: text.slice(cursor) })
   }

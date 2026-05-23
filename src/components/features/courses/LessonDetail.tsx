@@ -194,10 +194,16 @@ function VocabularyTab({
   lesson: LessonDetailType;
   onSeek?: (seconds: number) => void;
 }) {
-  if (lesson.vocabularies.length === 0) return <EmptyTab label={T.EMPTY_VOCABULARY} />;
+  const vocabularies = [...lesson.vocabularies].sort((a, b) => {
+    if (a.timestamp == null && b.timestamp == null) return 0;
+    if (a.timestamp == null) return 1;
+    if (b.timestamp == null) return -1;
+    return a.timestamp - b.timestamp;
+  });
+  if (vocabularies.length === 0) return <EmptyTab label={T.EMPTY_VOCABULARY} />;
   return (
     <div className="flex flex-col gap-3">
-      {lesson.vocabularies.map((v, i) => (
+      {vocabularies.map((v, i) => (
         <div key={i} className="rounded-xl bg-card p-4 shadow-sm ring-1 ring-border">
           {/* Hàng từ vựng + phiên âm + timestamp */}
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -260,10 +266,16 @@ function GrammarTab({
   lesson: LessonDetailType;
   onSeek?: (seconds: number) => void;
 }) {
-  if (lesson.grammars.length === 0) return <EmptyTab label={T.EMPTY_GRAMMAR} />;
+  const grammars = [...lesson.grammars].sort((a, b) => {
+    if (a.timestamp == null && b.timestamp == null) return 0;
+    if (a.timestamp == null) return 1;
+    if (b.timestamp == null) return -1;
+    return a.timestamp - b.timestamp;
+  });
+  if (grammars.length === 0) return <EmptyTab label={T.EMPTY_GRAMMAR} />;
   return (
     <div className="flex flex-col gap-4">
-      {lesson.grammars.map((g, i) => (
+      {grammars.map((g, i) => (
         <div key={i} className="rounded-xl bg-card shadow-sm ring-1 ring-border">
           {/* Tiêu đề + timestamp */}
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">

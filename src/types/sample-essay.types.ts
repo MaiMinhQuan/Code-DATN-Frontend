@@ -8,8 +8,7 @@ export type HighlightType = "VOCABULARY" | "GRAMMAR" | "STRUCTURE" | "ARGUMENT";
 
 // Một đoạn text được annotate trong bài mẫu.
 export interface HighlightAnnotation {
-  startIndex: number;
-  endIndex: number;
+  text: string;
   highlightType: HighlightType;
   explanation: string;
   color?: string;
@@ -35,7 +34,6 @@ export interface SampleEssay {
   highlightAnnotations: HighlightAnnotation[];
   overallBandScore?: number;
   authorName?: string;
-  viewCount: number;
   favoriteCount: number;
   isPublished: boolean;
   createdAt: string;
