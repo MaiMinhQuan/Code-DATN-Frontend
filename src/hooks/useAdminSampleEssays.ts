@@ -22,7 +22,7 @@ export function useAdminSampleEssay(id: string) {
 export function useAdminSampleEssays() {
   return useQuery({
     queryKey: adminEssayKeys.list(),
-    queryFn: () => sampleEssaysService.getSampleEssays(),
+    queryFn: () => sampleEssaysService.getAllSampleEssaysAdmin(),
     staleTime: 2 * 60 * 1000,
   });
 }

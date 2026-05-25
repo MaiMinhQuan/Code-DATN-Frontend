@@ -13,55 +13,40 @@ export function CoursesManager() {
   const { data: topics = [] } = useTopics();
   const deleteCourse = useDeleteCourse();
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [selectedTopicId, setSelectedTopicId] = useState<string>("");
+  const [topicFilter, setTopicFilter] = useState<string>("");
 
   const filtered = useMemo(() => {
-    if (!selectedTopicId) return courses;
-    return courses.filter((c) => c.topicId._id === selectedTopicId);
-  }, [courses, selectedTopicId]);
+    if (!topicFilter) return courses;
+    return courses.filter((c) => c.topicId._id === topicFilter);
+  }, [courses, topicFilter]);
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">Khóa học (Courses)</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {isLoading ? "Đang tải..." : `${filtered.length} khóa học`}
+            {isLoading ? "Đang tải..." : `${filtered.length}${topicFilter ? `/${courses.length}` : ""} khóa học`}
           </p>
         </div>
-        <Link
-          href="/admin/courses/new"
-          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors"
-        >
-          <Plus className="h-4 w-4" /> Thêm khóa học
-        </Link>
-      </div>
-
-      {/* Bộ lọc chủ đề */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        <button
-          onClick={() => setSelectedTopicId("")}
-          className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-            !selectedTopicId
-              ? "bg-slate-700 text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-        >
-          Tất cả
-        </button>
-        {topics.map((t) => (
-          <button
-            key={t._id}
-            onClick={() => setSelectedTopicId(selectedTopicId === t._id ? "" : t._id)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-              selectedTopicId === t._id
-                ? "bg-indigo-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+        <div className="flex items-center gap-3">
+          <select
+            value={topicFilter}
+            onChange={(e) => setTopicFilter(e.target.value)}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           >
-            {t.name}
-          </button>
-        ))}
+            <option value="">Tất cả chủ đề</option>
+            {topics.map((t) => (
+              <option key={t._id} value={t._id}>{t.name}</option>
+            ))}
+          </select>
+          <Link
+            href="/admin/courses/new"
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors"
+          >
+            <Plus className="h-4 w-4" /> Thêm khóa học
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (
@@ -73,9 +58,9 @@ export function CoursesManager() {
       ) : filtered.length === 0 ? (
         <div className="rounded-xl bg-white py-16 text-center ring-1 ring-slate-200">
           <p className="font-medium text-slate-500">
-            {selectedTopicId ? "Không có khóa học nào thuộc chủ đề này" : "Chưa có khóa học nào"}
+            {topicFilter ? "Không có khóa học nào thuộc chủ đề này" : "Chưa có khóa học nào"}
           </p>
-          {!selectedTopicId && (
+          {!topicFilter && (
             <p className="mt-1 text-sm text-slate-400">Nhấn "Thêm khóa học" để bắt đầu</p>
           )}
         </div>

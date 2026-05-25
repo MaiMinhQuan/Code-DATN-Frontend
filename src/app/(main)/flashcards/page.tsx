@@ -1,7 +1,7 @@
 // Trang danh sách bộ flashcard, hỗ trợ tạo set mới ngay trên trang.
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import {
   useFlashcardSets,
@@ -27,6 +27,9 @@ export default function FlashcardsPage() {
   const { data: sets = [], isLoading } = useFlashcardSets();
   const createSet = useCreateFlashcardSet();
   const deleteSet = useDeleteFlashcardSet();
+
+  const lessonSets   = useMemo(() => sets.filter((s) => s.type === 'LESSON'),   [sets]);
+  const personalSets = useMemo(() => sets.filter((s) => s.type === 'PERSONAL'), [sets]);
 
   /*
   Tạo flashcard set mới.
@@ -141,8 +144,26 @@ export default function FlashcardsPage() {
         </div>
       )}
 
-      {/* Danh sách set hiện có */}
-      <SetList sets={sets} isLoading={isLoading} onDelete={handleDelete} />
+      {/* Bộ thẻ bài học (LESSON) — read-only */}
+      {(isLoading || lessonSets.length > 0) && (
+        <div className="space-y-3">
+          <h2 className="text-base font-semibold text-foreground">{T.SECTION_LESSON_SETS}</h2>
+          <SetList sets={lessonSets} isLoading={isLoading} onDelete={() => {}} />
+        </div>
+      )}
+
+      {/* Bộ thẻ cá nhân (PERSONAL) */}
+      <div className="space-y-3">
+        <h2 className="text-base font-semibold text-foreground">{T.SECTION_PERSONAL_SETS}</h2>
+        {!isLoading && personalSets.length === 0 && !showForm ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-12 text-center">
+            <p className="text-sm font-medium text-muted-foreground">{T.EMPTY_PERSONAL_SETS}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{T.EMPTY_PERSONAL_SETS_HINT}</p>
+          </div>
+        ) : (
+          <SetList sets={personalSets} isLoading={isLoading} onDelete={handleDelete} />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Check, X } from "lucide-react";
 import { useCreateSampleEssay, useUpdateSampleEssay } from "@/hooks/useAdminSampleEssays";
@@ -16,6 +16,12 @@ const TARGET_BAND_LABELS: Record<TargetBand, string> = {
   BAND_6_0: "Band 6.0",
   BAND_7_PLUS: "Band 7+",
 };
+
+function calcTargetBand(score: number): TargetBand {
+  if (score >= 7.0) return TargetBand.BAND_7_PLUS;
+  if (score >= 6.0) return TargetBand.BAND_6_0;
+  return TargetBand.BAND_5_0;
+}
 
 const HIGHLIGHT_TYPES: {
   value: HighlightType;
@@ -167,10 +173,19 @@ export function SampleEssayForm({ essay }: Props) {
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<CreateSampleEssayDto>();
 
   const essayContent = watch("fullEssayContent", essay?.fullEssayContent ?? "");
+  const bandScore = watch("overallBandScore");
+
+  useEffect(() => {
+    const score = Number(bandScore);
+    if (score > 0) {
+      setValue("targetBand", calcTargetBand(score), { shouldDirty: true });
+    }
+  }, [bandScore, setValue]);
 
   useEffect(() => {
     const outline = essay?.outlineContent ?? "";
@@ -193,11 +208,6 @@ export function SampleEssayForm({ essay }: Props) {
     setAnnotations(essay?.highlightAnnotations ?? []);
   }, [essay, reset]);
 
-  useEffect(() => {
-    if (essay && topics.length > 0) {
-      setValue("topicId", essay.topicId._id, { shouldDirty: false });
-    }
-  }, [essay, topics, setValue]);
 
   const openAdd = () => {
     setDraft(EMPTY_DRAFT);
@@ -402,15 +412,22 @@ export function SampleEssayForm({ essay }: Props) {
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
               Chủ đề <span className="text-red-500">*</span>
             </label>
-            <select
-              {...register("topicId", { required: "Vui lòng chọn chủ đề" })}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-            >
-              <option value="">-- Chọn chủ đề --</option>
-              {topics.map((t) => (
-                <option key={t._id} value={t._id}>{t.name}</option>
-              ))}
-            </select>
+            <Controller
+              name="topicId"
+              control={control}
+              rules={{ required: "Vui lòng chọn chủ đề" }}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                >
+                  <option value="">-- Chọn chủ đề --</option>
+                  {topics.map((t) => (
+                    <option key={t._id} value={t._id}>{t.name}</option>
+                  ))}
+                </select>
+              )}
+            />
             {errors.topicId && (
               <p className="mt-1.5 text-xs text-red-500">{errors.topicId.message}</p>
             )}
@@ -418,10 +435,16 @@ export function SampleEssayForm({ essay }: Props) {
 
           {/* Target Band */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Target Band</label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              Target Band
+              {Number(bandScore) > 0 && (
+                <span className="ml-1.5 text-xs font-normal text-slate-400">(tự động theo Band Score)</span>
+              )}
+            </label>
             <select
               {...register("targetBand")}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              disabled={Number(bandScore) > 0}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {Object.entries(TARGET_BAND_LABELS).map(([val, label]) => (
                 <option key={val} value={val}>{label}</option>
@@ -492,6 +515,17 @@ export function SampleEssayForm({ essay }: Props) {
               <p className="text-xs italic text-slate-400">Chưa có highlight nào</p>
             ) : (
               <div className="flex flex-col gap-2">
+                {addingNew && (
+                  <div className="rounded-lg border border-indigo-300 bg-white p-3">
+                    <AnnotationForm
+                      draft={draft}
+                      onChange={setDraft}
+                      onSave={saveAnnotation}
+                      onCancel={cancelForm}
+                    />
+                  </div>
+                )}
+
                 {annotations.map((ann, idx) => {
                   const style = HIGHLIGHT_MAP[ann.highlightType];
                   const isEditing = editingIdx === idx;
@@ -544,17 +578,6 @@ export function SampleEssayForm({ essay }: Props) {
                     </div>
                   );
                 })}
-
-                {addingNew && (
-                  <div className="rounded-lg border border-indigo-300 bg-white p-3">
-                    <AnnotationForm
-                      draft={draft}
-                      onChange={setDraft}
-                      onSave={saveAnnotation}
-                      onCancel={cancelForm}
-                    />
-                  </div>
-                )}
               </div>
             )}
           </div>

@@ -15,6 +15,12 @@ const TARGET_BAND_LABELS: Record<TargetBand, string> = {
   BAND_7_PLUS: "Band 7+",
 };
 
+function calcTargetBand(score: number): TargetBand {
+  if (score >= 7.0) return TargetBand.BAND_7_PLUS;
+  if (score >= 6.0) return TargetBand.BAND_6_0;
+  return TargetBand.BAND_5_0;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +32,16 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
   const updateEssay = useUpdateSampleEssay();
   const { data: topics = [] } = useTopics();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateSampleEssayDto>();
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateSampleEssayDto>();
+
+  const bandScore = watch("overallBandScore");
+
+  useEffect(() => {
+    const score = Number(bandScore);
+    if (score > 0) {
+      setValue("targetBand", calcTargetBand(score), { shouldDirty: true });
+    }
+  }, [bandScore, setValue]);
 
   useEffect(() => {
     if (isOpen) {
@@ -98,10 +113,16 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
               {errors.topicId && <p className="mt-1 text-xs text-red-500">{errors.topicId.message}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Target Band</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">
+                Target Band
+                {Number(bandScore) > 0 && (
+                  <span className="ml-1 text-xs font-normal text-slate-400">(tự động)</span>
+                )}
+              </label>
               <select
                 {...register("targetBand")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                disabled={Number(bandScore) > 0}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {Object.entries(TARGET_BAND_LABELS).map(([val, label]) => (
                   <option key={val} value={val}>{label}</option>

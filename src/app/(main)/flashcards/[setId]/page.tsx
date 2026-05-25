@@ -42,6 +42,8 @@ export default function FlashcardSetPage() {
   const { data, isLoading, isError } = useFlashcardSetDetail(setId);
   const { set, cards = [] } = data ?? {};
 
+  const isLessonSet = set?.type === 'LESSON';
+
   const createCard = useCreateFlashcard();
   const updateCard = useUpdateFlashcard();
   const deleteCard = useDeleteFlashcard();
@@ -78,7 +80,6 @@ export default function FlashcardSetPage() {
     setEditingCard(card);
     setFront(card.frontContent);
     setBack(card.backContent);
-    setShowForm(true);
   };
 
   /*
@@ -255,17 +256,19 @@ export default function FlashcardSetPage() {
                 </div>
               </div>
             ) : (
-              /* Chế độ xem bình thường; icon sửa hiện khi hover */
+              /* Chế độ xem bình thường; icon sửa hiện khi hover (chỉ với PERSONAL) */
               <div className="group/info">
                 <div className="flex items-center gap-1.5">
                   <h1 className="text-xl font-bold text-foreground">{set.title}</h1>
-                  <button
-                    onClick={startEditInfo}
-                    className="rounded-lg p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground group-hover/info:opacity-100"
-                    title="Sửa thông tin"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
+                  {!isLessonSet && (
+                    <button
+                      onClick={startEditInfo}
+                      className="rounded-lg p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground group-hover/info:opacity-100"
+                      title="Sửa thông tin"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
                 {set.description && (
                   <p className="mt-0.5 text-sm text-muted-foreground">{set.description}</p>
@@ -290,19 +293,21 @@ export default function FlashcardSetPage() {
               {T.BTN_REVIEW_SET}
             </button>
           )}
-          <button
-            onClick={openAddForm}
-            disabled={showForm}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            <Plus className="h-4 w-4" />
-            {T.BTN_ADD_CARD}
-          </button>
+          {!isLessonSet && (
+            <button
+              onClick={openAddForm}
+              disabled={showForm}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4" />
+              {T.BTN_ADD_CARD}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Form thêm/sửa card */}
-      {showForm && (
+      {/* Form thêm card mới (chỉ hiện khi không đang edit inline) */}
+      {showForm && !editingCard && (
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-foreground">
             {isEditing ? T.FORM_TITLE_EDIT : T.FORM_TITLE_ADD}
@@ -353,13 +358,47 @@ export default function FlashcardSetPage() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
           <Layers className="mb-3 h-10 w-10 text-muted-foreground/40" />
           <p className="text-sm font-medium text-muted-foreground">{T.EMPTY_CARDS}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{T.EMPTY_CARDS_HINT}</p>
+          {!isLessonSet && (
+            <p className="mt-1 text-xs text-muted-foreground">{T.EMPTY_CARDS_HINT}</p>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {cards.map((card) => (
-            <CardItem key={card._id} card={card} onEdit={openEditForm} onDelete={handleDelete} />
-          ))}
+          {cards.map((card) =>
+            !isLessonSet && editingCard?._id === card._id ? (
+              <div key={card._id} className="rounded-xl border border-primary/30 bg-card p-5 shadow-sm">
+                <h2 className="mb-4 text-sm font-semibold text-foreground">{T.FORM_TITLE_EDIT}</h2>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">Mặt trước</label>
+                    <RichTextEditor value={front} onChange={setFront} placeholder={T.PLACEHOLDER_FRONT} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">Mặt sau</label>
+                    <RichTextEditor value={back} onChange={setBack} placeholder={T.PLACEHOLDER_BACK} minHeight="6rem" />
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    onClick={closeForm}
+                    className="rounded-lg px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted"
+                  >
+                    {T.BTN_CANCEL}
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={!stripHtml(front) || !stripHtml(back) || isSaving}
+                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                  >
+                    {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {T.BTN_SAVE}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <CardItem key={card._id} card={card} onEdit={openEditForm} onDelete={handleDelete} readOnly={isLessonSet} />
+            )
+          )}
         </div>
       )}
     </div>

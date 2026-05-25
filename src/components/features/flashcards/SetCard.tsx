@@ -26,16 +26,19 @@ Output:
 - Card có tiêu đề, mô tả, số thẻ và nút vào review nhanh.
 */
 export function SetCard({ set, onDelete }: SetCardProps) {
+  const isLesson = set.type === 'LESSON';
   return (
     <div className="group relative rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
-      {/* Nút xóa hiện khi hover card */}
-      <button
-        onClick={() => onDelete(set._id)}
-        title={T.CONFIRM_DELETE_SET}
-        className="absolute right-3 top-3 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-      </button>
+      {/* Nút xóa chỉ hiển thị với set PERSONAL */}
+      {!isLesson && (
+        <button
+          onClick={() => onDelete(set._id)}
+          title={T.CONFIRM_DELETE_SET}
+          className="absolute right-3 top-3 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      )}
 
       {/* Click card để vào trang chi tiết bộ thẻ */}
       <Link href={`/flashcards/${set._id}`} className="flex h-full flex-col p-5">

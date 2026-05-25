@@ -54,6 +54,20 @@ export const flashcardsService = {
   },
 
   /*
+  Lấy flashcard set + cards gắn với một lesson (type LESSON).
+  Input:
+  - lessonId
+  Output:
+  - FlashcardSetDetail hoặc null nếu chưa có set.
+  */
+  getSetByLesson: async (lessonId: string): Promise<FlashcardSetDetail | null> => {
+    const { data } = await apiClient.get<FlashcardSetDetail | null>(
+      `/flashcard-sets/by-lesson/${lessonId}`,
+    );
+    return data;
+  },
+
+  /*
   Cập nhật metadata của flashcard set (title/description).
   Input:
   - id — setId.
@@ -136,6 +150,38 @@ export const flashcardsService = {
   deleteCard: async (cardId: string): Promise<{ message: string }> => {
     const { data } = await apiClient.delete<{ message: string }>(
       `/flashcard-sets/cards/${cardId}`,
+    );
+    return data;
+  },
+
+  // --- Admin card management (bypass LESSON type check) ---
+
+  adminGetSetByLesson: async (lessonId: string): Promise<FlashcardSetDetail | null> => {
+    const { data } = await apiClient.get<FlashcardSetDetail | null>(
+      `/flashcard-sets/admin/by-lesson/${lessonId}`,
+    );
+    return data;
+  },
+
+  adminAddCard: async (setId: string, payload: CreateFlashcardPayload): Promise<Flashcard> => {
+    const { data } = await apiClient.post<Flashcard>(
+      `/flashcard-sets/${setId}/admin/cards`,
+      payload,
+    );
+    return data;
+  },
+
+  adminUpdateCard: async (cardId: string, payload: UpdateFlashcardPayload): Promise<Flashcard> => {
+    const { data } = await apiClient.patch<Flashcard>(
+      `/flashcard-sets/admin/cards/${cardId}`,
+      payload,
+    );
+    return data;
+  },
+
+  adminDeleteCard: async (cardId: string): Promise<{ message: string }> => {
+    const { data } = await apiClient.delete<{ message: string }>(
+      `/flashcard-sets/admin/cards/${cardId}`,
     );
     return data;
   },

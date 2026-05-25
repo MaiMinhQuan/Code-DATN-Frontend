@@ -34,6 +34,13 @@ export const sampleEssaysService = {
     return data;
   },
 
+  getAllSampleEssaysAdmin: async (
+    params?: GetSampleEssaysParams
+  ): Promise<SampleEssay[]> => {
+    const { data } = await apiClient.get<SampleEssay[]>("/sample-essays/admin/all", { params });
+    return data;
+  },
+
   createSampleEssay: async (dto: CreateSampleEssayDto): Promise<SampleEssay> => {
     const { data } = await apiClient.post<SampleEssay>("/sample-essays", dto);
     return data;
