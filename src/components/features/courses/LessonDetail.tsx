@@ -1,19 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Video, BookText, GraduationCap, Volume2, Clock } from "lucide-react";
+import { Video, BookText, GraduationCap, Volume2, Clock, Layers, FileText, BookOpen, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { UI_TEXT } from "@/constants/ui-text";
+import { useFlashcardSetByLesson } from "@/hooks/useFlashcards";
 import type { LessonDetail as LessonDetailType } from "@/types/course.types";
 
 const T = UI_TEXT.COURSES;
+const TF = UI_TEXT.FLASHCARDS;
 
-type Tab = "videos" | "vocabulary" | "grammar";
+type Tab = "videos" | "vocabulary" | "grammar" | "flashcards" | "notes";
 
 const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
-  { key: "videos",     label: T.TAB_VIDEOS,     icon: Video         },
-  { key: "vocabulary", label: T.TAB_VOCABULARY,  icon: BookText      },
-  { key: "grammar",    label: T.TAB_GRAMMAR,     icon: GraduationCap },
+  { key: "videos",      label: T.TAB_VIDEOS,        icon: Video         },
+  { key: "vocabulary",  label: T.TAB_VOCABULARY,    icon: BookText      },
+  { key: "grammar",     label: T.TAB_GRAMMAR,       icon: GraduationCap },
+  { key: "flashcards",  label: TF.TAB_FLASHCARDS,   icon: Layers        },
+  { key: "notes",       label: TF.TAB_NOTES,        icon: FileText      },
 ];
 
 const BAND_COLOR: Record<string, string> = {
@@ -38,8 +43,9 @@ function toYouTubeEmbedUrl(url: string): string | null {
 
 // Định dạng giây → "M:SS".
 function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
@@ -328,6 +334,98 @@ function GrammarTab({
   );
 }
 
+// Tab flashcard: danh sách thẻ read-only + nút dẫn sang review.
+function FlashcardsTab({ lessonId }: { lessonId: string }) {
+  const { data, isLoading } = useFlashcardSetByLesson(lessonId);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-48 items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!data || !data.set) {
+    return <EmptyTab label={TF.EMPTY_LESSON_FLASHCARDS} />;
+  }
+
+  const { set, cards } = data;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Header set + nút ôn tập */}
+      <div className="flex items-center justify-between gap-3 rounded-xl bg-card px-4 py-3 shadow-sm ring-1 ring-border">
+        <div className="flex items-center gap-2">
+          <Layers className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-foreground">{set.title}</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {TF.LABEL_CARD_COUNT(cards.length)}
+          </span>
+        </div>
+        {cards.length > 0 && (
+          <Link
+            href={`/flashcards/${set._id}/review`}
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            {TF.BTN_REVIEW_LESSON_SET}
+          </Link>
+        )}
+      </div>
+
+      {/* Danh sách thẻ read-only */}
+      {cards.length === 0 ? (
+        <EmptyTab label={TF.EMPTY_LESSON_FLASHCARDS} />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {cards.map((card) => (
+            <div key={card._id} className="rounded-xl bg-card p-4 shadow-sm ring-1 ring-border">
+              <div className="flex items-start gap-4">
+                <div className="flex-1 min-w-0 border-r border-border pr-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/60">
+                    {TF.CARD_FACE_FRONT}
+                  </p>
+                  <div
+                    className="tiptap mt-1 text-sm font-medium text-foreground"
+                    dangerouslySetInnerHTML={{ __html: card.frontContent }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/60">
+                    {TF.CARD_FACE_BACK}
+                  </p>
+                  <div
+                    className="tiptap mt-1 text-sm text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: card.backContent }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Tab ghi chú: render notesContent HTML của lesson.
+function NotesTab({ lesson }: { lesson: LessonDetailType }) {
+  const isEmpty = !lesson.notesContent || lesson.notesContent.replace(/<[^>]*>/g, "").trim() === "";
+  if (isEmpty) {
+    return <EmptyTab label={TF.EMPTY_LESSON_NOTES} />;
+  }
+
+  return (
+    <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
+      <div
+        className="tiptap prose prose-sm max-w-none text-sm text-muted-foreground [&_h1]:mb-4 [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-foreground [&_h2]:mb-3 [&_h2]:mt-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:mb-3 [&_p]:leading-relaxed [&_ul]:mb-3 [&_ul]:ml-4 [&_ul]:list-disc [&_ol]:mb-3 [&_ol]:ml-4 [&_ol]:list-decimal [&_strong]:font-semibold [&_strong]:text-foreground [&_em]:italic"
+        dangerouslySetInnerHTML={{ __html: lesson.notesContent }}
+      />
+    </div>
+  );
+}
+
 // Empty state dùng chung.
 function EmptyTab({ label }: { label: string }) {
   return (
@@ -414,6 +512,12 @@ export function LessonDetail({ lesson }: LessonDetailProps) {
         <div className={activeTab === "grammar" ? "" : "hidden"}>
           <GrammarTab lesson={lesson} onSeek={handleSeek} />
         </div>
+        {activeTab === "flashcards" && (
+          <FlashcardsTab lessonId={lesson._id} />
+        )}
+        {activeTab === "notes" && (
+          <NotesTab lesson={lesson} />
+        )}
       </div>
     </div>
   );

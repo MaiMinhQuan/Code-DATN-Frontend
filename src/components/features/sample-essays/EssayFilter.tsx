@@ -1,93 +1,66 @@
-// Bộ lọc topic và target band cho danh sách bài mẫu.
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { UI_TEXT } from "@/constants/ui-text"
-import { useTopics } from "@/hooks/useTopics"
-import type { GetSampleEssaysParams, TargetBand } from "@/types/sample-essay.types"
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { UI_TEXT } from "@/constants/ui-text";
+import type { GetSampleEssaysParams } from "@/types/sample-essay.types";
 
-const T = UI_TEXT.SAMPLE_ESSAYS
+const T = UI_TEXT.SAMPLE_ESSAYS;
 
-const BAND_OPTIONS: { label: string; value: TargetBand | undefined }[] = [
-  { label: T.FILTER_BAND_ALL,  value: undefined     },
-  { label: T.FILTER_BAND_LOW,  value: "BAND_5_0"    },
-  { label: T.FILTER_BAND_MID,  value: "BAND_6_0"    },
-  { label: T.FILTER_BAND_HIGH, value: "BAND_7_PLUS" },
-]
-
-interface EssayFilterProps {
-  params: GetSampleEssaysParams
-  onChange: (params: GetSampleEssaysParams) => void
+interface TopicOption {
+  _id: string;
+  name: string;
 }
 
-export function EssayFilter({ params, onChange }: EssayFilterProps) {
-  const { data: topics = [] } = useTopics()
+interface EssayFilterProps {
+  params: GetSampleEssaysParams;
+  topics: TopicOption[];
+  onChange: (params: GetSampleEssaysParams) => void;
+}
 
-  const setBand  = (value: TargetBand | undefined) => onChange({ ...params, targetBand: value })
-  const setTopic = (id: string | undefined) =>
-    onChange({ ...params, topicId: params.topicId === id ? undefined : id })
+export function EssayFilter({ params, topics, onChange }: EssayFilterProps) {
+  const hasFilter = !!params.topicId;
 
   return (
-    <div className="flex items-stretch gap-0 rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
-      {/* Cột trái: filter chủ đề */}
-      <div className="flex flex-1 flex-col gap-2 px-4 py-3">
-        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-          Chủ đề
-        </span>
-        <div className="flex flex-wrap gap-2">
+    <div className="flex items-center gap-3">
+      <div className="flex flex-1 gap-1 overflow-x-auto rounded-lg border border-border bg-card p-1 [&::-webkit-scrollbar]:hidden">
+        <button
+          onClick={() => onChange({ ...params, topicId: undefined })}
+          className={cn(
+            "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            !params.topicId
+              ? "bg-primary text-white"
+              : "text-muted-foreground hover:bg-muted",
+          )}
+        >
+          {T.FILTER_TOPIC_ALL}
+        </button>
+
+        {topics.map((topic) => (
           <button
-            onClick={() => setTopic(undefined)}
+            key={topic._id}
+            onClick={() => onChange({ ...params, topicId: topic._id })}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-              !params.topicId
-                ? "bg-indigo-600 text-white"
-                : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap",
+              params.topicId === topic._id
+                ? "bg-primary text-white"
+                : "text-muted-foreground hover:bg-muted",
             )}
           >
-            {T.FILTER_TOPIC_ALL}
+            {topic.name}
           </button>
-          {topics.map((topic) => (
-            <button
-              key={topic._id}
-              onClick={() => setTopic(topic._id)}
-              className={cn(
-                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-                params.topicId === topic._id
-                  ? "bg-indigo-600 text-white"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
-              )}
-            >
-              {topic.name}
-            </button>
-          ))}
-        </div>
+        ))}
       </div>
 
-      {/* Đường kẻ dọc phân cách */}
-      <div className="w-px bg-[var(--border)]" />
-
-      {/* Cột phải: filter band */}
-      <div className="flex flex-1 flex-col gap-2 px-4 py-3">
-        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-          Band điểm
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {BAND_OPTIONS.map((opt) => (
-            <button
-              key={opt.label}
-              onClick={() => setBand(opt.value)}
-              className={cn(
-                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-                params.targetBand === opt.value
-                  ? "bg-slate-700 text-white"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-slate-200"
-              )}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {hasFilter && (
+        <button
+          onClick={() => onChange({})}
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
+        >
+          <X className="h-3.5 w-3.5" />
+          {T.BTN_RESET_FILTER}
+        </button>
+      )}
     </div>
-  )
+  );
 }

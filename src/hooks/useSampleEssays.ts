@@ -4,6 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { sampleEssaysService } from "@/services/sample-essays.service";
 import type { GetSampleEssaysParams } from "@/types/sample-essay.types";
 
+// Loại bỏ các giá trị undefined để query key và axios params nhất quán.
+function cleanParams(params?: GetSampleEssaysParams): GetSampleEssaysParams {
+  return Object.fromEntries(
+    Object.entries(params ?? {}).filter(([, v]) => v !== undefined),
+  ) as GetSampleEssaysParams;
+}
+
 // Factory query key cho cache sample essays.
 export const sampleEssayKeys = {
   all: ["sample-essays"] as const,
@@ -12,7 +19,7 @@ export const sampleEssayKeys = {
 
   // Sinh key cho danh sách sample essays theo params.
   list: (params?: GetSampleEssaysParams) =>
-    [...sampleEssayKeys.lists(), params] as const,
+    [...sampleEssayKeys.lists(), cleanParams(params)] as const,
 
   details: () => [...sampleEssayKeys.all, "detail"] as const,
 
@@ -30,9 +37,10 @@ Output:
 - Kết quả useQuery chứa danh sách sample essays.
 */
 export function useSampleEssays(params?: GetSampleEssaysParams) {
+  const cleaned = cleanParams(params);
   return useQuery({
-    queryKey: sampleEssayKeys.list(params),
-    queryFn: () => sampleEssaysService.getSampleEssays(params),
+    queryKey: sampleEssayKeys.list(cleaned),
+    queryFn: () => sampleEssaysService.getSampleEssays(cleaned),
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -18,20 +18,21 @@ export function CourseForm({ course }: Props) {
   const updateCourse = useUpdateCourse();
   const { data: topics = [] } = useTopics();
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateCourseDto>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateCourseDto>();
 
   useEffect(() => {
-    reset(course
-      ? { title: course.title, description: course.description ?? "", topicId: course.topicId._id, isPublished: course.isPublished }
-      : { title: "", description: "", isPublished: true }
-    );
-  }, [course, reset]);
-
-  useEffect(() => {
-    if (course && topics.length > 0) {
-      setValue("topicId", course.topicId._id, { shouldDirty: false });
+    if (!course) {
+      reset({ title: "", description: "", isPublished: true });
+      return;
     }
-  }, [course, topics, setValue]);
+    if (topics.length === 0) return;
+    reset({
+      title:       course.title,
+      description: course.description ?? "",
+      topicId:     course.topicId._id,
+      isPublished: course.isPublished,
+    });
+  }, [course, topics, reset]);
 
   const onSubmit = handleSubmit((values) => {
     const payload = {

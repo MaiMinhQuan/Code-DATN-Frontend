@@ -2,7 +2,9 @@
 
 export interface FlashcardSet {
   _id: string;
-  userId: string;
+  type: 'LESSON' | 'PERSONAL';
+  userId?: string;
+  lessonId?: string;
   title: string;
   description?: string;
   cardCount: number;

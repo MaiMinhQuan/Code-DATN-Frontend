@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAdminSampleEssays, useDeleteSampleEssay } from "@/hooks/useAdminSampleEssays";
+import { useTopics } from "@/hooks/useTopics";
 import { ConfirmDialog } from "@/components/features/admin/ConfirmDialog";
 import type { SampleEssay } from "@/types/sample-essay.types";
 import { TargetBand } from "@/types/enums";
@@ -23,21 +24,42 @@ const BAND_COLORS: Record<TargetBand, string> = {
 export function SampleEssaysManager() {
   const router = useRouter();
   const { data: essays = [], isLoading } = useAdminSampleEssays();
+  const { data: topics = [] } = useTopics();
   const deleteEssay = useDeleteSampleEssay();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [topicFilter, setTopicFilter] = useState("");
+
+  const filtered = useMemo(
+    () => topicFilter ? essays.filter((e) => e.topicId._id === topicFilter) : essays,
+    [essays, topicFilter],
+  );
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">Bài mẫu (Sample Essays)</h2>
-          <p className="text-sm text-slate-500">{essays.length} bài mẫu</p>
+          <p className="text-sm text-slate-500">
+            {filtered.length}{topicFilter ? `/${essays.length}` : ""} bài mẫu
+          </p>
         </div>
-        <button
-          onClick={() => router.push("/admin/sample-essays/new")}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-          <Plus className="h-4 w-4" /> Thêm bài mẫu
-        </button>
+        <div className="flex items-center gap-3">
+          <select
+            value={topicFilter}
+            onChange={(e) => setTopicFilter(e.target.value)}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          >
+            <option value="">Tất cả chủ đề</option>
+            {topics.map((t) => (
+              <option key={t._id} value={t._id}>{t.name}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => router.push("/admin/sample-essays/new")}
+            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+            <Plus className="h-4 w-4" /> Thêm bài mẫu
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -46,9 +68,9 @@ export function SampleEssaysManager() {
             <div key={i} className="h-14 animate-pulse rounded-xl bg-slate-200" />
           ))}
         </div>
-      ) : essays.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="rounded-xl bg-white py-12 text-center text-slate-400 ring-1 ring-slate-200">
-          Chưa có bài mẫu nào
+          {topicFilter ? "Không có bài mẫu nào cho chủ đề này" : "Chưa có bài mẫu nào"}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
@@ -64,7 +86,7 @@ export function SampleEssaysManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {essays.map((essay) => (
+              {filtered.map((essay) => (
                 <tr key={essay._id} className="hover:bg-slate-50">
                   <td className="max-w-xs px-4 py-3">
                     <p className="font-medium text-slate-900 truncate">{essay.title}</p>

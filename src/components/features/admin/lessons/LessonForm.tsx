@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useCreateLesson, useUpdateLesson } from "@/hooks/useAdminCourses";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import type { LessonDetail } from "@/types/course.types";
 import type { CreateLessonDto } from "@/types/admin.types";
 import { TargetBand } from "@/types/enums";
@@ -24,7 +25,7 @@ export function LessonForm({ lesson, courseId }: Props) {
   const createLesson = useCreateLesson();
   const updateLesson = useUpdateLesson();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateLessonDto>();
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateLessonDto>();
 
   useEffect(() => {
     reset(lesson
@@ -92,17 +93,22 @@ export function LessonForm({ lesson, courseId }: Props) {
         </div>
       </div>
 
-      {/* Ghi chú Markdown */}
+      {/* Ghi chú bài học */}
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
           Ghi chú bài học
-          <span className="ml-2 text-xs font-normal text-slate-400">Markdown</span>
         </label>
-        <textarea
-          {...register("notesContent")}
-          rows={10}
-          placeholder={"## Tiêu đề\n\n**Từ vựng quan trọng:**\n- word: định nghĩa\n\n## Ngữ pháp\n..."}
-          className="w-full resize-y rounded-xl border border-slate-200 px-3 py-2.5 font-mono text-xs leading-relaxed outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+        <Controller
+          name="notesContent"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <RichTextEditor
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              minHeight="14rem"
+            />
+          )}
         />
       </div>
 
