@@ -1,8 +1,5 @@
 // Type cho sample essay, highlight annotation và filter params.
 
-// Literal band mục tiêu để phân loại bài mẫu.
-export type TargetBand = "BAND_5_0" | "BAND_6_0" | "BAND_7_PLUS";
-
 // Literal loại highlight của một đoạn được annotate trong bài mẫu.
 export type HighlightType = "VOCABULARY" | "GRAMMAR" | "STRUCTURE" | "ARGUMENT";
 
@@ -28,11 +25,10 @@ export interface SampleEssay {
   title: string;
   topicId: PopulatedTopic;
   questionPrompt: string;
-  targetBand: TargetBand;
   outlineContent: string;
   fullEssayContent: string;
   highlightAnnotations: HighlightAnnotation[];
-  overallBandScore?: number;
+  overallBandScore: number;
   authorName?: string;
   favoriteCount: number;
   isPublished: boolean;
@@ -43,5 +39,8 @@ export interface SampleEssay {
 // Query params của GET /sample-essays.
 export interface GetSampleEssaysParams {
   topicId?: string;
-  targetBand?: TargetBand;
+  minBand?: number;
+  maxBand?: number;
+  /** @deprecated Use minBand/maxBand — kept for backward compat with old links */
+  targetBand?: "BAND_5_0" | "BAND_6_0" | "BAND_7_PLUS";
 }

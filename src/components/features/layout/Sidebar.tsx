@@ -13,7 +13,9 @@ import {
   GraduationCap,
   ChevronLeft,
   Shield,
+  History,
 } from "lucide-react";
+import { APP_VERSION } from "@/lib/app-version";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui.store";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -110,6 +112,30 @@ export function Sidebar() {
           </>
         )}
       </nav>
+
+      {/* Phiên bản + lịch sử cập nhật */}
+      <div className="border-t border-indigo-800 p-3">
+        <Link
+          href="/changelog"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-xs transition-colors",
+            pathname === "/changelog"
+              ? "bg-indigo-600 text-white"
+              : "text-indigo-400 hover:bg-indigo-800 hover:text-white",
+          )}
+        >
+          <History className="h-4 w-4 shrink-0" />
+          {isSidebarOpen && (
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span>{UI_TEXT.VERSION.SIDEBAR_LABEL}</span>
+              <span className="font-mono text-[10px] text-indigo-300">v{APP_VERSION}</span>
+            </span>
+          )}
+        </Link>
+        {!isSidebarOpen && (
+          <p className="mt-1 text-center font-mono text-[9px] text-indigo-500">v{APP_VERSION}</p>
+        )}
+      </div>
 
       {/* Nút thu gọn/mở rộng sidebar */}
       <button

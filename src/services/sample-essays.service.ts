@@ -9,7 +9,7 @@ import type { CreateSampleEssayDto, UpdateSampleEssayDto } from "@/types/admin.t
 
 export const sampleEssaysService = {
   /*
-  Lấy danh sách sample essays, có thể filter theo topicId/targetBand.
+  Lấy danh sách sample essays, có thể filter theo topicId/minBand/maxBand.
   Input:
   - params — filter options (optional).
   Output:

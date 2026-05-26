@@ -6,20 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAdminSampleEssays, useDeleteSampleEssay } from "@/hooks/useAdminSampleEssays";
 import { useTopics } from "@/hooks/useTopics";
 import { ConfirmDialog } from "@/components/features/admin/ConfirmDialog";
-import type { SampleEssay } from "@/types/sample-essay.types";
-import { TargetBand } from "@/types/enums";
-
-const BAND_LABELS: Record<TargetBand, string> = {
-  BAND_5_0: "Band 5.0",
-  BAND_6_0: "Band 6.0",
-  BAND_7_PLUS: "Band 7+",
-};
-
-const BAND_COLORS: Record<TargetBand, string> = {
-  BAND_5_0: "bg-amber-100 text-amber-700",
-  BAND_6_0: "bg-sky-100 text-sky-700",
-  BAND_7_PLUS: "bg-emerald-100 text-emerald-700",
-};
+import { formatBandScore, getBandBadgeStyle } from "@/lib/sample-essay-band";
+import { cn } from "@/lib/utils";
 
 export function SampleEssaysManager() {
   const router = useRouter();
@@ -79,8 +67,7 @@ export function SampleEssaysManager() {
               <tr>
                 <th className="px-4 py-3 text-left">Tiêu đề</th>
                 <th className="px-4 py-3 text-left">Chủ đề</th>
-                <th className="px-4 py-3 text-center">Target Band</th>
-                <th className="px-4 py-3 text-center">Band Score</th>
+                <th className="px-4 py-3 text-center">Band</th>
                 <th className="px-4 py-3 text-center">Trạng thái</th>
                 <th className="px-4 py-3 text-right">Thao tác</th>
               </tr>
@@ -96,12 +83,14 @@ export function SampleEssaysManager() {
                   </td>
                   <td className="px-4 py-3 text-slate-600">{essay.topicId.name}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${BAND_COLORS[essay.targetBand]}`}>
-                      {BAND_LABELS[essay.targetBand]}
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold",
+                        getBandBadgeStyle(essay.overallBandScore ?? 0),
+                      )}
+                    >
+                      {formatBandScore(essay.overallBandScore)}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-center font-semibold text-slate-700">
-                    {essay.overallBandScore ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${

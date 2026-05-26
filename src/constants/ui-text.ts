@@ -55,6 +55,13 @@ export const UI_TEXT = {
     TOAST_ERROR_FALLBACK: "Đăng ký thất bại",
   },
 
+  // Phiên bản & changelog
+  VERSION: {
+    PAGE_TITLE: "Lịch sử cập nhật",
+    CURRENT_VERSION_LABEL: "Phiên bản hiện tại",
+    SIDEBAR_LABEL: "Lịch sử cập nhật",
+  },
+
   // Nhãn điều hướng sidebar
   SIDEBAR: {
     LOGO_TEXT: "IELTS Writing AI",

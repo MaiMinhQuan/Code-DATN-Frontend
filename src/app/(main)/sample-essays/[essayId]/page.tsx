@@ -10,16 +10,10 @@ import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
 import { useSampleEssay } from "@/hooks/useSampleEssays"
 import { UI_TEXT } from "@/constants/ui-text"
 import { cn } from "@/lib/utils"
-import type { HighlightAnnotation, HighlightType, SampleEssay, TargetBand } from "@/types/sample-essay.types"
+import type { HighlightAnnotation, HighlightType, SampleEssay } from "@/types/sample-essay.types"
+import { formatBandScore } from "@/lib/sample-essay-band"
 
 const T = UI_TEXT.SAMPLE_ESSAYS
-
-// Nhãn hiển thị cho từng mức target band.
-const TARGET_BAND_LABEL: Record<TargetBand, string> = {
-  BAND_5_0:    "Band 5.0",
-  BAND_6_0:    "Band 6.0",
-  BAND_7_PLUS: "Band 7+",
-}
 
 // Style màu nền, dot và nhãn theo từng loại annotation.
 const HIGHLIGHT_STYLE: Record<HighlightType, { bg: string; dot: string; label: string }> = {
@@ -194,10 +188,8 @@ function EssayInfoPanel({
   activeAnnotationId: number | null
   onAnnotationSelect: (idx: number) => void
 }) {
-  const bandScore = essay.overallBandScore ?? 0
   const infoRows = [
-    { label: T.DETAIL_LABEL_BAND,   value: bandScore > 0 ? bandScore.toFixed(1) : UI_TEXT.COMMON.EMPTY_VALUE },
-    { label: T.DETAIL_LABEL_TASK,   value: TARGET_BAND_LABEL[essay.targetBand] },
+    { label: T.DETAIL_LABEL_BAND,   value: formatBandScore(essay.overallBandScore) },
     { label: T.DETAIL_LABEL_TOPIC,  value: essay.topicId?.name  ?? UI_TEXT.COMMON.EMPTY_VALUE },
     { label: T.DETAIL_LABEL_AUTHOR, value: essay.authorName     ?? UI_TEXT.COMMON.EMPTY_VALUE },
   ]
