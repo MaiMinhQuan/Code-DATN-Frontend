@@ -1,20 +1,16 @@
 import { API_BASE_URL } from "@/lib/constants";
-import { AuthResponse } from "@/types/user.types";
+import type { LoginResponse } from "@/types/user.types";
 
-// Dùng `fetch` trực tiếp thay vì `apiClient` vì endpoint đăng ký không cần header Authorization.
+// Dùng `fetch` từ trình duyệt (qua Nginx) — không qua NextAuth authorize server-side.
 export const authService = {
   /*
-  Đăng ký tài khoản mới
-  Input:
-  - data — payload đăng ký (email/password/fullName).
-  Output:
-  - AuthResponse (thông tin user và access token).
+  Đăng ký tài khoản mới.
   */
   register: async (data: {
     email: string;
     password: string;
     fullName: string;
-  }): Promise<AuthResponse> => {
+  }): Promise<{ _id: string; email: string; fullName: string; role: string }> => {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,5 +23,29 @@ export const authService = {
     }
 
     return res.json();
+  },
+
+  /*
+  Đăng nhập — gọi backend từ browser (hoạt động trên VPS + Docker).
+  */
+  login: async (data: {
+    email: string;
+    password: string;
+  }): Promise<LoginResponse> => {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const body = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        (body as { message?: string }).message ?? "Email hoặc mật khẩu không đúng",
+      );
+    }
+
+    return body as LoginResponse;
   },
 };

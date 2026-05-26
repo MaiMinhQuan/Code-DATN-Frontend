@@ -11,22 +11,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        accessToken: { type: "text" },
+        role: { type: "text" },
+        id: { type: "text" },
+        name: { type: "text" },
       },
       /*
-      Xác thực email/password qua backend endpoint `/auth/login`.
-      Input:
-      - credentials — Email/password thô từ form đăng nhập.
-      Output:
-      - User object khi thành công, hoặc null để NextAuth báo lỗi đăng nhập.
+      Luồng production (VPS/Docker):
+      - Trang login gọi POST /auth/login từ browser (giống register).
+      - signIn gửi kèm accessToken đã có — authorize chỉ tạo session JWT.
+
+      Fallback: gọi backend từ server (local dev hoặc khi không có accessToken).
       */
       async authorize(credentials) {
+        const token = credentials?.accessToken as string | undefined;
+        if (token) {
+          return {
+            id: (credentials?.id as string) ?? "",
+            email: (credentials?.email as string) ?? "",
+            name: (credentials?.name as string) ?? "",
+            accessToken: token,
+            role: (credentials?.role as UserRole) ?? "STUDENT",
+          };
+        }
+
         try {
           const res = await fetch(`${getServerApiBaseUrl()}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
+              email: credentials?.email,
+              password: credentials?.password,
             }),
           });
 
@@ -34,7 +49,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const data = await res.json();
 
-          // Map response backend sang shape User của NextAuth
           if (data?.accessToken) {
             return {
               id: data.user?._id ?? "",

@@ -13,8 +13,8 @@ export interface User {
   updatedAt: string;
 }
 
-// Shape response của POST /auth/login và POST /auth/register.
-export interface AuthResponse {
-  access_token: string;
-  user: User;
+// Shape response của POST /auth/login (backend trả camelCase).
+export interface LoginResponse {
+  accessToken: string;
+  user: Pick<User, "_id" | "email" | "fullName" | "role">;
 }

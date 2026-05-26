@@ -58,10 +58,18 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      // Thử tự động đăng nhập ngay sau khi đăng ký thành công
-      const result = await signIn("credentials", {
+      const loginData = await authService.login({
         email: data.email,
         password: data.password,
+      });
+
+      const result = await signIn("credentials", {
+        email: loginData.user.email,
+        password: data.password,
+        accessToken: loginData.accessToken,
+        role: loginData.user.role,
+        id: loginData.user._id,
+        name: loginData.user.fullName,
         redirect: false,
       });
 

@@ -2,6 +2,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { authService } from "@/services/auth.service";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,18 +44,33 @@ export default function LoginPage() {
   - Hiển thị toast và điều hướng về dashboard khi đăng nhập thành công.
   */
   const onSubmit = async (data: FormData) => {
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false, // Tự xử lý redirect để hiển thị toast trước
-    });
+    try {
+      const loginData = await authService.login({
+        email: data.email,
+        password: data.password,
+      });
 
-    if (result?.error) {
-      toast.error(UI_TEXT.LOGIN.TOAST_ERROR);
-    } else {
-      toast.success(UI_TEXT.LOGIN.TOAST_SUCCESS);
-      router.push("/dashboard");
-      router.refresh(); // Đồng bộ session phía server
+      const result = await signIn("credentials", {
+        email: loginData.user.email,
+        password: data.password,
+        accessToken: loginData.accessToken,
+        role: loginData.user.role,
+        id: loginData.user._id,
+        name: loginData.user.fullName,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error(UI_TEXT.LOGIN.TOAST_ERROR);
+      } else {
+        toast.success(UI_TEXT.LOGIN.TOAST_SUCCESS);
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : UI_TEXT.LOGIN.TOAST_ERROR,
+      );
     }
   };
 
