@@ -420,7 +420,7 @@ function NotesTab({ lesson }: { lesson: LessonDetailType }) {
     <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
       <div
         className="tiptap prose prose-sm max-w-none text-sm text-muted-foreground [&_h1]:mb-4 [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-foreground [&_h2]:mb-3 [&_h2]:mt-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:mb-3 [&_p]:leading-relaxed [&_ul]:mb-3 [&_ul]:ml-4 [&_ul]:list-disc [&_ol]:mb-3 [&_ol]:ml-4 [&_ol]:list-decimal [&_strong]:font-semibold [&_strong]:text-foreground [&_em]:italic"
-        dangerouslySetInnerHTML={{ __html: lesson.notesContent }}
+        dangerouslySetInnerHTML={{ __html: lesson.notesContent ?? "" }}
       />
     </div>
   );

@@ -1,7 +1,8 @@
 // Type cho sample essay, highlight annotation và filter params.
 
-// Literal loại highlight của một đoạn được annotate trong bài mẫu.
-export type HighlightType = "VOCABULARY" | "GRAMMAR" | "STRUCTURE" | "ARGUMENT";
+import type { HighlightType } from "./enums";
+
+export type { HighlightType };
 
 // Một đoạn text được annotate trong bài mẫu.
 export interface HighlightAnnotation {

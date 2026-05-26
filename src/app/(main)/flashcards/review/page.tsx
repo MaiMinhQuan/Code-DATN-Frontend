@@ -6,7 +6,6 @@ import { ArrowLeft, Loader2, CalendarCheck } from "lucide-react";
 import { useReviewCards, useReviewFlashcard } from "@/hooks/useFlashcards";
 import { ReviewSession } from "@/components/features/flashcards/ReviewSession";
 import { UI_TEXT } from "@/constants/ui-text";
-import type { ReviewQuality } from "@/types/flashcard.types";
 
 const T = UI_TEXT.FLASHCARDS;
 
@@ -19,22 +18,11 @@ Output:
 export default function FlashcardsReviewPage() {
   const router = useRouter();
 
-  // Lấy toàn bộ card có `nextReviewDate` tới hôm nay hoặc đã quá hạn
   const { data: cards = [], isLoading } = useReviewCards();
   const reviewCard = useReviewFlashcard();
 
-  /*
-  Gửi kết quả review cho một card.
-
-  Input:
-  - cardId — ID card vừa review.
-  - quality — điểm chất lượng nhớ bài (1/3/5).
-
-  Output:
-  - Gọi mutation cập nhật lịch ôn tập theo spaced repetition.
-  */
-  const handleReview = (cardId: string, quality: ReviewQuality) => {
-    reviewCard.mutate({ cardId, payload: { quality } });
+  const handleReview = (cardId: string) => {
+    reviewCard.mutate(cardId);
   };
 
   if (isLoading) {
@@ -45,7 +33,6 @@ export default function FlashcardsReviewPage() {
     );
   }
 
-  // Empty state khi không còn card nào đến hạn
   if (cards.length === 0) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-4 text-center">
@@ -71,10 +58,8 @@ export default function FlashcardsReviewPage() {
     );
   }
 
-  // Phiên review đang diễn ra
   return (
     <div className="space-y-6">
-      {/* Header với nút quay lại và số thẻ đến hạn */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => router.push("/flashcards")}
@@ -88,12 +73,13 @@ export default function FlashcardsReviewPage() {
         </span>
       </div>
 
-      {/* Khu vực review chính */}
       <div className="mx-auto w-full max-w-lg">
         <ReviewSession
           cards={cards}
+          setTitle={T.REVIEW_MODE_DUE}
           isSubmitting={reviewCard.isPending}
           onReview={handleReview}
+          onComplete={() => router.push("/flashcards")}
         />
       </div>
     </div>

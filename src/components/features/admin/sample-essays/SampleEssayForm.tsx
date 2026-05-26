@@ -7,8 +7,9 @@ import { Plus, Pencil, Trash2, Eye, EyeOff, Check, X } from "lucide-react";
 import { useCreateSampleEssay, useUpdateSampleEssay } from "@/hooks/useAdminSampleEssays";
 import { useTopics } from "@/hooks/useTopics";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
-import type { SampleEssay, HighlightAnnotation, HighlightType } from "@/types/sample-essay.types";
+import type { SampleEssay, HighlightAnnotation } from "@/types/sample-essay.types";
 import type { CreateSampleEssayDto, CreateHighlightAnnotationDto } from "@/types/admin.types";
+import { HighlightType } from "@/types/enums";
 
 const HIGHLIGHT_TYPES: {
   value: HighlightType;
@@ -17,10 +18,10 @@ const HIGHLIGHT_TYPES: {
   markBg: string;
   badge: string;
 }[] = [
-  { value: "VOCABULARY", label: "Từ vựng",  dot: "bg-amber-400", markBg: "bg-amber-100", badge: "bg-amber-100 text-amber-800" },
-  { value: "GRAMMAR",    label: "Ngữ pháp", dot: "bg-red-400",   markBg: "bg-red-100",   badge: "bg-red-100 text-red-800"     },
-  { value: "STRUCTURE",  label: "Cấu trúc", dot: "bg-blue-400",  markBg: "bg-blue-100",  badge: "bg-blue-100 text-blue-800"   },
-  { value: "ARGUMENT",   label: "Lập luận", dot: "bg-green-400", markBg: "bg-green-100", badge: "bg-green-100 text-green-800" },
+  { value: HighlightType.VOCABULARY, label: "Từ vựng",  dot: "bg-amber-400", markBg: "bg-amber-100", badge: "bg-amber-100 text-amber-800" },
+  { value: HighlightType.GRAMMAR,    label: "Ngữ pháp", dot: "bg-red-400",   markBg: "bg-red-100",   badge: "bg-red-100 text-red-800"     },
+  { value: HighlightType.STRUCTURE,  label: "Cấu trúc", dot: "bg-blue-400",  markBg: "bg-blue-100",  badge: "bg-blue-100 text-blue-800"   },
+  { value: HighlightType.ARGUMENT,   label: "Lập luận", dot: "bg-green-400", markBg: "bg-green-100", badge: "bg-green-100 text-green-800" },
 ];
 
 const HIGHLIGHT_MAP = Object.fromEntries(
@@ -65,7 +66,7 @@ interface DraftAnnotation {
 
 const EMPTY_DRAFT: DraftAnnotation = {
   text: "",
-  highlightType: "VOCABULARY",
+  highlightType: HighlightType.VOCABULARY,
   explanation: "",
 };
 
@@ -233,9 +234,7 @@ export function SampleEssayForm({ essay }: Props) {
       isPublished:
         (values.isPublished as unknown as string) === "true" ||
         values.isPublished === true,
-      overallBandScore: values.overallBandScore
-        ? Number(values.overallBandScore)
-        : undefined,
+      overallBandScore: Number(values.overallBandScore ?? 7),
       highlightAnnotations: annotations,
     };
 

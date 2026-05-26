@@ -5,6 +5,7 @@ import { API_BASE_URL } from "@/lib/constants";
 import type { UserRole } from "@/types/enums";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {

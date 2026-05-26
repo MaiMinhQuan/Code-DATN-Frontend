@@ -16,6 +16,7 @@ export const flashcardSetKeys = {
   detail: (id: string) => [...flashcardSetKeys.details(), id] as const,
   byLesson: (lessonId: string) => [...flashcardSetKeys.all, "by-lesson", lessonId] as const,
   adminByLesson: (lessonId: string) => [...flashcardSetKeys.all, "admin-by-lesson", lessonId] as const,
+  reviewDue: () => [...flashcardSetKeys.all, "review-due"] as const,
 };
 
 export function useFlashcardSets() {
@@ -164,6 +165,36 @@ export function useReviewFlashcard() {
     onSuccess: (updatedCard) => {
       qc.invalidateQueries({ queryKey: flashcardSetKeys.lists() });
       qc.invalidateQueries({ queryKey: flashcardSetKeys.detail(updatedCard.setId) });
+      qc.invalidateQueries({ queryKey: flashcardSetKeys.reviewDue() });
     },
+  });
+}
+
+function isCardDue(card: { nextReviewDate?: string }): boolean {
+  if (!card.nextReviewDate) return true;
+  const due = new Date(card.nextReviewDate);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  return due <= endOfToday;
+}
+
+/** Thẻ đến hạn từ mọi bộ — dùng trang /flashcards/review */
+export function useReviewCards() {
+  const setsQuery = useFlashcardSets();
+
+  return useQuery({
+    queryKey: flashcardSetKeys.reviewDue(),
+    queryFn: async () => {
+      const sets = setsQuery.data ?? [];
+      if (sets.length === 0) return [];
+
+      const details = await Promise.all(
+        sets.map((s) => flashcardsService.getSetDetail(s._id)),
+      );
+
+      return details.flatMap((d) => d.cards.filter(isCardDue));
+    },
+    enabled: setsQuery.isSuccess,
+    staleTime: 60 * 1000,
   });
 }

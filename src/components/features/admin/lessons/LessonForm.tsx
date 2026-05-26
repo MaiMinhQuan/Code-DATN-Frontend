@@ -35,13 +35,14 @@ export function LessonForm({ lesson, courseId }: Props) {
   }, [lesson, courseId, reset]);
 
   const onSubmit = handleSubmit((values) => {
-    const { courseId: _courseId, ...rest } = values as typeof values & { courseId?: string };
     const payload = {
-      ...rest,
+      ...values,
+      courseId,
       isPublished: (values.isPublished as unknown as string) === "true" || values.isPublished === true,
     };
     if (lesson) {
-      updateLesson.mutate({ id: lesson._id, dto: payload, courseId });
+      const { courseId: _cid, ...updateDto } = payload;
+      updateLesson.mutate({ id: lesson._id, dto: updateDto, courseId });
     } else {
       createLesson.mutate(payload, {
         onSuccess: () => {

@@ -18,6 +18,8 @@ export interface Flashcard {
   frontContent: string;
   backContent: string;
   reviewCount: number;
+  /** Có trên một số bản ghi seed — dùng lọc thẻ đến hạn khi ôn tập tổng */
+  nextReviewDate?: string;
   createdAt: string;
   updatedAt: string;
 }
