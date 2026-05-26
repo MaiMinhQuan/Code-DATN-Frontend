@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useAdminExamQuestions, useDeleteExamQuestion } from "@/hooks/useAdminExamQuestions";
+import { useTopics } from "@/hooks/useTopics";
 import { ConfirmDialog } from "@/components/features/admin/ConfirmDialog";
 import type { ExamQuestion } from "@/types/exam-question.types";
 
@@ -16,22 +17,43 @@ const DIFFICULTY_LABELS: Record<number, { label: string; className: string }> = 
 export function ExamQuestionsManager() {
   const router = useRouter();
   const { data: questions = [], isLoading } = useAdminExamQuestions();
+  const { data: topics = [] } = useTopics();
   const deleteQuestion = useDeleteExamQuestion();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [topicFilter, setTopicFilter] = useState("");
+
+  const filtered = useMemo(
+    () => topicFilter ? questions.filter((q) => q.topicId?._id === topicFilter) : questions,
+    [questions, topicFilter],
+  );
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">Đề thi (Exam Questions)</h2>
-          <p className="text-sm text-slate-500">{questions.length} đề thi</p>
+          <p className="text-sm text-slate-500">
+            {filtered.length}{topicFilter ? `/${questions.length}` : ""} đề thi
+          </p>
         </div>
-        <button
-          onClick={() => router.push("/admin/exam-questions/new")}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-          <Plus className="h-4 w-4" /> Thêm đề thi
-        </button>
+        <div className="flex items-center gap-3">
+          <select
+            value={topicFilter}
+            onChange={(e) => setTopicFilter(e.target.value)}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          >
+            <option value="">Tất cả chủ đề</option>
+            {topics.map((t) => (
+              <option key={t._id} value={t._id}>{t.name}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => router.push("/admin/exam-questions/new")}
+            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+            <Plus className="h-4 w-4" /> Thêm đề thi
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -40,9 +62,9 @@ export function ExamQuestionsManager() {
             <div key={i} className="h-14 animate-pulse rounded-xl bg-slate-200" />
           ))}
         </div>
-      ) : questions.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="rounded-xl bg-white py-12 text-center text-slate-400 ring-1 ring-slate-200">
-          Chưa có đề thi nào
+          {topicFilter ? "Không có đề thi nào cho chủ đề này" : "Chưa có đề thi nào"}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
@@ -58,7 +80,7 @@ export function ExamQuestionsManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {questions.map((q) => (
+              {filtered.map((q) => (
                 <tr key={q._id} className="hover:bg-slate-50">
                   <td className="max-w-xs px-4 py-3">
                     <p className="font-medium text-slate-900 truncate">{q.title}</p>

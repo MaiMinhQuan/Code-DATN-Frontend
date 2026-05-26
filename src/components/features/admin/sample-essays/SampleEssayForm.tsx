@@ -9,19 +9,6 @@ import { useTopics } from "@/hooks/useTopics";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import type { SampleEssay, HighlightAnnotation, HighlightType } from "@/types/sample-essay.types";
 import type { CreateSampleEssayDto, CreateHighlightAnnotationDto } from "@/types/admin.types";
-import { TargetBand } from "@/types/enums";
-
-const TARGET_BAND_LABELS: Record<TargetBand, string> = {
-  BAND_5_0: "Band 5.0",
-  BAND_6_0: "Band 6.0",
-  BAND_7_PLUS: "Band 7+",
-};
-
-function calcTargetBand(score: number): TargetBand {
-  if (score >= 7.0) return TargetBand.BAND_7_PLUS;
-  if (score >= 6.0) return TargetBand.BAND_6_0;
-  return TargetBand.BAND_5_0;
-}
 
 const HIGHLIGHT_TYPES: {
   value: HighlightType;
@@ -178,14 +165,6 @@ export function SampleEssayForm({ essay }: Props) {
   } = useForm<CreateSampleEssayDto>();
 
   const essayContent = watch("fullEssayContent", essay?.fullEssayContent ?? "");
-  const bandScore = watch("overallBandScore");
-
-  useEffect(() => {
-    const score = Number(bandScore);
-    if (score > 0) {
-      setValue("targetBand", calcTargetBand(score), { shouldDirty: true });
-    }
-  }, [bandScore, setValue]);
 
   useEffect(() => {
     const outline = essay?.outlineContent ?? "";
@@ -195,14 +174,13 @@ export function SampleEssayForm({ essay }: Props) {
             title: essay.title,
             topicId: essay.topicId._id,
             questionPrompt: essay.questionPrompt,
-            targetBand: essay.targetBand,
             outlineContent: outline,
             fullEssayContent: essay.fullEssayContent,
             isPublished: essay.isPublished,
             authorName: essay.authorName ?? "",
             overallBandScore: essay.overallBandScore,
           }
-        : { targetBand: TargetBand.BAND_7_PLUS, isPublished: true }
+        : { overallBandScore: 7, isPublished: true }
     );
     setOutlineHtml(outline);
     setAnnotations(essay?.highlightAnnotations ?? []);
@@ -433,25 +411,6 @@ export function SampleEssayForm({ essay }: Props) {
             )}
           </div>
 
-          {/* Target Band */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Target Band
-              {Number(bandScore) > 0 && (
-                <span className="ml-1.5 text-xs font-normal text-slate-400">(tự động theo Band Score)</span>
-              )}
-            </label>
-            <select
-              {...register("targetBand")}
-              disabled={Number(bandScore) > 0}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {Object.entries(TARGET_BAND_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </select>
-          </div>
-
           {/* Tác giả + Band score */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -463,16 +422,26 @@ export function SampleEssayForm({ essay }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Band Score</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Band Score <span className="text-red-500">*</span>
+              </label>
               <input
                 type="number"
                 step="0.5"
                 min={0}
                 max={9}
-                {...register("overallBandScore", { valueAsNumber: true })}
+                {...register("overallBandScore", {
+                  valueAsNumber: true,
+                  required: "Vui lòng nhập band score",
+                  min: { value: 0, message: "Band score từ 0 đến 9" },
+                  max: { value: 9, message: "Band score từ 0 đến 9" },
+                })}
                 placeholder="7.5"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               />
+              {errors.overallBandScore && (
+                <p className="mt-1.5 text-xs text-red-500">{errors.overallBandScore.message}</p>
+              )}
             </div>
           </div>
 

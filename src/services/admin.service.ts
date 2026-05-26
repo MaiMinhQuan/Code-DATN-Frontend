@@ -37,4 +37,9 @@ export const adminService = {
     const { data } = await apiClient.get(`/admin/users/${userId}/submissions`, { params });
     return data;
   },
+
+  getSubmissionDetail: async (submissionId: string): Promise<Submission> => {
+    const { data } = await apiClient.get<Submission>(`/admin/submissions/${submissionId}`);
+    return data;
+  },
 };

@@ -13,6 +13,8 @@ export const adminUserKeys = {
   list: (params?: object) => [...adminUserKeys.all, "list", params] as const,
   detail: (id: string) => [...adminUserKeys.all, "detail", id] as const,
   submissions: (userId: string) => [...adminUserKeys.all, "submissions", userId] as const,
+  submissionDetail: (submissionId: string) =>
+    [...adminUserKeys.all, "submission-detail", submissionId] as const,
 };
 
 export function useAdminStats() {
@@ -41,10 +43,22 @@ export function useAdminUser(id: string) {
 }
 
 export function useAdminUserSubmissions(userId: string, params?: { page?: number; limit?: number }) {
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 20;
+
   return useQuery({
-    queryKey: adminUserKeys.submissions(userId),
-    queryFn: () => adminService.getUserSubmissions(userId, params),
+    queryKey: [...adminUserKeys.submissions(userId), page, limit],
+    queryFn: () => adminService.getUserSubmissions(userId, { page, limit }),
     enabled: !!userId,
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useAdminSubmissionDetail(submissionId: string) {
+  return useQuery({
+    queryKey: adminUserKeys.submissionDetail(submissionId),
+    queryFn: () => adminService.getSubmissionDetail(submissionId),
+    enabled: !!submissionId,
     staleTime: 60 * 1000,
   });
 }

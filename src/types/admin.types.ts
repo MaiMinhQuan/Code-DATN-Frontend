@@ -103,13 +103,12 @@ export interface CreateSampleEssayDto {
   title: string;
   topicId: string;
   questionPrompt: string;
-  targetBand: TargetBand;
   outlineContent: string;
   fullEssayContent: string;
   highlightAnnotations?: CreateHighlightAnnotationDto[];
   isPublished?: boolean;
   authorName?: string;
-  overallBandScore?: number;
+  overallBandScore: number;
 }
 
 export interface UpdateSampleEssayDto extends Partial<CreateSampleEssayDto> {}

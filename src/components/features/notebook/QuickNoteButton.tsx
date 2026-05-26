@@ -23,7 +23,7 @@ export function QuickNoteButton() {
   const { data: collections = [] } = useNoteCollections()
   const createNote = useCreateNote()
 
-  if (pathname === "/notebook") return null
+  if (pathname === "/notebook" || pathname.startsWith("/admin")) return null
 
   const selectedCollection = collections.find((c) => c._id === collectionId)
 

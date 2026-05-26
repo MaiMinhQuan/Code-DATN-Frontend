@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { AdminNav } from "@/components/features/admin/AdminNav";
@@ -31,7 +31,12 @@ interface PageProps {
 export default function AdminUserDetailPage({ params }: PageProps) {
   const { userId } = use(params);
   const { data: user, isLoading: userLoading } = useAdminUser(userId);
-  const { data: submissionsData, isLoading: subsLoading } = useAdminUserSubmissions(userId);
+  const {
+    data: submissionsData,
+    isLoading: subsLoading,
+    isError: subsError,
+    error: subsErrorDetail,
+  } = useAdminUserSubmissions(userId);
 
   const submissions = submissionsData?.data ?? [];
 
@@ -94,6 +99,13 @@ export default function AdminUserDetailPage({ params }: PageProps) {
               <div key={i} className="h-14 animate-pulse rounded-xl bg-slate-200" />
             ))}
           </div>
+        ) : subsError ? (
+          <div className="rounded-xl bg-red-50 py-12 text-center ring-1 ring-red-200">
+            <p className="font-medium text-red-700">Không tải được lịch sử bài nộp</p>
+            <p className="mt-1 text-sm text-red-600">
+              {(subsErrorDetail as Error)?.message ?? "Vui lòng thử tải lại trang."}
+            </p>
+          </div>
         ) : submissions.length === 0 ? (
           <div className="rounded-xl bg-white py-12 text-center text-slate-400 ring-1 ring-slate-200">
             Người dùng chưa nộp bài nào
@@ -109,6 +121,7 @@ export default function AdminUserDetailPage({ params }: PageProps) {
                   <th className="px-4 py-3 text-center">Band Score</th>
                   <th className="px-4 py-3 text-center">Số từ</th>
                   <th className="px-4 py-3 text-left">Ngày nộp</th>
+                  <th className="px-4 py-3 text-right">Chi tiết</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -133,6 +146,14 @@ export default function AdminUserDetailPage({ params }: PageProps) {
                     <td className="px-4 py-3 text-center text-slate-500">{sub.wordCount ?? "—"}</td>
                     <td className="px-4 py-3 text-slate-500">
                       {new Date(sub.createdAt).toLocaleDateString("vi-VN")}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={`/admin/submissions/${sub._id}`}
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                      >
+                        Xem chi tiết
+                      </Link>
                     </td>
                   </tr>
                 ))}
