@@ -1,7 +1,7 @@
 // Cấu hình NextAuth.js: credentials provider, callback JWT/session và trang đăng nhập custom.
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { API_BASE_URL } from "@/lib/constants";
+import { getServerApiBaseUrl } from "@/lib/constants";
 import type { UserRole } from "@/types/enums";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -21,7 +21,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       */
       async authorize(credentials) {
         try {
-          const res = await fetch(`${API_BASE_URL}/auth/login`, {
+          const res = await fetch(`${getServerApiBaseUrl()}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
