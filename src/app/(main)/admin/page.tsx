@@ -85,7 +85,7 @@ export default function AdminPage() {
       {/* Quick links */}
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {[
-          { href: "/admin/topics", label: "Quản lý Chủ đề", desc: "Thêm, sửa, xóa topics" },
+          { href: "/admin/topics", label: "Quản lý Chủ đề ver2", desc: "Thêm, sửa, xóa topics" },
           { href: "/admin/courses", label: "Quản lý Khóa học", desc: "CRUD courses và lessons" },
           { href: "/admin/exam-questions", label: "Quản lý Đề thi", desc: "Thêm đề IELTS Writing Task 2" },
           { href: "/admin/sample-essays", label: "Quản lý Bài mẫu", desc: "Thêm bài mẫu có band score" },
