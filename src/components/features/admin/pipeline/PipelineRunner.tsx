@@ -302,27 +302,22 @@ export function PipelineRunner() {
 
           <div>
             {STEPS.filter((step) =>
-              // Ẩn các bước liên quan đến essay nếu job có skipEssays
               job.skipEssays ? step.phase !== "scrape" && step.phase !== "analyze" : true,
-            ).map((step, idx, arr) => {
-              const isLast = idx === arr.length - 1;
-              const isScrapeDone = step.phase === "scrape" && showReview;
-
-              return (
-                <StepRow
-                  key={step.key}
-                  step={step}
-                  job={job}
-                  isLast={isLast && !isScrapeDone}
-                >
-                  {isScrapeDone ? (
-                    <ContentReview jobId={activeJobId} job={job} />
-                  ) : undefined}
-                </StepRow>
-              );
-            })}
+            ).map((step, idx, arr) => (
+              <StepRow
+                key={step.key}
+                step={step}
+                job={job}
+                isLast={idx === arr.length - 1}
+              />
+            ))}
           </div>
         </div>
+      )}
+
+      {/* ContentReview — hiện khi job sẵn sàng duyệt, đặt ngoài stepper */}
+      {showReview && activeJobId && job && (
+        <ContentReview jobId={activeJobId} job={job} />
       )}
     </div>
   );
