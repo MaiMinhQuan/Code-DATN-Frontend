@@ -35,7 +35,11 @@ export function ContentReview({ jobId, job }: Props) {
   const enableFetch = REVIEW_STATUSES.includes(job.status) ? jobId : null;
 
   const { data: lessons, isLoading: lessonsLoading } = usePipelineLessons(enableFetch);
-  const { data: candidates, isLoading: candidatesLoading } = usePipelineCandidates(enableFetch);
+  const {
+    data: candidates,
+    isLoading: candidatesLoading,
+    isError: candidatesError,
+  } = usePipelineCandidates(enableFetch);
 
   const updateLessons = useUpdateLessons(jobId);
   const updateCandidates = useUpdateCandidates(jobId);
@@ -73,12 +77,15 @@ export function ContentReview({ jobId, job }: Props) {
 
   // Lưu lựa chọn + kích hoạt phân tích AI
   const handleConfirm = async () => {
-    if (selectedEssays.length === 0) {
+    const hasCandidates = candidates && candidates.length > 0;
+    if (hasCandidates && selectedEssays.length === 0) {
       toast.error("Hãy chọn ít nhất 1 bài mẫu để phân tích");
       return;
     }
     await updateLessons.mutateAsync(selectedLessons);
-    await updateCandidates.mutateAsync(selectedEssays);
+    if (hasCandidates) {
+      await updateCandidates.mutateAsync(selectedEssays);
+    }
     await analyzeMutation.mutateAsync();
     toast.success("Đã bắt đầu phân tích bài đã chọn");
   };
@@ -108,7 +115,7 @@ export function ContentReview({ jobId, job }: Props) {
     );
   }
 
-  const hasContent = (lessons?.length ?? 0) > 0 || (candidates?.length ?? 0) > 0;
+  const hasContent = (lessons?.length ?? 0) > 0 || (candidates?.length ?? 0) > 0 || candidatesError;
   if (!hasContent) return null;
 
   return (
@@ -131,13 +138,20 @@ export function ContentReview({ jobId, job }: Props) {
         )}
 
         {/* Sample Essays */}
-        {candidates && candidates.length > 0 && (
+        {candidates && candidates.length > 0 ? (
           <CandidateReview
             candidates={candidates}
             selectedIndexes={selectedEssays}
             onToggle={toggleEssay}
           />
-        )}
+        ) : candidatesError ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            <p className="font-medium">Không tải được bài mẫu</p>
+            <p className="mt-0.5 text-xs text-amber-600">
+              File bài mẫu chưa có hoặc bị lỗi. Bạn vẫn có thể tiếp tục phân tích bài học &amp; video đã chọn.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {/* Action buttons */}
