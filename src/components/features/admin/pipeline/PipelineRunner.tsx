@@ -234,7 +234,7 @@ export function PipelineRunner() {
     const { jobId } = await createJob.mutateAsync({
       topic: values.topic,
       maxVideos: Number(values.maxVideos),
-      maxEssays: Number(values.maxEssays),
+      skipEssays: true,
     });
     setActiveJobId(jobId);
   };
@@ -269,23 +269,13 @@ export function PipelineRunner() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Số video</label>
-              <input
-                type="number"
-                {...register("maxVideos", { min: 1, max: 20 })}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Số bài mẫu</label>
-              <input
-                type="number"
-                {...register("maxEssays", { min: 1, max: 20 })}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-              />
-            </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Số video tối đa</label>
+            <input
+              type="number"
+              {...register("maxVideos", { min: 1, max: 20 })}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500"
+            />
           </div>
 
           <button
@@ -311,8 +301,11 @@ export function PipelineRunner() {
           </h2>
 
           <div>
-            {STEPS.map((step, idx) => {
-              const isLast = idx === STEPS.length - 1;
+            {STEPS.filter((step) =>
+              // Ẩn các bước liên quan đến essay nếu job có skipEssays
+              job.skipEssays ? step.phase !== "scrape" && step.phase !== "analyze" : true,
+            ).map((step, idx, arr) => {
+              const isLast = idx === arr.length - 1;
               const isScrapeDone = step.phase === "scrape" && showReview;
 
               return (

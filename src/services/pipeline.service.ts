@@ -6,6 +6,7 @@ export const pipelineService = {
     topic: string;
     maxVideos?: number;
     maxEssays?: number;
+    skipEssays?: boolean;
   }): Promise<{ jobId: string }> => {
     const { data } = await apiClient.post<{ jobId: string }>("/pipeline/jobs", dto);
     return data;

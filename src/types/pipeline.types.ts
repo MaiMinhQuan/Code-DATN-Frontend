@@ -13,6 +13,7 @@ export interface PipelineJob {
   topic: string;
   maxVideos: number;
   maxEssays: number;
+  skipEssays: boolean;
   status: PipelineJobStatus;
   currentStep: number;
   logs: string[];
