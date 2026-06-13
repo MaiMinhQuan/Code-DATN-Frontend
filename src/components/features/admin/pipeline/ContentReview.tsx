@@ -75,9 +75,9 @@ export function ContentReview({ jobId, job }: Props) {
       prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i],
     );
 
-  // Lưu lựa chọn + kích hoạt phân tích AI
+  // Lưu lựa chọn + kích hoạt phân tích AI (hoặc lưu thẳng nếu skipEssays)
   const handleConfirm = async () => {
-    const hasCandidates = candidates && candidates.length > 0;
+    const hasCandidates = !job.skipEssays && candidates && candidates.length > 0;
     if (hasCandidates && selectedEssays.length === 0) {
       toast.error("Hãy chọn ít nhất 1 bài mẫu để phân tích");
       return;
@@ -87,7 +87,13 @@ export function ContentReview({ jobId, job }: Props) {
       await updateCandidates.mutateAsync(selectedEssays);
     }
     await analyzeMutation.mutateAsync();
-    toast.success("Đã bắt đầu phân tích bài đã chọn");
+    if (job.skipEssays) {
+      // analyze đã set ready_to_seed ngay lập tức → seed luôn
+      await seedMutation.mutateAsync();
+      toast.success("Đã lưu vào hệ thống");
+    } else {
+      toast.success("Đã bắt đầu phân tích bài đã chọn");
+    }
   };
 
   const handleSeed = async () => {
@@ -138,26 +144,28 @@ export function ContentReview({ jobId, job }: Props) {
           <div className="border-t border-slate-100" />
         )}
 
-        {/* Sample Essays */}
-        {candidates && candidates.length > 0 ? (
-          <CandidateReview
-            candidates={candidates}
-            selectedIndexes={selectedEssays}
-            onToggle={toggleEssay}
-          />
-        ) : candidatesError || (candidates && candidates.length === 0) ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            <p className="font-medium">
-              {candidatesError ? "Không tải được bài mẫu" : "Không tìm được bài mẫu nào"}
-            </p>
-            <p className="mt-0.5 text-xs text-amber-600">
-              {candidatesError
-                ? "File bài mẫu chưa có hoặc bị lỗi."
-                : "Bước 5 scrape không tìm được bài mẫu từ web."}
-              {" "}Bạn vẫn có thể tiếp tục phân tích bài học &amp; video đã chọn.
-            </p>
-          </div>
-        ) : null}
+        {/* Sample Essays — ẩn hoàn toàn khi skipEssays */}
+        {!job.skipEssays && (
+          candidates && candidates.length > 0 ? (
+            <CandidateReview
+              candidates={candidates}
+              selectedIndexes={selectedEssays}
+              onToggle={toggleEssay}
+            />
+          ) : candidatesError || (candidates && candidates.length === 0) ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              <p className="font-medium">
+                {candidatesError ? "Không tải được bài mẫu" : "Không tìm được bài mẫu nào"}
+              </p>
+              <p className="mt-0.5 text-xs text-amber-600">
+                {candidatesError
+                  ? "File bài mẫu chưa có hoặc bị lỗi."
+                  : "Bước 5 scrape không tìm được bài mẫu từ web."}
+                {" "}Bạn vẫn có thể tiếp tục phân tích bài học &amp; video đã chọn.
+              </p>
+            </div>
+          ) : null
+        )}
       </div>
 
       {/* Action buttons */}
@@ -170,10 +178,12 @@ export function ContentReview({ jobId, job }: Props) {
           >
             {isConfirming ? (
               <Loader2 className="h-4 w-4 animate-spin" />
+            ) : job.skipEssays ? (
+              <Database className="h-4 w-4" />
             ) : (
               <FlaskConical className="h-4 w-4" />
             )}
-            Xác nhận &amp; Bắt đầu phân tích
+            {job.skipEssays ? "Xác nhận & Lưu vào hệ thống" : "Xác nhận & Bắt đầu phân tích"}
           </button>
         )}
 
