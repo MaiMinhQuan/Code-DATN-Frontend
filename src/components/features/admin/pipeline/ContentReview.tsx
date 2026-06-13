@@ -115,7 +115,8 @@ export function ContentReview({ jobId, job }: Props) {
     );
   }
 
-  const hasContent = (lessons?.length ?? 0) > 0 || (candidates?.length ?? 0) > 0 || candidatesError;
+  const candidatesLoaded = candidates !== undefined; // đã fetch xong (dù rỗng hay có lỗi)
+  const hasContent = (lessons?.length ?? 0) > 0 || (candidates?.length ?? 0) > 0 || candidatesError || candidatesLoaded;
   if (!hasContent) return null;
 
   return (
@@ -144,11 +145,16 @@ export function ContentReview({ jobId, job }: Props) {
             selectedIndexes={selectedEssays}
             onToggle={toggleEssay}
           />
-        ) : candidatesError ? (
+        ) : candidatesError || (candidates && candidates.length === 0) ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            <p className="font-medium">Không tải được bài mẫu</p>
+            <p className="font-medium">
+              {candidatesError ? "Không tải được bài mẫu" : "Không tìm được bài mẫu nào"}
+            </p>
             <p className="mt-0.5 text-xs text-amber-600">
-              File bài mẫu chưa có hoặc bị lỗi. Bạn vẫn có thể tiếp tục phân tích bài học &amp; video đã chọn.
+              {candidatesError
+                ? "File bài mẫu chưa có hoặc bị lỗi."
+                : "Bước 5 scrape không tìm được bài mẫu từ web."}
+              {" "}Bạn vẫn có thể tiếp tục phân tích bài học &amp; video đã chọn.
             </p>
           </div>
         ) : null}

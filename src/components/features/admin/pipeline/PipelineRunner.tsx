@@ -113,6 +113,9 @@ function getStepState(step: StepDef, job: PipelineJob): StepState {
   return "pending";
 }
 
+// Bỏ qua dòng header của pipeline (Band :, Topic :, ==...)
+const HEADER_PATTERN = /^(band\s*:|topic\s*:|=+|─+|-+\s*$)/i;
+
 function extractSummary(logs: string[], keywords: string[]): string {
   for (let i = logs.length - 1; i >= 0; i--) {
     const lower = logs[i].toLowerCase();
@@ -121,7 +124,8 @@ function extractSummary(logs: string[], keywords: string[]): string {
       keywords.some((kw) => lower.includes(kw)) &&
       clean &&
       !clean.startsWith("[stderr]") &&
-      !/^[=─\-\s]+$/.test(clean)
+      !/^[=─\-\s]+$/.test(clean) &&
+      !HEADER_PATTERN.test(clean)
     ) {
       return clean.length > 80 ? clean.slice(0, 80) + "…" : clean;
     }
