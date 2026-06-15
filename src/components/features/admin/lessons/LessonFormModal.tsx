@@ -7,6 +7,10 @@ import { useCreateLesson, useUpdateLesson } from "@/hooks/useAdminCourses";
 import type { Lesson } from "@/types/course.types";
 import type { CreateLessonDto } from "@/types/admin.types";
 import { TargetBand } from "@/types/enums";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const T = UI_TEXT.ADMIN.LESSONS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 const TARGET_BAND_LABELS: Record<TargetBand, string> = {
   BAND_5_0: "Band 5.0",
@@ -57,7 +61,7 @@ export function LessonFormModal({ isOpen, onClose, lesson, courseId }: Props) {
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-slate-900">
-            {lesson ? "Chỉnh sửa bài học" : "Thêm bài học mới"}
+            {lesson ? T.MODAL_EDIT_TITLE : T.MODAL_CREATE_TITLE}
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
@@ -67,18 +71,18 @@ export function LessonFormModal({ isOpen, onClose, lesson, courseId }: Props) {
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Tên bài học <span className="text-red-500">*</span>
+              {T.FORM_LABEL_TITLE} <span className="text-red-500">*</span>
             </label>
             <input
-              {...register("title", { required: "Vui lòng nhập tên" })}
-              placeholder="VD: Task Response — Cách phân tích đề"
+              {...register("title", { required: T.FORM_REQ_TITLE })}
+              placeholder={T.FORM_PH_TITLE}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Target Band</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">{T.FORM_LABEL_BAND}</label>
             <select
               {...register("targetBand")}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
@@ -90,44 +94,44 @@ export function LessonFormModal({ isOpen, onClose, lesson, courseId }: Props) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Mô tả</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">{T.FORM_LABEL_DESC}</label>
             <textarea
               {...register("description")}
               rows={2}
-              placeholder="Mô tả bài học..."
+              placeholder={T.FORM_PH_DESC}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Nội dung ghi chú (Markdown)</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">{T.FORM_LABEL_NOTES}</label>
             <textarea
               {...register("notesContent")}
               rows={4}
-              placeholder="## Heading\n\nNội dung bài học..."
+              placeholder={T.FORM_PH_NOTES}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-xs outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Trạng thái</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">{T.FORM_LABEL_STATUS}</label>
             <select
               {...register("isPublished")}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             >
-              <option value="true">Xuất bản</option>
-              <option value="false">Nháp</option>
+              <option value="true">{T.STATUS_PUBLISHED}</option>
+              <option value="false">{T.STATUS_DRAFT}</option>
             </select>
           </div>
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
               className="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Hủy
+              {C.BTN_CANCEL}
             </button>
             <button type="submit" disabled={isPending}
               className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
-              {isPending ? "Đang lưu..." : lesson ? "Cập nhật" : "Tạo mới"}
+              {isPending ? C.SAVING : lesson ? C.BTN_UPDATE : T.BTN_CREATE}
             </button>
           </div>
         </form>

@@ -154,7 +154,15 @@ export const flashcardsService = {
     return data;
   },
 
-  // --- Admin card management (bypass LESSON type check) ---
+  // --- Admin flashcard set + card management ---
+
+  adminCreateLessonSet: async (lessonId: string, payload: CreateFlashcardSetPayload): Promise<FlashcardSet> => {
+    const { data } = await apiClient.post<FlashcardSet>(
+      `/flashcard-sets/admin/lesson-set/${lessonId}`,
+      payload,
+    );
+    return data;
+  },
 
   adminGetSetByLesson: async (lessonId: string): Promise<FlashcardSetDetail | null> => {
     const { data } = await apiClient.get<FlashcardSetDetail | null>(

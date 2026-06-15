@@ -7,6 +7,10 @@ import { useCreateCourse, useUpdateCourse } from "@/hooks/useAdminCourses";
 import { useTopics } from "@/hooks/useTopics";
 import type { Course } from "@/types/course.types";
 import type { CreateCourseDto } from "@/types/admin.types";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const T = UI_TEXT.ADMIN.COURSES;
+const C = UI_TEXT.ADMIN.COMMON;
 
 interface Props {
   course?: Course;
@@ -55,11 +59,11 @@ export function CourseForm({ course }: Props) {
       {/* Tên khóa học */}
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Tên khóa học <span className="text-red-500">*</span>
+          {T.FORM_LABEL_TITLE} <span className="text-red-500">*</span>
         </label>
         <input
-          {...register("title", { required: "Vui lòng nhập tên khóa học" })}
-          placeholder="VD: IELTS Writing Task 2 — Technology and Society"
+          {...register("title", { required: T.FORM_REQ_TITLE })}
+          placeholder={T.FORM_PH_TITLE}
           className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
         />
         {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title.message}</p>}
@@ -69,13 +73,13 @@ export function CourseForm({ course }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            Chủ đề <span className="text-red-500">*</span>
+            {T.FORM_LABEL_TOPIC} <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("topicId", { required: "Vui lòng chọn chủ đề" })}
+            {...register("topicId", { required: T.FORM_REQ_TOPIC })}
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           >
-            <option value="">-- Chọn chủ đề --</option>
+            <option value="">{C.SELECT_TOPIC}</option>
             {topics.map((t) => (
               <option key={t._id} value={t._id}>{t.name}</option>
             ))}
@@ -83,24 +87,24 @@ export function CourseForm({ course }: Props) {
           {errors.topicId && <p className="mt-1.5 text-xs text-red-500">{errors.topicId.message}</p>}
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Trạng thái</label>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">{T.FORM_LABEL_STATUS}</label>
           <select
             {...register("isPublished")}
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
           >
-            <option value="true">Đã xuất bản</option>
-            <option value="false">Nháp</option>
+            <option value="true">{T.STATUS_PUBLISHED}</option>
+            <option value="false">{T.STATUS_DRAFT}</option>
           </select>
         </div>
       </div>
 
       {/* Mô tả */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">Mô tả</label>
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">{T.FORM_LABEL_DESC}</label>
         <textarea
           {...register("description")}
           rows={3}
-          placeholder="Mô tả ngắn về khóa học..."
+          placeholder={T.FORM_PH_DESC}
           className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
         />
       </div>
@@ -111,7 +115,7 @@ export function CourseForm({ course }: Props) {
           disabled={isPending}
           className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
         >
-          {isPending ? "Đang lưu..." : course ? "Lưu thay đổi" : "Tạo khóa học"}
+          {isPending ? C.SAVING : course ? C.BTN_SAVE : T.BTN_CREATE}
         </button>
       </div>
     </form>

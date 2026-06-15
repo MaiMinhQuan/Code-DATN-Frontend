@@ -64,7 +64,8 @@ export default function LoginPage() {
         toast.error(UI_TEXT.LOGIN.TOAST_ERROR);
       } else {
         toast.success(UI_TEXT.LOGIN.TOAST_SUCCESS);
-        router.push("/dashboard");
+        const dest = loginData.user.role === "ADMIN" ? "/admin" : "/dashboard";
+        router.push(dest);
         router.refresh();
       }
     } catch (err: unknown) {

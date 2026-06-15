@@ -12,8 +12,10 @@ import {
   NotebookPen,
   GraduationCap,
   ChevronLeft,
-  Shield,
   History,
+  Tag,
+  ClipboardList,
+  Users,
 } from "lucide-react";
 import { APP_VERSION } from "@/lib/app-version";
 import { cn } from "@/lib/utils";
@@ -22,14 +24,24 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@/types/enums";
 
-// Danh sách route điều hướng hiển thị trong sidebar.
-const NAV_ITEMS = [
+// Nav items cho học viên
+const STUDENT_NAV_ITEMS = [
   { href: "/dashboard",    icon: LayoutDashboard, label: UI_TEXT.SIDEBAR.NAV_DASHBOARD },
   { href: "/practice",     icon: PenLine,          label: UI_TEXT.SIDEBAR.NAV_PRACTICE },
   { href: "/courses",      icon: BookOpen,          label: UI_TEXT.SIDEBAR.NAV_COURSES },
   { href: "/sample-essays",icon: FileText,          label: UI_TEXT.SIDEBAR.NAV_SAMPLE_ESSAYS },
   { href: "/flashcards",   icon: CreditCard,        label: UI_TEXT.SIDEBAR.NAV_FLASHCARDS },
   { href: "/notebook",     icon: NotebookPen,       label: UI_TEXT.SIDEBAR.NAV_NOTEBOOK },
+];
+
+// Nav items cho admin (khi đang ở khu vực /admin)
+const ADMIN_NAV_ITEMS = [
+  { href: "/admin",                 icon: LayoutDashboard, label: "Tổng quan",    exact: true },
+  { href: "/admin/topics",          icon: Tag,             label: "Chủ đề" },
+  { href: "/admin/courses",         icon: BookOpen,        label: "Khóa học" },
+  { href: "/admin/exam-questions",  icon: ClipboardList,   label: "Đề thi" },
+  { href: "/admin/sample-essays",   icon: FileText,        label: "Bài mẫu" },
+  { href: "/admin/users",           icon: Users,           label: "Người dùng" },
 ];
 
 /*
@@ -47,6 +59,9 @@ export function Sidebar() {
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === UserRole.ADMIN;
 
+  // Admin luôn dùng nav quản trị; học viên dùng nav học viên
+  const navItems = isAdmin ? ADMIN_NAV_ITEMS : STUDENT_NAV_ITEMS;
+
   return (
     <aside
       className={cn(
@@ -59,7 +74,6 @@ export function Sidebar() {
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500">
           <GraduationCap className="h-5 w-5 text-white" />
         </div>
-        {/* Tên thương hiệu chỉ hiện khi sidebar mở */}
         {isSidebarOpen && (
           <span className="font-bold text-white truncate">{UI_TEXT.SIDEBAR.LOGO_TEXT}</span>
         )}
@@ -67,9 +81,18 @@ export function Sidebar() {
 
       {/* Danh sách link điều hướng */}
       <nav className="flex-1 space-y-1 p-3 pt-4">
-        {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
-          // Active khi path trùng route hoặc là route con
-          const isActive = pathname === href || pathname.startsWith(href + "/");
+        {/* Label section */}
+        {isSidebarOpen && (
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-indigo-500">
+            {isAdmin ? "Quản trị" : "Menu"}
+          </p>
+        )}
+
+        {navItems.map(({ href, icon: Icon, label, ...rest }) => {
+          const exact = (rest as { exact?: boolean }).exact;
+          const isActive = exact
+            ? pathname === href
+            : pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
@@ -82,35 +105,12 @@ export function Sidebar() {
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {/* Ẩn label khi sidebar ở trạng thái thu gọn */}
               {isSidebarOpen && <span>{label}</span>}
             </Link>
           );
         })}
 
-        {/* Admin link — chỉ hiện với ADMIN role */}
-        {isAdmin && (
-          <>
-            {isSidebarOpen && (
-              <p className="mt-4 mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-indigo-500">
-                Quản trị
-              </p>
-            )}
-            {!isSidebarOpen && <div className="mt-4 border-t border-indigo-800" />}
-            <Link
-              href="/admin"
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                pathname === "/admin" || pathname.startsWith("/admin/")
-                  ? "bg-indigo-600 text-white"
-                  : "text-indigo-300 hover:bg-indigo-800 hover:text-white"
-              )}
-            >
-              <Shield className="h-5 w-5 shrink-0" />
-              {isSidebarOpen && <span>Quản trị</span>}
-            </Link>
-          </>
-        )}
+
       </nav>
 
       {/* Phiên bản + lịch sử cập nhật */}

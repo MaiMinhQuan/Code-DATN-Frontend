@@ -3,7 +3,6 @@
 import { use } from "react";
 import Link from "next/link";
 import { ChevronLeft, Plus, Pencil, Trash2 } from "lucide-react";
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { CourseForm } from "@/components/features/admin/courses/CourseForm";
 import { ConfirmDialog } from "@/components/features/admin/ConfirmDialog";
 import { useAdminCourse } from "@/hooks/useAdminCourses";
@@ -11,6 +10,10 @@ import { useAdminLessons, useDeleteLesson } from "@/hooks/useAdminCourses";
 import { useState } from "react";
 import type { Lesson } from "@/types/course.types";
 import { TargetBand } from "@/types/enums";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const P = UI_TEXT.ADMIN.PAGE_HEADERS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 const BAND_COLORS: Record<TargetBand, string> = {
   BAND_5_0: "bg-amber-100 text-amber-700",
@@ -37,20 +40,19 @@ export default function CourseEditPage({ params }: PageProps) {
 
   return (
     <div>
-      <AdminNav />
 
       <div className="mb-6">
         <Link href="/admin/courses" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
-          <ChevronLeft className="h-4 w-4" /> Quay lại danh sách
+          <ChevronLeft className="h-4 w-4" /> {P.BTN_BACK_LIST}
         </Link>
         <h1 className="mt-2 text-2xl font-bold text-slate-900">
-          {courseLoading ? "Đang tải..." : (course?.title ?? "Chỉnh sửa khóa học")}
+          {courseLoading ? C.LOADING : (course?.title ?? C.BTN_EDIT)}
         </h1>
       </div>
 
       {/* Course metadata form */}
       <div className="mb-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 className="mb-5 text-base font-semibold text-slate-800">Thông tin khóa học</h2>
+        <h2 className="mb-5 text-base font-semibold text-slate-800">{P.COURSE_EDIT_INFO}</h2>
         {courseLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -66,7 +68,7 @@ export default function CourseEditPage({ params }: PageProps) {
       <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-800">
-            Bài học
+            {P.COURSE_LESSONS_SECTION}
             {!lessonsLoading && (
               <span className="ml-2 text-sm font-normal text-slate-400">({lessons.length})</span>
             )}
@@ -75,7 +77,7 @@ export default function CourseEditPage({ params }: PageProps) {
             href={`/admin/courses/${courseId}/lessons/new`}
             className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
           >
-            <Plus className="h-4 w-4" /> Thêm bài học
+            <Plus className="h-4 w-4" /> {C.BTN_ADD}
           </Link>
         </div>
 
@@ -87,7 +89,7 @@ export default function CourseEditPage({ params }: PageProps) {
           </div>
         ) : lessons.length === 0 ? (
           <div className="rounded-xl bg-slate-50 py-10 text-center text-slate-400">
-            Chưa có bài học nào — nhấn "Thêm bài học" để bắt đầu
+            {P.COURSE_LESSONS_EMPTY}
           </div>
         ) : (
           <div className="space-y-2">
@@ -106,8 +108,8 @@ export default function CourseEditPage({ params }: PageProps) {
 
       <ConfirmDialog
         isOpen={!!deleteId}
-        title="Xóa bài học"
-        message="Bạn có chắc muốn xóa bài học này?"
+        title={C.DIALOG_DELETE_TITLE}
+        message={C.DIALOG_DELETE_MSG}
         onConfirm={() => deleteLesson.mutate(
           { id: deleteId!, courseId },
           { onSuccess: () => setDeleteId(null) }
@@ -130,7 +132,7 @@ function LessonRow({
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-slate-900">{lesson.title}</p>
         <p className="text-xs text-slate-400">
-          {lesson.videos.length} video · {lesson.vocabularies.length} từ vựng · {lesson.grammars.length} ngữ pháp
+          {lesson.videos.length} {UI_TEXT.ADMIN.MEDIA.TAB_VIDEOS} · {lesson.vocabularies.length} {UI_TEXT.ADMIN.MEDIA.TAB_VOCAB} · {lesson.grammars.length} {UI_TEXT.ADMIN.MEDIA.TAB_GRAMMAR}
         </p>
       </div>
       <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${BAND_COLORS[lesson.targetBand]}`}>
@@ -139,7 +141,7 @@ function LessonRow({
       <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
         lesson.isPublished ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
       }`}>
-        {lesson.isPublished ? "Xuất bản" : "Nháp"}
+        {lesson.isPublished ? C.STATUS_PUBLISHED : C.STATUS_DRAFT}
       </span>
       <div className="flex shrink-0 gap-1">
         <Link

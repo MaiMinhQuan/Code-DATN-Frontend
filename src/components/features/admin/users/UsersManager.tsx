@@ -7,6 +7,10 @@ import { useAdminUsers } from "@/hooks/useAdminUsers";
 import { UserEditModal } from "./UserEditModal";
 import type { User } from "@/types/user.types";
 import { UserRole } from "@/types/enums";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const T = UI_TEXT.ADMIN.USERS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 const ROLE_STYLES: Record<UserRole, string> = {
   [UserRole.ADMIN]: "bg-red-100 text-red-700",
@@ -26,8 +30,8 @@ export function UsersManager() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Người dùng (Users)</h2>
-          <p className="text-sm text-slate-500">{pagination?.total ?? 0} người dùng</p>
+          <h2 className="text-lg font-semibold text-slate-900">{T.PAGE_TITLE}</h2>
+          <p className="text-sm text-slate-500">{pagination?.total ?? 0} {T.UNIT}</p>
         </div>
       </div>
 
@@ -42,12 +46,12 @@ export function UsersManager() {
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3 text-left">Người dùng</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-center">Role</th>
-                <th className="px-4 py-3 text-center">Trạng thái</th>
-                <th className="px-4 py-3 text-left">Ngày tạo</th>
-                <th className="px-4 py-3 text-right">Thao tác</th>
+                <th className="px-4 py-3 text-left">{T.COL_USER}</th>
+                <th className="px-4 py-3 text-left">{T.COL_EMAIL}</th>
+                <th className="px-4 py-3 text-center">{T.COL_ROLE}</th>
+                <th className="px-4 py-3 text-center">{C.COL_STATUS}</th>
+                <th className="px-4 py-3 text-left">{T.COL_CREATED_AT}</th>
+                <th className="px-4 py-3 text-right">{C.COL_ACTIONS}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -71,7 +75,7 @@ export function UsersManager() {
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       user.isActive ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"
                     }`}>
-                      {user.isActive ? "Hoạt động" : "Bị khóa"}
+                      {user.isActive ? T.STATUS_ACTIVE : T.STATUS_LOCKED}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-slate-500">
@@ -82,7 +86,6 @@ export function UsersManager() {
                       <Link
                         href={`/admin/users/${user._id}`}
                         className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600"
-                        title="Xem chi tiết & submissions"
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
@@ -103,7 +106,7 @@ export function UsersManager() {
           {pagination && pagination.totalPage > 1 && (
             <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3">
               <p className="text-sm text-slate-500">
-                Trang {pagination.page} / {pagination.totalPage}
+                {T.PAGINATION_LABEL(pagination.page, pagination.totalPage)}
               </p>
               <div className="flex gap-2">
                 <button
@@ -111,14 +114,14 @@ export function UsersManager() {
                   disabled={page === 1}
                   className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-slate-50"
                 >
-                  Trước
+                  {T.BTN_PREV}
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(pagination.totalPage, p + 1))}
                   disabled={page === pagination.totalPage}
                   className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-slate-50"
                 >
-                  Sau
+                  {T.BTN_NEXT}
                 </button>
               </div>
             </div>

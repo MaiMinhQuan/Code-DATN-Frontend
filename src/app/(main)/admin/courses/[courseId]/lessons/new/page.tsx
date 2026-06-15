@@ -3,7 +3,6 @@
 import { use } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { LessonForm } from "@/components/features/admin/lessons/LessonForm";
 import { useAdminCourse } from "@/hooks/useAdminCourses";
 
@@ -17,7 +16,6 @@ export default function NewLessonPage({ params }: PageProps) {
 
   return (
     <div>
-      <AdminNav />
       <div className="mb-6">
         <Link
           href={`/admin/courses/${courseId}/edit`}

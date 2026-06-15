@@ -8,6 +8,9 @@ Component Home
 */
 export default async function Home() {
   const session = await auth();
-  if (session) redirect("/dashboard"); // Người dùng đã đăng nhập
+  if (session) {
+    const dest = session.user?.role === "ADMIN" ? "/admin" : "/dashboard";
+    redirect(dest);
+  }
   redirect("/login");
 }

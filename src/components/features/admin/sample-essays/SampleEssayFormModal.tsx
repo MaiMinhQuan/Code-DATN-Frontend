@@ -7,6 +7,10 @@ import { useCreateSampleEssay, useUpdateSampleEssay } from "@/hooks/useAdminSamp
 import { useTopics } from "@/hooks/useTopics";
 import type { SampleEssay } from "@/types/sample-essay.types";
 import type { CreateSampleEssayDto } from "@/types/admin.types";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const T = UI_TEXT.ADMIN.SAMPLE_ESSAYS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 interface Props {
   isOpen: boolean;
@@ -53,7 +57,7 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
       <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-slate-900">
-            {essay ? "Chỉnh sửa bài mẫu" : "Thêm bài mẫu mới"}
+            {essay ? T.MODAL_EDIT_TITLE : T.MODAL_CREATE_TITLE}
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
@@ -63,11 +67,11 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Tiêu đề <span className="text-red-500">*</span>
+              {T.FORM_LABEL_TITLE} <span className="text-red-500">*</span>
             </label>
             <input
-              {...register("title", { required: "Vui lòng nhập tiêu đề" })}
-              placeholder="VD: Band 7.5 Essay — Environmental Pollution"
+              {...register("title", { required: T.FORM_REQ_TITLE })}
+              placeholder={T.FORM_PH_TITLE}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
@@ -75,13 +79,13 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Chủ đề <span className="text-red-500">*</span>
+              {T.FORM_LABEL_TOPIC} <span className="text-red-500">*</span>
             </label>
             <select
-              {...register("topicId", { required: "Vui lòng chọn chủ đề" })}
+              {...register("topicId", { required: T.FORM_REQ_TOPIC })}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             >
-              <option value="">-- Chọn chủ đề --</option>
+              <option value="">{C.SELECT_TOPIC}</option>
               {topics.map((t) => (
                 <option key={t._id} value={t._id}>{t.name}</option>
               ))}
@@ -91,52 +95,52 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Nội dung đề thi <span className="text-red-500">*</span>
+              {T.FORM_LABEL_PROMPT} <span className="text-red-500">*</span>
             </label>
             <textarea
-              {...register("questionPrompt", { required: "Vui lòng nhập đề" })}
+              {...register("questionPrompt", { required: T.FORM_REQ_PROMPT })}
               rows={3}
-              placeholder="You should spend about 40 minutes on this task..."
+              placeholder={T.FORM_PH_PROMPT}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Outline <span className="text-red-500">*</span>
+              {T.FORM_LABEL_OUTLINE} <span className="text-red-500">*</span>
             </label>
             <textarea
-              {...register("outlineContent", { required: "Vui lòng nhập outline" })}
+              {...register("outlineContent", { required: T.FORM_REQ_OUTLINE })}
               rows={3}
-              placeholder="Introduction: ...\nBody: ...\nConclusion: ..."
+              placeholder={T.FORM_PH_OUTLINE}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Nội dung bài mẫu <span className="text-red-500">*</span>
+              {T.FORM_LABEL_CONTENT} <span className="text-red-500">*</span>
             </label>
             <textarea
-              {...register("fullEssayContent", { required: "Vui lòng nhập bài mẫu" })}
+              {...register("fullEssayContent", { required: T.FORM_REQ_CONTENT })}
               rows={8}
-              placeholder="Nội dung bài essay..."
+              placeholder={T.FORM_PH_CONTENT}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Tác giả</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">{T.FORM_LABEL_AUTHOR}</label>
               <input
                 {...register("authorName")}
-                placeholder="Tên tác giả"
+                placeholder={T.FORM_PH_AUTHOR}
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               />
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">
-                Band score <span className="text-red-500">*</span>
+                {T.FORM_LABEL_BAND} <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -145,9 +149,9 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
                 max={9}
                 {...register("overallBandScore", {
                   valueAsNumber: true,
-                  required: "Vui lòng nhập band score",
-                  min: { value: 0, message: "Band score từ 0 đến 9" },
-                  max: { value: 9, message: "Band score từ 0 đến 9" },
+                  required: T.FORM_REQ_BAND,
+                  min: { value: 0, message: T.FORM_VAL_BAND },
+                  max: { value: 9, message: T.FORM_VAL_BAND },
                 })}
                 placeholder="7.5"
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
@@ -157,13 +161,13 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Trạng thái</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">{T.FORM_LABEL_STATUS}</label>
               <select
                 {...register("isPublished")}
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               >
-                <option value="true">Xuất bản</option>
-                <option value="false">Nháp</option>
+                <option value="true">{T.STATUS_PUBLISHED}</option>
+                <option value="false">{T.STATUS_DRAFT}</option>
               </select>
             </div>
           </div>
@@ -171,11 +175,11 @@ export function SampleEssayFormModal({ isOpen, onClose, essay }: Props) {
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
               className="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Hủy
+              {C.BTN_CANCEL}
             </button>
             <button type="submit" disabled={isPending}
               className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
-              {isPending ? "Đang lưu..." : essay ? "Cập nhật" : "Tạo mới"}
+              {isPending ? C.SAVING : essay ? C.BTN_UPDATE : T.BTN_CREATE}
             </button>
           </div>
         </form>

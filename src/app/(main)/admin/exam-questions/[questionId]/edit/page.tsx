@@ -1,9 +1,12 @@
 "use client";
 
 import { use } from "react";
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { ExamQuestionForm } from "@/components/features/admin/exam-questions/ExamQuestionForm";
 import { useAdminExamQuestion } from "@/hooks/useAdminExamQuestions";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const P = UI_TEXT.ADMIN.PAGE_HEADERS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 interface Props {
   params: Promise<{ questionId: string }>;
@@ -15,11 +18,10 @@ export default function EditExamQuestionPage({ params }: Props) {
 
   return (
     <div>
-      <AdminNav />
       <div className="mx-auto max-w-5xl">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-900">Chỉnh sửa đề thi</h2>
-          <p className="text-sm text-slate-500 truncate">{question?.title ?? "Đang tải..."}</p>
+          <h2 className="text-lg font-semibold text-slate-900">{P.EXAM_EDIT_TITLE}</h2>
+          <p className="text-sm text-slate-500 truncate">{question?.title ?? C.LOADING}</p>
         </div>
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           {isLoading ? (
@@ -31,7 +33,7 @@ export default function EditExamQuestionPage({ params }: Props) {
           ) : question ? (
             <ExamQuestionForm question={question} />
           ) : (
-            <p className="text-sm text-slate-500">Không tìm thấy đề thi</p>
+            <p className="text-sm text-slate-500">{P.EXAM_NOT_FOUND}</p>
           )}
         </div>
       </div>

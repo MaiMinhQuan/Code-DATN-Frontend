@@ -1,6 +1,5 @@
 "use client";
 
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { useAdminStats } from "@/hooks/useAdminUsers";
 import {
   Users,
@@ -13,6 +12,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const D = UI_TEXT.ADMIN.DASHBOARD;
 
 function StatCard({
   label,
@@ -49,23 +51,22 @@ export default function AdminPage() {
   const { data: stats, isLoading } = useAdminStats();
 
   const statCards = [
-    { label: "Tổng người dùng", value: stats?.totalUsers ?? 0, icon: Users, color: "bg-indigo-500", href: "/admin/users" },
-    { label: "Tổng bài nộp", value: stats?.totalSubmissions ?? 0, icon: ClipboardList, color: "bg-violet-500" },
-    { label: "Bài đã chấm xong", value: stats?.completedSubmissions ?? 0, icon: CheckCircle, color: "bg-emerald-500" },
-    { label: "Band score TB", value: stats?.avgBandScore ? `${stats.avgBandScore}` : "—", icon: TrendingUp, color: "bg-orange-500" },
-    { label: "Chủ đề", value: stats?.totalTopics ?? 0, icon: Tag, color: "bg-sky-500", href: "/admin/topics" },
-    { label: "Khóa học", value: stats?.totalCourses ?? 0, icon: BookOpen, color: "bg-blue-500", href: "/admin/courses" },
-    { label: "Đề thi", value: stats?.totalExamQuestions ?? 0, icon: BarChart3, color: "bg-pink-500", href: "/admin/exam-questions" },
-    { label: "Bài mẫu", value: stats?.totalSampleEssays ?? 0, icon: FileText, color: "bg-amber-500", href: "/admin/sample-essays" },
+    { label: D.STAT_TOTAL_USERS,    value: stats?.totalUsers ?? 0,           icon: Users,        color: "bg-indigo-500", href: "/admin/users"           },
+    { label: D.STAT_TOTAL_SUBS,     value: stats?.totalSubmissions ?? 0,     icon: ClipboardList, color: "bg-violet-500"                                 },
+    { label: D.STAT_COMPLETED,      value: stats?.completedSubmissions ?? 0, icon: CheckCircle,  color: "bg-emerald-500"                                 },
+    { label: D.STAT_AVG_BAND,       value: stats?.avgBandScore ? `${stats.avgBandScore}` : "N/A", icon: TrendingUp, color: "bg-orange-500"              },
+    { label: D.STAT_TOPICS,         value: stats?.totalTopics ?? 0,          icon: Tag,          color: "bg-sky-500",    href: "/admin/topics"           },
+    { label: D.STAT_COURSES,        value: stats?.totalCourses ?? 0,         icon: BookOpen,     color: "bg-blue-500",   href: "/admin/courses"          },
+    { label: D.STAT_EXAM_QUESTIONS, value: stats?.totalExamQuestions ?? 0,   icon: BarChart3,    color: "bg-pink-500",   href: "/admin/exam-questions"   },
+    { label: D.STAT_SAMPLE_ESSAYS,  value: stats?.totalSampleEssays ?? 0,    icon: FileText,     color: "bg-amber-500",  href: "/admin/sample-essays"    },
   ];
 
   return (
     <div>
-      <AdminNav />
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="text-sm text-slate-500">Thống kê tổng quan hệ thống</p>
+        <h1 className="text-2xl font-bold text-slate-900">{D.PAGE_TITLE}</h1>
+        <p className="text-sm text-slate-500">{D.PAGE_SUBTITLE}</p>
       </div>
 
       {isLoading ? (
@@ -85,11 +86,11 @@ export default function AdminPage() {
       {/* Quick links */}
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {[
-          { href: "/admin/topics", label: "Quản lý Chủ đề", desc: "Thêm, sửa, xóa topics" },
-          { href: "/admin/courses", label: "Quản lý Khóa học", desc: "CRUD courses và lessons" },
-          { href: "/admin/exam-questions", label: "Quản lý Đề thi", desc: "Thêm đề IELTS Writing Task 2" },
-          { href: "/admin/sample-essays", label: "Quản lý Bài mẫu", desc: "Thêm bài mẫu có band score" },
-          { href: "/admin/users", label: "Quản lý Người dùng", desc: "Xem danh sách và phân quyền" },
+          { href: "/admin/topics",          label: D.QUICK_TOPICS_LABEL,  desc: D.QUICK_TOPICS_DESC  },
+          { href: "/admin/courses",         label: D.QUICK_COURSES_LABEL, desc: D.QUICK_COURSES_DESC },
+          { href: "/admin/exam-questions",  label: D.QUICK_EXAM_LABEL,    desc: D.QUICK_EXAM_DESC    },
+          { href: "/admin/sample-essays",   label: D.QUICK_ESSAYS_LABEL,  desc: D.QUICK_ESSAYS_DESC  },
+          { href: "/admin/users",           label: D.QUICK_USERS_LABEL,   desc: D.QUICK_USERS_DESC   },
         ].map(({ href, label, desc }) => (
           <Link
             key={href}

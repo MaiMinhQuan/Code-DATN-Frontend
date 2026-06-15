@@ -3,9 +3,12 @@
 import { use } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { SampleEssayForm } from "@/components/features/admin/sample-essays/SampleEssayForm";
 import { useAdminSampleEssay } from "@/hooks/useAdminSampleEssays";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const P = UI_TEXT.ADMIN.PAGE_HEADERS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 export default function EditSampleEssayPage({
   params,
@@ -17,7 +20,6 @@ export default function EditSampleEssayPage({
 
   return (
     <div>
-      <AdminNav />
       <div className="mx-auto max-w-6xl">
         <div className="mb-6">
           <Link
@@ -25,13 +27,13 @@ export default function EditSampleEssayPage({
             className="mb-3 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Quay lại danh sách
+            {P.BTN_BACK_LIST}
           </Link>
           <h1 className="text-xl font-semibold text-slate-900">
-            {isLoading ? "Đang tải..." : `Chỉnh sửa: ${essay?.title ?? ""}`}
+            {isLoading ? C.LOADING : `${C.BTN_EDIT}: ${essay?.title ?? ""}`}
           </h1>
           <p className="mt-0.5 text-sm text-slate-500">
-            Chỉnh sửa nội dung và highlight annotations
+            {P.ESSAY_EDIT_SUBTITLE}
           </p>
         </div>
         {isLoading ? (

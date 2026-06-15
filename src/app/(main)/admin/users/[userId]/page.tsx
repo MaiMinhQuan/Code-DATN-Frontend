@@ -3,25 +3,28 @@
 import { use } from "react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { useAdminUser, useAdminUserSubmissions } from "@/hooks/useAdminUsers";
+import { UI_TEXT } from "@/constants/ui-text";
 import { UserRole } from "@/types/enums";
 import { SubmissionStatus } from "@/types/enums";
 
+const U = UI_TEXT.ADMIN.USERS;
+const C = UI_TEXT.ADMIN.COMMON;
+
 const STATUS_STYLES: Record<SubmissionStatus, string> = {
-  [SubmissionStatus.DRAFT]: "bg-slate-100 text-slate-600",
-  [SubmissionStatus.SUBMITTED]: "bg-yellow-100 text-yellow-700",
+  [SubmissionStatus.DRAFT]:      "bg-slate-100 text-slate-600",
+  [SubmissionStatus.SUBMITTED]:  "bg-yellow-100 text-yellow-700",
   [SubmissionStatus.PROCESSING]: "bg-blue-100 text-blue-700",
-  [SubmissionStatus.COMPLETED]: "bg-emerald-100 text-emerald-700",
-  [SubmissionStatus.FAILED]: "bg-red-100 text-red-600",
+  [SubmissionStatus.COMPLETED]:  "bg-emerald-100 text-emerald-700",
+  [SubmissionStatus.FAILED]:     "bg-red-100 text-red-600",
 };
 
 const STATUS_LABELS: Record<SubmissionStatus, string> = {
-  [SubmissionStatus.DRAFT]: "Nháp",
-  [SubmissionStatus.SUBMITTED]: "Đã nộp",
-  [SubmissionStatus.PROCESSING]: "Đang chấm",
-  [SubmissionStatus.COMPLETED]: "Hoàn thành",
-  [SubmissionStatus.FAILED]: "Lỗi",
+  [SubmissionStatus.DRAFT]:      U.SUBS_STATUS_DRAFT,
+  [SubmissionStatus.SUBMITTED]:  U.SUBS_STATUS_SUBMITTED,
+  [SubmissionStatus.PROCESSING]: U.SUBS_STATUS_PROCESSING,
+  [SubmissionStatus.COMPLETED]:  U.SUBS_STATUS_COMPLETED,
+  [SubmissionStatus.FAILED]:     U.SUBS_STATUS_FAILED,
 };
 
 interface PageProps {
@@ -42,13 +45,12 @@ export default function AdminUserDetailPage({ params }: PageProps) {
 
   return (
     <div>
-      <AdminNav />
 
       <div className="mb-4">
         <Link href="/admin/users"
           className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
           <ChevronLeft className="h-4 w-4" />
-          Quay lại Người dùng
+          {U.DETAIL_BACK}
         </Link>
       </div>
 
@@ -73,14 +75,14 @@ export default function AdminUserDetailPage({ params }: PageProps) {
                 <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   user.isActive ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"
                 }`}>
-                  {user.isActive ? "Đang hoạt động" : "Bị khóa"}
+                  {user.isActive ? U.DETAIL_STATUS_ACTIVE : C.STATUS_LOCKED}
                 </span>
               </div>
             </div>
             <div className="text-right text-sm text-slate-400">
-              <p>Ngày tạo: {new Date(user.createdAt).toLocaleDateString("vi-VN")}</p>
+              <p>{U.DETAIL_DATE_CREATED} {new Date(user.createdAt).toLocaleDateString("vi-VN")}</p>
               {user.lastLoginAt && (
-                <p>Đăng nhập: {new Date(user.lastLoginAt).toLocaleDateString("vi-VN")}</p>
+                <p>{U.DETAIL_LAST_LOGIN} {new Date(user.lastLoginAt).toLocaleDateString("vi-VN")}</p>
               )}
             </div>
           </div>
@@ -90,7 +92,7 @@ export default function AdminUserDetailPage({ params }: PageProps) {
       {/* Submissions */}
       <div>
         <h3 className="mb-3 text-base font-semibold text-slate-900">
-          Lịch sử bài nộp ({submissionsData?.total ?? 0})
+          {U.SUBS_SECTION_TITLE} ({submissionsData?.total ?? 0})
         </h3>
 
         {subsLoading ? (
@@ -101,27 +103,27 @@ export default function AdminUserDetailPage({ params }: PageProps) {
           </div>
         ) : subsError ? (
           <div className="rounded-xl bg-red-50 py-12 text-center ring-1 ring-red-200">
-            <p className="font-medium text-red-700">Không tải được lịch sử bài nộp</p>
+            <p className="font-medium text-red-700">{U.SUBS_LOAD_ERROR}</p>
             <p className="mt-1 text-sm text-red-600">
-              {(subsErrorDetail as Error)?.message ?? "Vui lòng thử tải lại trang."}
+              {(subsErrorDetail as Error)?.message ?? U.SUBS_RETRY_HINT}
             </p>
           </div>
         ) : submissions.length === 0 ? (
           <div className="rounded-xl bg-white py-12 text-center text-slate-400 ring-1 ring-slate-200">
-            Người dùng chưa nộp bài nào
+            {U.SUBS_EMPTY}
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
             <table className="w-full text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
                 <tr>
-                  <th className="px-4 py-3 text-left">Đề thi</th>
-                  <th className="px-4 py-3 text-center">Lần thứ</th>
-                  <th className="px-4 py-3 text-center">Trạng thái</th>
-                  <th className="px-4 py-3 text-center">Band Score</th>
-                  <th className="px-4 py-3 text-center">Số từ</th>
-                  <th className="px-4 py-3 text-left">Ngày nộp</th>
-                  <th className="px-4 py-3 text-right">Chi tiết</th>
+                  <th className="px-4 py-3 text-left">{U.SUBS_COL_EXAM}</th>
+                  <th className="px-4 py-3 text-center">{U.SUBS_COL_ATTEMPT}</th>
+                  <th className="px-4 py-3 text-center">{C.COL_STATUS}</th>
+                  <th className="px-4 py-3 text-center">{U.SUBS_COL_BAND}</th>
+                  <th className="px-4 py-3 text-center">{U.SUBS_COL_WORDS}</th>
+                  <th className="px-4 py-3 text-left">{U.SUBS_COL_DATE}</th>
+                  <th className="px-4 py-3 text-right">{U.SUBS_COL_DETAIL}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -152,7 +154,7 @@ export default function AdminUserDetailPage({ params }: PageProps) {
                         href={`/admin/submissions/${sub._id}`}
                         className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
                       >
-                        Xem chi tiết
+                        {U.SUBS_BTN_VIEW}
                       </Link>
                     </td>
                   </tr>

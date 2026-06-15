@@ -2,7 +2,6 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { useAdminSubmissionDetail } from "@/hooks/useAdminUsers";
 import { SubmissionDetailView } from "@/components/features/submissions/SubmissionDetailView";
 
@@ -18,7 +17,6 @@ export default function AdminSubmissionDetailPage({ params }: PageProps) {
   if (isLoading) {
     return (
       <div>
-        <AdminNav />
         <div className="space-y-3">
           <div className="h-10 w-56 animate-pulse rounded-xl bg-slate-200" />
           <div className="h-48 animate-pulse rounded-2xl bg-slate-200" />
@@ -31,7 +29,6 @@ export default function AdminSubmissionDetailPage({ params }: PageProps) {
   if (isError || !submission) {
     return (
       <div>
-        <AdminNav />
         <div className="rounded-2xl bg-red-50 p-6 ring-1 ring-red-200">
           <h2 className="text-lg font-semibold text-red-700">Không tải được chi tiết bài nộp</h2>
           <p className="mt-2 text-sm text-red-600">
@@ -48,7 +45,6 @@ export default function AdminSubmissionDetailPage({ params }: PageProps) {
 
   return (
     <div>
-      <AdminNav />
 
       <SubmissionDetailView
         submission={submission}

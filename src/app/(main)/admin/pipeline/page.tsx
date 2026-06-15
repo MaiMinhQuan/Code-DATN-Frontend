@@ -1,12 +1,10 @@
 "use client";
 
-import { AdminNav } from "@/components/features/admin/AdminNav";
 import { PipelineRunner } from "@/components/features/admin/pipeline/PipelineRunner";
 
 export default function AdminPipelinePage() {
   return (
     <div>
-      <AdminNav />
       <div className="mx-auto max-w-4xl">
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-slate-900">Tạo nội dung tự động</h1>

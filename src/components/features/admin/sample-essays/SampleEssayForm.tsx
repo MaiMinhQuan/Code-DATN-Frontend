@@ -10,6 +10,11 @@ import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import type { SampleEssay, HighlightAnnotation } from "@/types/sample-essay.types";
 import type { CreateSampleEssayDto, CreateHighlightAnnotationDto } from "@/types/admin.types";
 import { HighlightType } from "@/types/enums";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const T  = UI_TEXT.ADMIN.ESSAY_FORM;
+const C  = UI_TEXT.ADMIN.COMMON;
+const SE = UI_TEXT.ADMIN.SAMPLE_ESSAYS;
 
 const HIGHLIGHT_TYPES: {
   value: HighlightType;
@@ -85,16 +90,16 @@ function AnnotationForm({
   return (
     <div className="flex flex-col gap-2.5">
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Đoạn text cần highlight</label>
+        <label className="mb-1 block text-xs font-medium text-slate-600">{T.ANN_LABEL_TEXT}</label>
         <input
           value={draft.text}
           onChange={(e) => onChange({ ...draft, text: e.target.value })}
-          placeholder="Dán đoạn text từ bài essay..."
+          placeholder={T.ANN_PH_TEXT}
           className="w-full rounded-lg border border-slate-200 px-2.5 py-2 text-xs outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Loại</label>
+        <label className="mb-1 block text-xs font-medium text-slate-600">{T.ANN_LABEL_TYPE}</label>
         <select
           value={draft.highlightType}
           onChange={(e) => onChange({ ...draft, highlightType: e.target.value as HighlightType })}
@@ -106,12 +111,12 @@ function AnnotationForm({
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Giải thích</label>
+        <label className="mb-1 block text-xs font-medium text-slate-600">{T.ANN_LABEL_EXPL}</label>
         <textarea
           value={draft.explanation}
           onChange={(e) => onChange({ ...draft, explanation: e.target.value })}
           rows={3}
-          placeholder="Tại sao đoạn này hay? Phân tích từ vựng/ngữ pháp..."
+          placeholder={T.ANN_PH_EXPL}
           className="w-full resize-none rounded-lg border border-slate-200 px-2.5 py-2 text-xs leading-relaxed outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
         />
       </div>
@@ -122,14 +127,14 @@ function AnnotationForm({
           disabled={!isValid}
           className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
         >
-          <Check className="h-3.5 w-3.5" /> Lưu
+          <Check className="h-3.5 w-3.5" /> {C.BTN_SAVE}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
         >
-          Hủy
+          {C.BTN_CANCEL}
         </button>
       </div>
     </div>
@@ -186,7 +191,6 @@ export function SampleEssayForm({ essay }: Props) {
     setOutlineHtml(outline);
     setAnnotations(essay?.highlightAnnotations ?? []);
   }, [essay, reset]);
-
 
   const openAdd = () => {
     setDraft(EMPTY_DRAFT);
@@ -261,11 +265,11 @@ export function SampleEssayForm({ essay }: Props) {
           {/* Tiêu đề */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Tiêu đề <span className="text-red-500">*</span>
+              {T.FORM_LABEL_TITLE} <span className="text-red-500">*</span>
             </label>
             <input
-              {...register("title", { required: "Vui lòng nhập tiêu đề" })}
-              placeholder="VD: Band 7.5 Essay — Environmental Pollution"
+              {...register("title", { required: T.FORM_REQ_TITLE })}
+              placeholder={T.FORM_PH_TITLE}
               className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             {errors.title && (
@@ -276,12 +280,12 @@ export function SampleEssayForm({ essay }: Props) {
           {/* Nội dung đề thi */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Nội dung đề thi <span className="text-red-500">*</span>
+              {T.FORM_LABEL_PROMPT} <span className="text-red-500">*</span>
             </label>
             <textarea
-              {...register("questionPrompt", { required: "Vui lòng nhập nội dung đề" })}
+              {...register("questionPrompt", { required: T.FORM_REQ_PROMPT })}
               rows={3}
-              placeholder="You should spend about 40 minutes on this task..."
+              placeholder={T.FORM_PH_PROMPT}
               className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             {errors.questionPrompt && (
@@ -292,7 +296,7 @@ export function SampleEssayForm({ essay }: Props) {
           {/* Dàn ý */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Dàn ý <span className="text-red-500">*</span>
+              {T.FORM_LABEL_OUTLINE} <span className="text-red-500">*</span>
             </label>
             <RichTextEditor
               value={outlineHtml}
@@ -300,7 +304,7 @@ export function SampleEssayForm({ essay }: Props) {
                 setOutlineHtml(html);
                 setValue("outlineContent", html, { shouldDirty: true });
               }}
-              placeholder="Introduction: ...&#10;Body 1: ...&#10;Body 2: ...&#10;Conclusion: ..."
+              placeholder={T.FORM_PH_OUTLINE}
               minHeight="8rem"
             />
           </div>
@@ -308,12 +312,12 @@ export function SampleEssayForm({ essay }: Props) {
           {/* Nội dung bài mẫu */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Nội dung bài mẫu <span className="text-red-500">*</span>
+              {T.FORM_LABEL_CONTENT} <span className="text-red-500">*</span>
             </label>
             <textarea
-              {...register("fullEssayContent", { required: "Vui lòng nhập nội dung bài viết" })}
+              {...register("fullEssayContent", { required: T.FORM_REQ_CONTENT })}
               rows={16}
-              placeholder="Nội dung bài essay hoàn chỉnh..."
+              placeholder={T.FORM_PH_CONTENT}
               className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm leading-relaxed outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             {errors.fullEssayContent && (
@@ -341,12 +345,13 @@ export function SampleEssayForm({ essay }: Props) {
                   </span>
                 )}
               </span>
-              <span className="text-xs text-slate-400">{showPreview ? "Thu gọn" : "Mở rộng"}</span>
+              <span className="text-xs text-slate-400">
+                {showPreview ? T.PREVIEW_COLLAPSE : T.PREVIEW_EXPAND}
+              </span>
             </button>
 
             {showPreview && (
               <div className="border-t border-slate-200 bg-white px-5 py-5">
-                {/* Chú thích màu */}
                 <div className="mb-4 flex flex-wrap gap-3">
                   {HIGHLIGHT_TYPES.map((t) => (
                     <span key={t.value} className="flex items-center gap-1.5 text-xs text-slate-500">
@@ -357,7 +362,7 @@ export function SampleEssayForm({ essay }: Props) {
                 </div>
 
                 {!essayContent ? (
-                  <p className="text-sm text-slate-400 italic">Chưa có nội dung bài viết.</p>
+                  <p className="text-sm text-slate-400 italic">{T.PREVIEW_EMPTY}</p>
                 ) : annotations.length === 0 ? (
                   <p className="whitespace-pre-wrap text-sm leading-8 text-slate-700">{essayContent}</p>
                 ) : (
@@ -387,18 +392,18 @@ export function SampleEssayForm({ essay }: Props) {
           {/* Chủ đề */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Chủ đề <span className="text-red-500">*</span>
+              {T.FORM_LABEL_TOPIC} <span className="text-red-500">*</span>
             </label>
             <Controller
               name="topicId"
               control={control}
-              rules={{ required: "Vui lòng chọn chủ đề" }}
+              rules={{ required: T.FORM_REQ_TOPIC }}
               render={({ field }) => (
                 <select
                   {...field}
                   className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 >
-                  <option value="">-- Chọn chủ đề --</option>
+                  <option value="">{C.SELECT_TOPIC}</option>
                   {topics.map((t) => (
                     <option key={t._id} value={t._id}>{t.name}</option>
                   ))}
@@ -413,16 +418,16 @@ export function SampleEssayForm({ essay }: Props) {
           {/* Tác giả + Band score */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Tác giả</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">{T.FORM_LABEL_AUTHOR}</label>
               <input
                 {...register("authorName")}
-                placeholder="Tên tác giả"
+                placeholder={T.FORM_PH_AUTHOR}
                 className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Band Score <span className="text-red-500">*</span>
+                {T.FORM_LABEL_BAND} <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -431,9 +436,9 @@ export function SampleEssayForm({ essay }: Props) {
                 max={9}
                 {...register("overallBandScore", {
                   valueAsNumber: true,
-                  required: "Vui lòng nhập band score",
-                  min: { value: 0, message: "Band score từ 0 đến 9" },
-                  max: { value: 9, message: "Band score từ 0 đến 9" },
+                  required: T.FORM_REQ_BAND,
+                  min: { value: 0, message: T.FORM_VAL_BAND },
+                  max: { value: 9, message: T.FORM_VAL_BAND },
                 })}
                 placeholder="7.5"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
@@ -446,13 +451,13 @@ export function SampleEssayForm({ essay }: Props) {
 
           {/* Trạng thái */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Trạng thái</label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">{T.FORM_LABEL_STATUS}</label>
             <select
               {...register("isPublished")}
               className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             >
-              <option value="true">Xuất bản</option>
-              <option value="false">Nháp</option>
+              <option value="true">{T.STATUS_PUBLISHED}</option>
+              <option value="false">{T.STATUS_DRAFT}</option>
             </select>
           </div>
 
@@ -460,7 +465,7 @@ export function SampleEssayForm({ essay }: Props) {
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm font-medium text-slate-700">
-                Highlights
+                {T.ANN_SECTION_TITLE}
                 {annotations.length > 0 && (
                   <span className="ml-1.5 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
                     {annotations.length}
@@ -473,14 +478,13 @@ export function SampleEssayForm({ essay }: Props) {
                   onClick={openAdd}
                   className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition-colors"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Thêm
+                  <Plus className="h-3.5 w-3.5" /> {T.ANN_BTN_ADD}
                 </button>
               )}
             </div>
 
-            {/* Danh sách annotations */}
             {annotations.length === 0 && !isFormOpen ? (
-              <p className="text-xs italic text-slate-400">Chưa có highlight nào</p>
+              <p className="text-xs italic text-slate-400">{T.ANN_EMPTY}</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {addingNew && (
@@ -557,14 +561,14 @@ export function SampleEssayForm({ essay }: Props) {
               disabled={isPending}
               className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
             >
-              {isPending ? "Đang lưu..." : essay ? "Lưu thay đổi" : "Tạo bài mẫu"}
+              {isPending ? C.SAVING : essay ? C.BTN_SAVE : T.BTN_CREATE}
             </button>
             <button
               type="button"
               onClick={() => router.push("/admin/sample-essays")}
               className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
-              Hủy
+              {C.BTN_CANCEL}
             </button>
           </div>
         </div>

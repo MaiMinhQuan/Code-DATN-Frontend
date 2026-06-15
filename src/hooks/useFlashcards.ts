@@ -115,6 +115,17 @@ export function useDeleteFlashcard() {
   });
 }
 
+export function useAdminCreateLessonSet() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lessonId, payload }: { lessonId: string; payload: { title: string; description?: string } }) =>
+      flashcardsService.adminCreateLessonSet(lessonId, payload),
+    onSuccess: (_, { lessonId }) => {
+      qc.invalidateQueries({ queryKey: flashcardSetKeys.adminByLesson(lessonId) });
+    },
+  });
+}
+
 export function useAdminFlashcardSetByLesson(lessonId: string | undefined) {
   return useQuery({
     queryKey: flashcardSetKeys.adminByLesson(lessonId ?? ""),
@@ -127,11 +138,10 @@ export function useAdminFlashcardSetByLesson(lessonId: string | undefined) {
 export function useAdminAddCard() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ setId, payload }: { setId: string; payload: CreateFlashcardPayload }) =>
+    mutationFn: ({ setId, payload }: { setId: string; lessonId: string; payload: CreateFlashcardPayload }) =>
       flashcardsService.adminAddCard(setId, payload),
-    onSuccess: (card) => {
-      qc.invalidateQueries({ queryKey: flashcardSetKeys.byLesson("") });
-      qc.invalidateQueries({ queryKey: flashcardSetKeys.detail(card.setId) });
+    onSuccess: (_, { lessonId }) => {
+      qc.invalidateQueries({ queryKey: flashcardSetKeys.adminByLesson(lessonId) });
     },
   });
 }
@@ -139,10 +149,10 @@ export function useAdminAddCard() {
 export function useAdminUpdateCard() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ cardId, payload }: { cardId: string; payload: UpdateFlashcardPayload }) =>
+    mutationFn: ({ cardId, payload }: { cardId: string; lessonId: string; payload: UpdateFlashcardPayload }) =>
       flashcardsService.adminUpdateCard(cardId, payload),
-    onSuccess: (card) => {
-      qc.invalidateQueries({ queryKey: flashcardSetKeys.detail(card.setId) });
+    onSuccess: (_, { lessonId }) => {
+      qc.invalidateQueries({ queryKey: flashcardSetKeys.adminByLesson(lessonId) });
     },
   });
 }
@@ -153,7 +163,7 @@ export function useAdminDeleteCard() {
     mutationFn: ({ cardId }: { cardId: string; lessonId: string }) =>
       flashcardsService.adminDeleteCard(cardId),
     onSuccess: (_, { lessonId }) => {
-      qc.invalidateQueries({ queryKey: flashcardSetKeys.byLesson(lessonId) });
+      qc.invalidateQueries({ queryKey: flashcardSetKeys.adminByLesson(lessonId) });
     },
   });
 }

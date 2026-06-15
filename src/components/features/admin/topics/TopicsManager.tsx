@@ -6,6 +6,10 @@ import { useAdminTopics, useDeleteTopic } from "@/hooks/useAdminTopics";
 import { ConfirmDialog } from "@/components/features/admin/ConfirmDialog";
 import { TopicFormModal } from "./TopicFormModal";
 import type { Topic } from "@/types/topic.types";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const T = UI_TEXT.ADMIN.TOPICS;
+const C = UI_TEXT.ADMIN.COMMON;
 
 export function TopicsManager() {
   const { data: topics = [], isLoading } = useAdminTopics();
@@ -35,9 +39,9 @@ export function TopicsManager() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">Chủ đề (Topics)</h2>
+          <h2 className="text-xl font-semibold text-slate-900">{T.PAGE_TITLE}</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {isLoading ? "Đang tải..." : `${topics.length} chủ đề`}
+            {isLoading ? C.LOADING : `${topics.length} ${T.UNIT}`}
           </p>
         </div>
         <button
@@ -45,7 +49,7 @@ export function TopicsManager() {
           className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 active:scale-95 transition-all"
         >
           <Plus className="h-4 w-4" />
-          Thêm chủ đề
+          {T.BTN_ADD}
         </button>
       </div>
 
@@ -61,8 +65,8 @@ export function TopicsManager() {
           <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
             <Tag className="h-7 w-7 text-slate-400" />
           </div>
-          <p className="font-medium text-slate-600">Chưa có chủ đề nào</p>
-          <p className="mt-1 text-sm text-slate-400">Nhấn "Thêm chủ đề" để bắt đầu</p>
+          <p className="font-medium text-slate-600">{T.EMPTY_TITLE}</p>
+          <p className="mt-1 text-sm text-slate-400">{T.EMPTY_HINT}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -85,8 +89,8 @@ export function TopicsManager() {
 
       <ConfirmDialog
         isOpen={!!deleteId}
-        title="Xóa chủ đề"
-        message="Bạn có chắc muốn xóa chủ đề này? Hành động này không thể hoàn tác."
+        title={T.DELETE_TITLE}
+        message={T.DELETE_MSG}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteId(null)}
         isLoading={deleteTopic.isPending}
@@ -102,6 +106,7 @@ interface TopicCardProps {
 }
 
 function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
+  const T = UI_TEXT.ADMIN.TOPICS;
   return (
     <div className="group relative flex flex-col rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md">
       {/* Status badge */}
@@ -112,7 +117,7 @@ function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
             : "bg-slate-100 text-slate-400"
         }`}
       >
-        {topic.isActive ? "Hoạt động" : "Ẩn"}
+        {topic.isActive ? T.STATUS_ACTIVE : T.STATUS_HIDDEN}
       </span>
 
       {/* Icon + Name */}
@@ -128,7 +133,7 @@ function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
 
       {/* Description */}
       <p className="mb-4 line-clamp-2 min-h-[2.5rem] flex-1 text-sm text-slate-500">
-        {topic.description || <span className="italic text-slate-300">Chưa có mô tả</span>}
+        {topic.description || <span className="italic text-slate-300">{T.NO_DESC}</span>}
       </p>
 
       {/* Footer: actions */}
@@ -137,14 +142,14 @@ function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
           <button
             onClick={onEdit}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
-            title="Chỉnh sửa"
+            title={UI_TEXT.ADMIN.COMMON.BTN_SAVE}
           >
             <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={onDelete}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-            title="Xóa"
+            title={UI_TEXT.ADMIN.COMMON.BTN_DELETE}
           >
             <Trash2 className="h-4 w-4" />
           </button>
