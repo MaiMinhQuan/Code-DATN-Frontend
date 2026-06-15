@@ -11,7 +11,6 @@ import {
   ClipboardList,
   FileText,
   Users,
-  Wand2,
 } from "lucide-react";
 
 const ADMIN_TABS = [
@@ -21,7 +20,7 @@ const ADMIN_TABS = [
   { href: "/admin/exam-questions", icon: ClipboardList, label: "Đề thi" },
   { href: "/admin/sample-essays",  icon: FileText,     label: "Bài mẫu" },
   { href: "/admin/users",       icon: Users,           label: "Người dùng" },
-  { href: "/admin/pipeline",    icon: Wand2,           label: "Pipeline" },
+  // Pipeline ẩn khỏi nav — vẫn truy cập được qua /admin/pipeline
 ];
 
 export function AdminNav() {
