@@ -26,17 +26,21 @@ jobs:
             DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
             if [ -z "$DEPLOY_PATH" ]; then DEPLOY_PATH="/root/ielts-app"; fi
 
-            echo "==> Pull frontend"
-            cd "$DEPLOY_PATH/frontend"
-            git fetch origin
-            git reset --hard origin/HEAD
+            COMPOSE="docker compose -p ielts -f deploy/docker-compose.yml --env-file deploy/.env"
+            BRANCH="${{ github.ref_name }}"
 
-            echo "==> Rebuild frontend container"
+            echo "==> Pull frontend (branch: $BRANCH)"
+            cd "$DEPLOY_PATH/frontend"
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+
+            echo "==> Rebuild frontend container (không rebuild backend)"
             cd "$DEPLOY_PATH"
-            docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build frontend
+            $COMPOSE build frontend
+            $COMPOSE up -d --no-deps --remove-orphans frontend
 
             echo "==> Restart nginx (phòng cache routing)"
-            docker compose -f deploy/docker-compose.yml restart nginx
+            $COMPOSE restart nginx
 
             echo "==> Done"
-            docker compose -f deploy/docker-compose.yml ps frontend nginx
+            $COMPOSE ps frontend nginx
