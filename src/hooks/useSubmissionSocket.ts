@@ -8,6 +8,7 @@ import { WS_URL } from "@/lib/constants";
 import { useSubmissionStore } from "@/stores/submission.store";
 import { submissionKeys } from "@/hooks/useSubmission";
 import { SubmissionStatus } from "@/types/enums";
+import { GRADING_PROGRESS } from "@/constants/grading-progress";
 
 // Payload event submission_status_updated từ backend.
 interface StatusUpdatedPayload {
@@ -97,12 +98,8 @@ export function useSubmissionSocket(
 
       setGradingStatus(payload.status);
 
-      if (payload.status === SubmissionStatus.PROCESSING) {
-        setGradingProgress(10, "AI đang chấm bài...");
-      }
-
       if (payload.status === SubmissionStatus.COMPLETED) {
-        setGradingProgress(100, "Chấm bài hoàn tất!");
+        setGradingProgress(GRADING_PROGRESS.COMPLETE, "Chấm bài hoàn tất!");
         // Refetch chi tiết submission để lấy aiResult mới nhất
         queryClient.refetchQueries({
           queryKey: submissionKeys.detail(payload.submissionId),

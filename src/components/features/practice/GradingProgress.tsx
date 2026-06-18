@@ -6,6 +6,7 @@ import { CheckCircle2, XCircle, Loader2, ClipboardList } from "lucide-react";
 import { SubmissionStatus } from "@/types/enums";
 import { useSubmissionStore } from "@/stores/submission.store";
 import { UI_TEXT } from "@/constants/ui-text";
+import { GRADING_PROGRESS } from "@/constants/grading-progress";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = {
@@ -69,12 +70,10 @@ export function GradingProgress() {
     gradingStatus === SubmissionStatus.SUBMITTED ||
     gradingStatus === SubmissionStatus.PROCESSING;
 
-  const displayProgress =
-    gradingStatus === SubmissionStatus.COMPLETED
-      ? 100
-      : gradingStatus === SubmissionStatus.SUBMITTED
-        ? 5
-        : gradingProgress;
+  const displayProgress = Math.min(
+    GRADING_PROGRESS.COMPLETE,
+    Math.max(GRADING_PROGRESS.QUEUED, gradingProgress),
+  );
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-4">

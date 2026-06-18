@@ -15,6 +15,7 @@ import {
 } from "@/types/submission.types";
 import { SubmissionStatus } from "@/types/enums";
 import { useSubmissionStore } from "@/stores/submission.store";
+import { GRADING_PROGRESS } from "@/constants/grading-progress";
 
 // Factory query key cho cache submissions.
 export const submissionKeys = {
@@ -114,7 +115,7 @@ export function useSubmitEssay() {
     onSuccess: (_, submissionId) => {
       // Backend trả 202 nghĩa là job đã vào queue; trạng thái tiếp theo qua WebSocket
       setGradingStatus(SubmissionStatus.SUBMITTED);
-      setGradingProgress(0, "Đang chờ xử lý...");
+      setGradingProgress(GRADING_PROGRESS.QUEUED, "Đang chờ xử lý...");
       // Invalidate trước để lần refetch sau khi COMPLETED lấy được aiResult mới
       queryClient.invalidateQueries({
         queryKey: submissionKeys.detail(submissionId),
