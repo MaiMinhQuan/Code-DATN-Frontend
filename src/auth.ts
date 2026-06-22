@@ -1,4 +1,4 @@
-// Cấu hình NextAuth.js: credentials provider, callback JWT/session và trang đăng nhập custom.
+// Cấu hình NextAuth.js: credentials provider, callback JWT/session và trang đăng nhập custom .
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getServerApiBaseUrl } from "@/lib/constants";
