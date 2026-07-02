@@ -11,7 +11,7 @@ Output:
 */
 export default async function DashboardPage() {
   const session = await auth();
-  // Dùng tên mặc định nếu session không có display name
+  //  Dùng tên mặc định nếu session không có display name
   const name = session?.user?.name ?? UI_TEXT.COMMON.FALLBACK_USER_NAME;
 
   return (
