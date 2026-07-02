@@ -59,14 +59,17 @@ Output:
 export function DashboardStats(props: DashboardStatsProps) {
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {/* Lưới 4 thẻ: bài nộp, band TB, streak, flashcard */}
       {STATS(props).map(({ label, value, icon: Icon, color }) => (
         <div
           key={label}
           className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm"
         >
+          {/* Icon minh hoạ */}
           <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${color}`}>
             <Icon className="h-5 w-5" />
           </div>
+          {/* Nhãn và số liệu */}
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className="mt-0.5 text-xl font-bold text-foreground">{value}</p>

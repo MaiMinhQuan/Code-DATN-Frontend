@@ -42,10 +42,14 @@ export function SubmissionDetailView({
 
   return (
     <div className={mode === "student" ? "-m-6" : ""} style={{ height: "calc(100vh - 4rem)" }}>
+      {/* Chia đôi màn hình — bài viết (trái) | điểm và phản hồi (phải) */}
       <Allotment>
+        {/* Cột trái — bài viết có highlight lỗi */}
         <Allotment.Pane minSize={320} preferredSize="55%">
           <div className="flex h-full flex-col overflow-hidden">
+            {/* Thanh trên — quay lại, làm lại, tên đề */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-3 shrink-0">
+              {/* Nút quay lại */}
               <button
                 onClick={onBack}
                 className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
@@ -54,6 +58,7 @@ export function SubmissionDetailView({
                 {backLabel}
               </button>
 
+              {/* Nút làm lại — chỉ học viên */}
               {mode === "student" && onRetry && (
                 <button
                   onClick={onRetry}
@@ -64,11 +69,13 @@ export function SubmissionDetailView({
               )}
 
               <span className="mx-1 text-[var(--border)]">|</span>
+              {/* Tiêu đề đề bài */}
               <span className="truncate text-sm font-medium text-[var(--foreground)]">
                 {question?.title ?? "Kết quả bài viết"}
               </span>
             </div>
 
+            {/* Thông tin học viên — chỉ admin */}
             {mode === "admin" && studentMeta && (
               <div className="shrink-0 border-b border-border bg-muted/30 px-5 py-2">
                 <p className="text-xs text-muted-foreground">
@@ -77,6 +84,7 @@ export function SubmissionDetailView({
               </div>
             )}
 
+            {/* Đoạn đề bài rút gọn */}
             {question?.questionPrompt && (
               <div className="shrink-0 border-b border-border bg-muted/40 px-5 py-3">
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Đề bài</p>
@@ -86,6 +94,7 @@ export function SubmissionDetailView({
               </div>
             )}
 
+            {/* Nội dung bài viết — highlight lỗi */}
             <div className="flex-1 overflow-y-auto px-5 py-5">
               <AnnotatedEssay
                 text={submission.essayContent}
@@ -97,8 +106,10 @@ export function SubmissionDetailView({
           </div>
         </Allotment.Pane>
 
+        {/* Cột phải — điểm band và phản hồi AI */}
         <Allotment.Pane minSize={320}>
           <div className="h-full overflow-y-auto">
+            {/* Có kết quả → panel điểm; chưa có → thông báo trống */}
             {aiResult ? (
               <BandScorePanel
                 aiResult={aiResult}
@@ -107,6 +118,7 @@ export function SubmissionDetailView({
               />
             ) : (
               <div className="p-6">
+                {/* Chưa có kết quả chấm */}
                 <h3 className="text-base font-semibold text-foreground">Kết quả chấm AI</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Bài nộp này chưa có kết quả AI hoặc chưa hoàn thành chấm điểm.

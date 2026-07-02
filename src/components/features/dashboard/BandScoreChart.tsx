@@ -33,6 +33,7 @@ export function BandScoreChart({ submissions }: BandScoreChartProps) {
 
   return (
     <div className="flex flex-col rounded-xl border border-border bg-card shadow-sm">
+      {/* Tiêu đề + tổng số bài đã chấm */}
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold text-foreground">Phân bổ band score</h2>
         {total > 0 && (
@@ -40,6 +41,7 @@ export function BandScoreChart({ submissions }: BandScoreChartProps) {
         )}
       </div>
 
+      {/* Chưa có bài → trạng thái trống; có bài → danh sách band */}
       {rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 px-5 py-10 text-center">
           <BarChart2 className="h-8 w-8 text-muted-foreground/30" />
@@ -47,6 +49,7 @@ export function BandScoreChart({ submissions }: BandScoreChartProps) {
         </div>
       ) : (
         <div className="flex flex-col gap-3 p-5">
+          {/* Danh sách từng mức band */}
           {rows.map(([band, count]) => {
             const { bar, bg, badge } = getBandColor(band);
             const pct = (count / max) * 100;
@@ -54,7 +57,7 @@ export function BandScoreChart({ submissions }: BandScoreChartProps) {
 
             return (
               <div key={band} className="flex items-center gap-3">
-                {/* Badge band score */}
+                {/* Nhãn điểm band */}
                 <span className={`w-12 shrink-0 rounded-md px-1.5 py-0.5 text-center text-xs font-bold ${badge}`}>
                   {band.toFixed(1)}
                 </span>
@@ -67,7 +70,7 @@ export function BandScoreChart({ submissions }: BandScoreChartProps) {
                   />
                 </div>
 
-                {/* Số bài + tỉ lệ % */}
+                {/* Số bài và tỉ lệ % */}
                 <div className="flex w-20 shrink-0 items-center justify-end gap-1.5">
                   <span className="text-xs font-semibold text-foreground">{count} bài</span>
                   <span className="text-[11px] text-muted-foreground">({share}%)</span>

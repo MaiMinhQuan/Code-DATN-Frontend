@@ -35,31 +35,36 @@ Output:
 export function ErrorTooltip({ errors, children }: ErrorTooltipProps) {
   return (
     <Tooltip>
+      {/* Vùng trigger — đoạn text được highlight */}
       <TooltipTrigger asChild>{children}</TooltipTrigger>
 
+      {/* Hộp tooltip chi tiết lỗi */}
       <TooltipContent
         side="top"
         sideOffset={6}
         className="z-50 w-72 rounded-lg border border-border bg-card p-0 shadow-lg"
       >
+        {/* Danh sách lỗi — mỗi lỗi một khối */}
         {errors.map((error, i) => {
           const categoryStyle = ERROR_CATEGORY_STYLES[error.category];
           const severity      = SEVERITY_STYLES[error.severity ?? "medium"];
 
           return (
             <div key={i}>
-              {/* Ngăn cách khi có nhiều lỗi trên cùng một segment */}
+              {/* Đường kẻ phân cách — khi nhiều lỗi cùng đoạn */}
               {i > 0 && <div className="border-t border-border" />}
 
               <div className="p-3 space-y-2">
-                {/* Header: category + severity */}
+                {/* Hàng trên — loại lỗi và mức độ */}
                 <div className="flex items-center justify-between gap-2">
+                  {/* Loại lỗi */}
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">{T.TOOLTIP_CATEGORY_LABEL}:</span>
                     <span className={`h-2 w-2 rounded-full ${categoryStyle.badge}`} />
                     <span className="text-xs font-semibold text-foreground">{categoryStyle.label}</span>
                   </div>
 
+                  {/* Mức độ nghiêm trọng */}
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">{T.TOOLTIP_SEVERITY_LABEL}:</span>
                     <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${severity.classes}`}>
@@ -68,7 +73,7 @@ export function ErrorTooltip({ errors, children }: ErrorTooltipProps) {
                   </div>
                 </div>
 
-                {/* Suggestion thay thế đoạn lỗi */}
+                {/* Gợi ý sửa */}
                 <div className="flex items-center gap-1.5 text-xs">
                   <span className="text-muted-foreground">{T.TOOLTIP_SUGGESTION_LABEL}:</span>
                   <span className="rounded bg-muted px-1.5 py-0.5 font-mono font-medium text-foreground">

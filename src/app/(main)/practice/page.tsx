@@ -119,8 +119,9 @@ export default function PracticePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header trang */}
+      {/* Tiêu đề trang + nút đề ngẫu nhiên */}
       <div className="flex items-start justify-between gap-4">
+        {/* Tiêu đề và mô tả */}
         <div>
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
             {UI_TEXT.PRACTICE_LIST.HEADING}
@@ -129,6 +130,7 @@ export default function PracticePage() {
             {UI_TEXT.PRACTICE_LIST.SUBHEADING}
           </p>
         </div>
+        {/* Nút chọn đề ngẫu nhiên */}
         <button
           onClick={handleRandom}
           disabled={isLoadingRandom}
@@ -147,13 +149,14 @@ export default function PracticePage() {
         </button>
       </div>
 
-      {/* Nhóm bộ lọc — 2 cột bằng nhau: chủ đề (trái) | độ khó (phải) */}
+      {/* Bộ lọc — chủ đề (trái) | độ khó (phải) */}
       <div className="flex items-stretch gap-0 rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
-        {/* Cột trái: filter chủ đề */}
+        {/* Cột trái — lọc theo chủ đề */}
         <div className="flex flex-1 flex-col gap-2 px-4 py-3">
           <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
             Chủ đề
           </span>
+          {/* Các nút chọn chủ đề */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedTopicId(null)}
@@ -185,14 +188,15 @@ export default function PracticePage() {
           </div>
         </div>
 
-        {/* Đường kẻ dọc phân cách */}
+        {/* Đường kẻ phân cách */}
         <div className="w-px bg-[var(--border)]" />
 
-        {/* Cột phải: filter độ khó (3 mức) */}
+        {/* Cột phải — lọc theo độ khó */}
         <div className="flex flex-1 flex-col gap-2 px-4 py-3">
           <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
             Độ khó
           </span>
+          {/* Các nút chọn độ khó */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedDifficulty(null)}
@@ -226,13 +230,15 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Nội dung: loading / error / rỗng / lưới đề thi */}
+      {/* Đang tải → lỗi → không có đề → lưới đề thi */}
       {isLoading ? (
         <div className="flex items-center justify-center py-24">
+          {/* Khung tải */}
           <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
         </div>
       ) : isError ? (
         <div className="flex flex-col items-center justify-center gap-3 py-24">
+          {/* Trạng thái lỗi */}
           <AlertCircle className="h-10 w-10 text-red-400" />
           <p className="text-sm text-[var(--muted-foreground)]">
             Không thể tải danh sách đề thi.
@@ -240,6 +246,7 @@ export default function PracticePage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-24">
+          {/* Trạng thái trống — không khớp bộ lọc */}
           <p className="font-medium text-[var(--foreground)]">
             {UI_TEXT.PRACTICE_LIST.EMPTY_TITLE}
           </p>
@@ -249,9 +256,11 @@ export default function PracticePage() {
         </div>
       ) : (
         <>
+          {/* Số lượng đề sau lọc */}
           <p className="text-xs text-[var(--muted-foreground)]">
             {filtered.length} đề thi
           </p>
+          {/* Lưới thẻ đề thi */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {filtered.map((q) => (
               <QuestionCard

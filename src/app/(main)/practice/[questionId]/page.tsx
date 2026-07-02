@@ -103,8 +103,9 @@ export default function PracticeDetailPage() {
 
   return (
     <div className="-m-6 flex flex-col" style={{ height: "calc(100vh - 4rem)" }}>
-      {/* Header chứa nút quay lại và tiêu đề đề bài */}
+      {/* Thanh trên — nút quay lại và tên đề */}
       <div className="flex h-11 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--card)] px-4">
+        {/* Nút quay lại danh sách đề */}
         <button
           onClick={() => {
             // Invalidate cache submissions để danh sách cập nhật mới nhất khi quay lại
@@ -120,30 +121,36 @@ export default function PracticeDetailPage() {
           <ArrowLeft className="h-3.5 w-3.5" />
           Quay lại
         </button>
+        {/* Đường kẻ phân cách */}
         <div className="h-4 w-px bg-[var(--border)]" />
+        {/* Tiêu đề đề bài */}
         <span className="truncate text-sm font-medium text-[var(--foreground)]">
           {question.title}
         </span>
       </div>
 
-      {/* Chia đôi màn hình: đề bài (trái) | editor + submit (phải) */}
+      {/* Chia đôi màn hình — đề (trái) | viết bài (phải) */}
       <div className="min-h-0 flex-1">
         <Allotment>
+          {/* Cột trái — hiển thị đề bài */}
           <Allotment.Pane minSize={300} preferredSize="42%">
             <QuestionPanel question={question} />
           </Allotment.Pane>
 
+          {/* Cột phải — editor, tiến trình chấm, nộp bài */}
           <Allotment.Pane minSize={380}>
             <div className="flex h-full flex-col gap-4 overflow-y-auto p-5">
+              {/* Ô nhập bài viết */}
               <EssayEditor
                 value={essayContent}
                 onChange={setEssayContent}
                 disabled={disabled}
               />
 
-              {/* Khối trạng thái chấm bài realtime */}
+              {/* Tiến trình chấm bài realtime */}
               <GradingProgress />
 
+              {/* Nút nộp bài */}
               <div className="pb-2">
                 <button
                   onClick={handleSubmit}

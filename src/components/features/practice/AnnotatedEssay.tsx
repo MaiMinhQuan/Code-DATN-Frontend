@@ -67,8 +67,9 @@ export function AnnotatedEssay({
 
   return (
     <div ref={containerRef} className="text-base leading-8 text-foreground whitespace-pre-wrap">
+      {/* Vùng hiển thị bài viết — từng đoạn văn */}
       {segments.map((segment) => {
-        // Segment thường: render nguyên văn không highlight
+        // Đoạn văn bình thường — không highlight
         if (!segment.isHighlighted) {
           return <span key={segment.id}>{segment.text}</span>
         }
@@ -77,14 +78,16 @@ export function AnnotatedEssay({
         const categoryStyle = ERROR_CATEGORY_STYLES[primaryError.category]
         const isActive = segment.errors.some((e) => getErrorId(e) === activeErrorId)
 
+        // Đoạn có lỗi — tooltip khi hover, highlight khi click
         return (
           <ErrorTooltip key={segment.id} errors={segment.errors}>
+            {/* Text được tô màu theo loại lỗi */}
             <span
               data-error-id={getErrorId(primaryError)}
               className={cn(
                 categoryStyle.highlight,
                 "rounded-sm",
-                // Thêm viền nổi bật khi đây là lỗi đang active
+                // Viền nổi bật khi lỗi đang được chọn
                 isActive && ACTIVE_RING[primaryError.category]
               )}
               onClick={() => onErrorClick?.(getErrorId(primaryError))}

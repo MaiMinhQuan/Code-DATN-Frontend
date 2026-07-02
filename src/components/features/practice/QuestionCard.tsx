@@ -70,14 +70,15 @@ Output:
 function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop đóng modal */}
+      {/* Lớp phủ — bấm để đóng */}
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      {/* Khung nội dung modal */}
+      {/* Hộp thoại lịch sử */}
       <div className="relative z-10 flex w-full max-w-md flex-col rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-2xl">
-        {/* Header modal */}
+        {/* Tiêu đề modal + nút đóng */}
         <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
           <div className="min-w-0">
+            {/* Tiêu đề và số lần làm bài */}
             <div className="flex items-center gap-2">
               <History className="h-4 w-4 shrink-0 text-indigo-500" />
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
@@ -87,10 +88,12 @@ function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
                 {submissions.length} lần
               </span>
             </div>
+            {/* Tên đề bài */}
             <p className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">
               {question.title}
             </p>
           </div>
+          {/* Nút đóng */}
           <button
             onClick={onClose}
             className="shrink-0 rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
@@ -99,7 +102,7 @@ function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
           </button>
         </div>
 
-        {/* Danh sách các lần nộp theo thứ tự mới -> cũ */}
+        {/* Danh sách từng lần nộp — mới nhất trước */}
         <div className="max-h-[240px] overflow-y-auto">
           {submissions.map((sub, idx) => {
             const band = sub.aiResult?.overallBand;
@@ -115,7 +118,7 @@ function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
                 )}
               >
                 <div className="flex items-center gap-3">
-                  {/* Số thứ tự attempt */}
+                  {/* Số thứ tự lần làm */}
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
                     {sub.attemptNumber}
                   </span>
@@ -123,6 +126,7 @@ function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
                     <p className="text-sm font-medium text-[var(--foreground)]">
                       Lần {sub.attemptNumber}
                     </p>
+                    {/* Thời gian nộp và số từ */}
                     <p className="text-xs text-[var(--muted-foreground)]">
                       {format(new Date(sub.submittedAt ?? sub.createdAt), "dd/MM/yyyy · HH:mm")}
                       {sub.wordCount ? ` · ${sub.wordCount} từ` : ""}
@@ -130,6 +134,7 @@ function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* Điểm band */}
                   {band !== undefined ? (
                     <span className={cn("text-lg font-bold tabular-nums", getBandText(band))}>
                       {formatBand(band)}
@@ -137,6 +142,7 @@ function HistoryModal({ question, submissions, onClose }: HistoryModalProps) {
                   ) : (
                     <span className="text-sm text-[var(--muted-foreground)]">—</span>
                   )}
+                  {/* Mũi tên chuyển trang */}
                   <ArrowRight className="h-4 w-4 text-[var(--muted-foreground)] opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
               </Link>
@@ -169,20 +175,23 @@ export function QuestionCard({ question, userBestBand, userSubmissions = [] }: Q
 
   return (
     <>
+      {/* Thẻ đề thi */}
       <div className="group flex h-full flex-col rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 transition-shadow hover:shadow-md">
-        {/* Nhãn chủ đề + độ khó + điểm best */}
+        {/* Hàng trên — nhãn chủ đề, độ khó, điểm best */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
+            {/* Nhãn chủ đề */}
             {question.topicId?.name && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
                 <Layers className="h-3 w-3" />
                 {question.topicId.name}
               </span>
             )}
+            {/* Nhãn độ khó */}
             {diff && (
               <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset", diff.bg, diff.text, diff.ring)}>
                 {label}
-                {/* Dot biểu diễn mức độ khó 1-3 */}
+                {/* Chấm biểu thị mức độ 1–3 */}
                 <span className="flex gap-0.5">
                   {Array.from({ length: 3 }, (_, i) => (
                     <span key={i} className={cn("h-1.5 w-1.5 rounded-full", i < question.difficultyLevel ? diff.dot : "bg-slate-200")} />
@@ -192,7 +201,7 @@ export function QuestionCard({ question, userBestBand, userSubmissions = [] }: Q
             )}
           </div>
 
-          
+          {/* Điểm band cao nhất */}
           {hasAttempted && (
             <div className="shrink-0 text-right">
               <div className={cn("inline-flex items-center justify-center rounded-lg px-2.5 py-1 text-white", getBandBg(userBestBand!))}>
@@ -210,14 +219,15 @@ export function QuestionCard({ question, userBestBand, userSubmissions = [] }: Q
           {question.title}
         </h3>
 
-        {/* Mô tả prompt rút gọn */}
+        {/* Đoạn đề bài rút gọn */}
         <p className="mt-2 flex-1 text-xs leading-relaxed text-[var(--muted-foreground)] line-clamp-3">
           {question.questionPrompt}
         </p>
 
-        {/* Footer hành động */}
+        {/* Hàng dưới — lịch sử và nút bắt đầu/làm lại */}
         <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3">
           <div>
+            {/* Nút mở lịch sử làm bài */}
             {hasHistory && (
               <button
                 onClick={() => setHistoryOpen(true)}
@@ -228,7 +238,8 @@ export function QuestionCard({ question, userBestBand, userSubmissions = [] }: Q
               </button>
             )}
           </div>
-          
+
+          {/* Nút bắt đầu hoặc làm lại */}
           <Link
             href={`/practice/${question._id}`}
             className={cn(

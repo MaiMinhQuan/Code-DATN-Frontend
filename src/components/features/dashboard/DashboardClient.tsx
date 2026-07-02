@@ -14,9 +14,11 @@ import { BandScoreChart } from "./BandScoreChart";
 import { PenLine, BookOpen, BarChart3, Trophy, CheckCircle2, Sparkles } from "lucide-react";
 import type { Submission } from "@/types/submission.types";
 
+// Banner chào mừng — hiện khi học viên chưa có bài nộp nào
 function WelcomeBanner() {
   const router = useRouter();
 
+  // Danh sách 3 bước luyện tập
   const steps = [
     {
       num: "01",
@@ -41,6 +43,7 @@ function WelcomeBanner() {
     },
   ];
 
+  // Mục xem trước kết quả sau khi nộp bài
   const preview = [
     { icon: Trophy,   color: "bg-amber-100 text-amber-600",   label: "Band score",      value: "6.5" },
     { icon: BarChart3,color: "bg-violet-100 text-violet-600", label: "Phân tích lỗi",   value: "Chi tiết" },
@@ -49,13 +52,15 @@ function WelcomeBanner() {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      {/* Card trái 2/3 — hướng dẫn 3 bước */}
+      {/* Cột trái — hướng dẫn 3 bước luyện viết */}
       <div className="lg:col-span-2 flex flex-col rounded-xl border border-border bg-card p-6 shadow-sm">
+        {/* Tiêu đề khối hướng dẫn */}
         <div className="mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-primary">Bắt đầu từ đây</p>
           <h2 className="mt-1 text-base font-bold text-foreground">3 bước để nhận phân tích bài viết từ AI</h2>
         </div>
 
+        {/* Danh sách từng bước */}
         <div className="flex flex-1 flex-col gap-4">
           {steps.map((step) => (
             <div key={step.num} className="flex items-start gap-4">
@@ -73,6 +78,7 @@ function WelcomeBanner() {
           ))}
         </div>
 
+        {/* Nút chuyển sang luyện tập / xem bài mẫu */}
         <div className="mt-6 flex items-center gap-3 border-t border-border pt-5">
           <button
             onClick={() => router.push("/practice")}
@@ -91,11 +97,13 @@ function WelcomeBanner() {
         </div>
       </div>
 
-      {/* Card phải 1/3 — xem trước kết quả */}
+      {/* Cột phải — xem trước kết quả AI */}
       <div className="flex flex-col rounded-xl border border-border bg-card p-6 shadow-sm">
+        {/* Tiêu đề khối xem trước */}
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sau khi nộp bài</p>
         <h3 className="mt-1 text-sm font-bold text-foreground">Bạn sẽ nhận được</h3>
 
+        {/* Các mục band score, phân tích lỗi, gợi ý */}
         <div className="mt-5 flex flex-1 flex-col gap-3">
           {preview.map(({ icon: Icon, color, label, value }) => (
             <div key={label} className="flex items-center gap-3 rounded-lg bg-muted/40 px-3 py-2.5">
@@ -111,6 +119,7 @@ function WelcomeBanner() {
           ))}
         </div>
 
+        {/* Ghi chú thời gian nhận kết quả */}
         <p className="mt-5 rounded-lg bg-primary/5 px-3 py-2.5 text-center text-xs leading-relaxed text-primary border border-primary/10">
           Kết quả phân tích sẵn sàng<br />chỉ trong vài giây
         </p>
@@ -176,11 +185,13 @@ Output:
 - Các khối dashboard: stats, quick actions, top errors và recent submissions.
 */
 export function DashboardClient() {
+  // Lấy bài đã chấm xong để tính stats và biểu đồ
   const { data: submissionsData, isLoading: subLoading } = useSubmissions({
     status: SubmissionStatus.COMPLETED,
     limit: 50,
   });
 
+  // Lấy số bộ flashcard cho thẻ thống kê
   const { data: sets = [], isLoading: setsLoading } = useFlashcardSets();
 
   const submissions = submissionsData?.data ?? [];
@@ -211,19 +222,19 @@ export function DashboardClient() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        {/* Skeleton stats */}
+        {/* Khung tải — 4 thẻ thống kê */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
-        {/* Skeleton quick actions */}
+        {/* Khung tải — thao tác nhanh */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
-        {/* Skeleton chart + recent submissions */}
+        {/* Khung tải — biểu đồ và bài nộp gần đây */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="h-56 animate-pulse rounded-xl bg-muted lg:col-span-2" />
           <div className="h-56 animate-pulse rounded-xl bg-muted" />
@@ -234,15 +245,21 @@ export function DashboardClient() {
 
   return (
     <div className="space-y-6">
+      {/* Hàng 4 thẻ: bài nộp, band TB, streak, flashcard */}
       <DashboardStats {...stats} />
 
+      {/* Hàng nút thao tác nhanh */}
       <QuickActions flashcardSets={stats.flashcardSets} />
 
+      {/* Chưa có bài → banner hướng dẫn; có bài → biểu đồ + lịch sử */}
       {submissions.length === 0 ? (
         <WelcomeBanner />
       ) : (
         <>
+          {/* Biểu đồ điểm band theo thời gian */}
           <BandScoreChart submissions={submissions} />
+
+          {/* Hàng dưới: lỗi phổ biến (trái) + bài nộp gần đây (phải) */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="flex h-full flex-col lg:col-span-2">
               <TopErrorsChart submissions={submissions} />

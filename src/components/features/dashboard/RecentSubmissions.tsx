@@ -35,7 +35,7 @@ Output:
 export function RecentSubmissions({ submissions, totalCount }: RecentSubmissionsProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border border-border bg-card shadow-sm">
-      {/* Header + link xem toàn bộ lịch sử */}
+      {/* Tiêu đề + link xem toàn bộ lịch sử */}
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold text-foreground">{T.RECENT_TITLE}</h2>
         {totalCount > 0 && (
@@ -49,12 +49,14 @@ export function RecentSubmissions({ submissions, totalCount }: RecentSubmissions
         )}
       </div>
 
-      {/* Nội dung: empty state hoặc danh sách bài nộp */}
+      {/* Chưa có bài → trạng thái trống; có bài → danh sách bài nộp */}
       {submissions.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 px-5 py-10 text-center">
+          {/* Icon minh hoạ */}
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
             <PenLine className="h-6 w-6 text-blue-600" />
           </div>
+          {/* Thông báo trống */}
           <div>
             <p className="text-sm font-semibold text-foreground">{T.RECENT_EMPTY}</p>
             <p className="mt-1 text-xs text-muted-foreground">{T.RECENT_EMPTY_HINT}</p>
@@ -62,6 +64,7 @@ export function RecentSubmissions({ submissions, totalCount }: RecentSubmissions
         </div>
       ) : (
         <div className="divide-y divide-border">
+          {/* Danh sách bài nộp gần đây */}
           {submissions.map((s) => {
             const band = s.aiResult?.overallBand;
 
@@ -84,7 +87,7 @@ export function RecentSubmissions({ submissions, totalCount }: RecentSubmissions
                 href={`/practice/${typeof s.questionId === "object" ? (s.questionId as any)._id : s.questionId}/result/${s._id}`}
                 className="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-muted/50"
               >
-                {/* Badge band */}
+                {/* Nhãn điểm band */}
                 {band !== undefined ? (
                   <span
                     className={cn(
@@ -100,11 +103,12 @@ export function RecentSubmissions({ submissions, totalCount }: RecentSubmissions
                   </span>
                 )}
 
-                {/* Preview nội dung + metadata */}
+                {/* Đoạn trích bài viết */}
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-xs leading-relaxed text-foreground">
                     {snippet || "—"}
                   </p>
+                  {/* Ngày nộp và số từ */}
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     {date}
                     {wordCount > 0 && (

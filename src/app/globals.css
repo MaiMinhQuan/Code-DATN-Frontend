@@ -25,7 +25,7 @@
 
 :root {
   --background: #f8fafc;
-  --foreground: #0f172a;
+  -a-foreground: #0f172a;
   --card: #ffffff;
   --primary: #4f46e5;
   --primary-foreground: #ffffff;
@@ -33,7 +33,7 @@
   --muted-foreground: #64748b;
   --border: #e2e8f0;
   --sidebar: #1e1b4b;
-  --sidebar-foreground: #e0e7ff;
+  --sidebr-foreground: #e0e7ff;
 }
 
 @theme inline {

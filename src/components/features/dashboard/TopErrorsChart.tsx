@@ -50,15 +50,19 @@ export function TopErrorsChart({ submissions }: TopErrorsChartProps) {
 
   return (
     <div className="flex h-full flex-col rounded-xl border border-border bg-card shadow-sm">
+      {/* Tiêu đề biểu đồ */}
       <div className="border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold text-foreground">{T.ERROR_CHART_TITLE}</h2>
       </div>
 
+      {/* Chưa có lỗi → trạng thái trống; có lỗi → danh sách loại lỗi */}
       {sorted.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 px-5 py-10 text-center">
+          {/* Icon minh hoạ */}
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100">
             <Target className="h-6 w-6 text-violet-600" />
           </div>
+          {/* Thông báo trống */}
           <div>
             <p className="text-sm font-semibold text-foreground">{T.ERROR_CHART_EMPTY}</p>
             <p className="mt-1 text-xs text-muted-foreground">{T.ERROR_CHART_EMPTY_HINT}</p>
@@ -66,6 +70,7 @@ export function TopErrorsChart({ submissions }: TopErrorsChartProps) {
         </div>
       ) : (
         <div className="flex flex-col gap-3 p-5">
+          {/* Danh sách từng loại lỗi */}
           {sorted.map(([category, count]) => {
             const cfg = CATEGORY_CONFIG[category];
             const pct = (count / max) * 100;
@@ -76,7 +81,7 @@ export function TopErrorsChart({ submissions }: TopErrorsChartProps) {
                   {cfg.label}
                 </span>
 
-                {/* Thanh biểu đồ theo tỷ lệ phần trăm */}
+                {/* Thanh biểu đồ */}
                 <div className={`relative h-6 flex-1 overflow-hidden rounded-md ${cfg.bg}`}>
                   <div
                     className={`h-full rounded-md ${cfg.color} transition-all duration-500`}
