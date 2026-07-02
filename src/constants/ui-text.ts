@@ -64,7 +64,7 @@ export const UI_TEXT = {
 
   // Nhãn điều hướng sidebar
   SIDEBAR: {
-    LOGO_TEXT: "IELTS Writing AI v2",
+    LOGO_TEXT: "IELTS Writing AI",
     NAV_DASHBOARD: "Tổng quan",
     NAV_PRACTICE: "Luyện tập",
     NAV_COURSES: "Khóa học",
